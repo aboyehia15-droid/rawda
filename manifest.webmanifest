@@ -1,0 +1,17 @@
+{
+ "name": "روضة الدروس",
+ "short_name": "روضة الدروس",
+ "start_url": "./",
+ "display": "standalone",
+ "dir": "rtl",
+ "lang": "ar",
+ "background_color": "#f3f6f8",
+ "theme_color": "#2a9d8f",
+ "icons": [
+  {
+   "src": "icon.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}
