@@ -833,13 +833,14 @@ async function loadFiles0(files,opts){
   const pdfs=files.filter(f=>f.type==="application/pdf"||/\.pdf$/i.test(f.name));
   const imgs=files.filter(f=>f.type.startsWith("image/")).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
   if(!pdfs.length&&!imgs.length){flash("الملفات المقبولة: PDF أو صور","err");return}
-  const newIds=[];let bad=0;
+  const newIds=[];let bad=0;const merge=!!(opts&&opts.merge&&opts.name);let mbk=null;
+  if(merge)pdfs.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
   for(const f of pdfs){
     try{
       if(!window.pdfjsLib)throw new Error("pdf");
       try{pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}catch(e){}
       const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-      const bk=bookFor(f.name.replace(/\.[^.]+$/,""));const meta=S.books[bk.id].meta;
+      const bk=merge?(mbk||(mbk=bookFor(opts.name))):bookFor(f.name.replace(/\.[^.]+$/,""));const meta=S.books[bk.id].meta;const off=merge?bk.pages.length:0;
       S.cur=bk.id;loading={id:bk.id,i:0,n:doc.numPages};renderSide();
       for(let i=1;i<=doc.numPages;i++){
         loading.i=i;if(i===1||i%3===0)renderSide();
@@ -847,12 +848,13 @@ async function loadFiles0(files,opts){
         const c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
         await pg.render({canvasContext:x,viewport:vp}).promise;
         let txt="";try{txt=(await pg.getTextContent()).items.map(t=>t.str).join(" ").replace(/\s+/g," ").trim()}catch(e){}
-        bk.pages.push({n:i,blob:await toBlob(c),thumb:thumbOf(c),pdfText:txt,fp:i<=3?fpOf(c):""});
-        if(!meta[i])meta[i]={text:txt,read:null};
+        const N=off+i;bk.pages.push({n:N,blob:await toBlob(c),thumb:thumbOf(c),pdfText:txt,fp:N<=3?fpOf(c):""});
+        if(!meta[N])meta[N]={text:txt,read:null};
       }
-      newIds.push(dedupeBook(bk));
+      if(!merge)newIds.push(dedupeBook(bk));
     }catch(e){bad++}
   }
+  if(merge&&mbk&&mbk.pages.length)newIds.push(dedupeBook(mbk));
   if(imgs.length){
     try{const bk=bookFor(opts&&opts.name?opts.name:"صور: "+imgs[0].name.replace(/\.[^.]+$/,"")+(imgs.length>1?` (${ar(imgs.length)} صفحة)`:""));const meta=S.books[bk.id].meta;
       S.cur=bk.id;loading={id:bk.id,i:0,n:imgs.length};
@@ -2044,7 +2046,7 @@ function openBookNow(id){mode="lesson";renderNav();S.cur=id;openBook=id;[...sele
 function groupByFolder(files){const g={};for(const f of files){const rp=f.webkitRelativePath||f.name;const parts=rp.split("/");const key=parts.length>2?parts[parts.length-2]:(parts.length===2?parts[0]:"");(g[key]=g[key]||[]).push(f)}return g}
 async function libUpload(files,folders){files=(await Promise.all([...files].map(sniffFile))).filter(f=>/^image\//.test(f.type)||f.type==="application/pdf"||/\.pdf$/i.test(f.name));if(!files.length){flash("اختر ملفات PDF أو صور صفحات","err");return}
   flash(`جارٍ تجهيز ${ar(files.length)} ملف…`,"ok");
-  if(folders){const g=groupByFolder(files);for(const [name,fs] of Object.entries(g)){const pdfs=fs.filter(f=>!/^image\//.test(f.type)),imgs=fs.filter(f=>/^image\//.test(f.type));if(pdfs.length)await loadFiles(pdfs);if(imgs.length)await loadFiles(imgs,{name:name||undefined})}}
+  if(folders){const g=groupByFolder(files);for(const [name,fs] of Object.entries(g)){const pdfs=fs.filter(f=>!/^image\//.test(f.type)),imgs=fs.filter(f=>/^image\//.test(f.type));if(pdfs.length)await loadFiles(pdfs,pdfs.length>1&&name?{name,merge:true}:undefined);if(imgs.length)await loadFiles(imgs,{name:name||undefined})}}
   else{const pdfs=files.filter(f=>!/^image\//.test(f.type)),imgs=files.filter(f=>/^image\//.test(f.type));if(pdfs.length)await loadFiles(pdfs);if(imgs.length)await loadFiles(imgs)}
   if(libShelf!=="all")Object.keys(S.books).forEach(id=>{if(!S.books[id].shelf&&guessShelf(S.books[id].name)==="other")S.books[id].shelf=libShelf});save();mode="library";renderNav();renderMain();flash("✓ أُضيفت الكتب إلى المكتبة","ok")}
 /* ================= shared library on GitHub ================= */
@@ -2057,13 +2059,13 @@ async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{S
   try{syncMsg="جارٍ فحص المكتبة المشتركة…";if(mode==="library")renderMain();
     const top=await ghList(GH.dir);const jobs=[];
     for(const it of top){if(it.type==="file"&&isBookFile(it.name))jobs.push({key:it.path,name:it.name.replace(/\.[^.]+$/,""),sha:it.sha,files:[it]});
-      else if(it.type==="dir"){try{const sub=(await ghList(it.path)).filter(x=>x.type==="file"&&/\.(png|jpe?g|webp|gif)$/i.test(x.name)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));if(sub.length)jobs.push({key:it.path,name:it.name,sha:hashStr(sub.map(x=>x.sha).join("|")),files:sub,folder:true})}catch(e){}}}
+      else if(it.type==="dir"){try{const all=await ghList(it.path);const pick=re=>all.filter(x=>x.type==="file"&&re.test(x.name)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));const pd=pick(/\.pdf$/i),im=pick(/\.(png|jpe?g|webp|gif)$/i);const sub=pd.length?pd:im;if(sub.length)jobs.push({key:it.path,name:it.name,sha:hashStr(sub.map(x=>x.sha).join("|")),files:sub,folder:true,parts:!!pd.length})}catch(e){}}}
     total=jobs.length;let k=0;
     for(const j of jobs){k++;const rec=S.shared[j.key];const have=rec&&S.books[rec.id]&&books.find(b=>b.id===rec.id);if(rec&&rec.sha===j.sha&&have)continue;
       syncMsg=`تنزيل «${j.name}» (${ar(k)} من ${ar(total)})…`;if(mode==="library")renderMain();
       const fs=[];for(const f of j.files){const r=await fetch(f.download_url,{cache:"no-store"});if(!r.ok)throw new Error("dl");const b=await r.blob();fs.push(new File([b],j.folder?f.name:(j.name+f.name.slice(f.name.lastIndexOf("."))),{type:b.type||""}))}
       const beforeIds=new Set(Object.keys(S.books));const isPdf=!j.folder&&/\.pdf$/i.test(j.files[0].name);
-      const keepCur=S.cur,keepOpen=openBook;await loadFiles(fs,isPdf?undefined:{name:j.name});S.cur=keepCur;openBook=keepOpen;save();renderSide();
+      const keepCur=S.cur,keepOpen=openBook;await loadFiles(fs,j.parts?{name:j.name,merge:true}:isPdf?undefined:{name:j.name});S.cur=keepCur;openBook=keepOpen;save();renderSide();
       const id=Object.keys(S.books).find(x=>S.books[x].name===j.name)||Object.keys(S.books).find(x=>!beforeIds.has(x));
       if(id){S.books[id].gh=j.key;S.shared[j.key]={sha:j.sha,id};rec?updated++:added++}}
     try{S.sharedVoices=S.sharedVoices||{};const vs=(await ghList("voices")).filter(x=>x.type==="file"&&/\.json$/i.test(x.name));
