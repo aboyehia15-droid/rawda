@@ -2,6 +2,12 @@ package com.rawda.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInstaller;
+import android.provider.Settings;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -35,7 +41,10 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -158,6 +167,8 @@ public class MainActivity extends Activity {
         });
 
         if (b != null) web.restoreState(b); else web.loadUrl(HOME);
+        handleInstallStatus(getIntent());
+        checkForUpdate();
     }
 
     void js(String id, String ev) {
@@ -225,6 +236,109 @@ public class MainActivity extends Activity {
             else pendingPerm.deny();
             pendingPerm = null;
         }
+    }
+
+    /* ================= self-update: ask, download, and hand the new version to Android's installer ================= */
+    static final String RELEASES = "https://api.github.com/repos/aboyehia15-droid/rawda/releases/latest";
+    static final String ACTION_INSTALL = "com.rawda.app.INSTALL_STATUS";
+    String pendingApkUrl = null;
+
+    int myVersion() {
+        try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; } catch (Exception e) { return 0; }
+    }
+
+    void checkForUpdate() {
+        new Thread(() -> {
+            try {
+                HttpURLConnection c = (HttpURLConnection) new URL(RELEASES).openConnection();
+                c.setConnectTimeout(8000); c.setReadTimeout(8000);
+                c.setRequestProperty("Accept", "application/vnd.github+json");
+                if (c.getResponseCode() != 200) return;
+                StringBuilder sb = new StringBuilder();
+                try (InputStream in = c.getInputStream()) { byte[] buf = new byte[8192]; int n; while ((n = in.read(buf)) > 0) sb.append(new String(buf, 0, n, "UTF-8")); }
+                JSONObject rel = new JSONObject(sb.toString());
+                String tag = rel.optString("tag_name", "");
+                int latest = Integer.parseInt(tag.replaceAll("[^0-9]", "").isEmpty() ? "0" : tag.replaceAll("[^0-9]", ""));
+                if (latest <= myVersion()) return;
+                String url = null;
+                JSONArray assets = rel.optJSONArray("assets");
+                if (assets != null) for (int i = 0; i < assets.length(); i++) { JSONObject a = assets.getJSONObject(i); if (a.optString("name").endsWith(".apk")) url = a.optString("browser_download_url"); }
+                if (url == null) return;
+                SharedPreferences sp = getSharedPreferences("rawda", MODE_PRIVATE);
+                if (tag.equals(sp.getString("later_tag", "")) && System.currentTimeMillis() - sp.getLong("later_at", 0) < 24L * 3600 * 1000) return;
+                final String u = url, t = tag;
+                runOnUiThread(() -> {
+                    if (isFinishing()) return;
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("يوجد تحديث لروضة الدروس")
+                            .setMessage("نسخة أحدث من التطبيق جاهزة. هل تريد تحديثه الآن؟ لن تُحذف كتبك ولا تسجيلاتك.")
+                            .setPositiveButton("تحديث", (d, w) -> startUpdate(u))
+                            .setNegativeButton("لاحقًا", (d, w) -> sp.edit().putString("later_tag", t).putLong("later_at", System.currentTimeMillis()).apply())
+                            .show();
+                });
+            } catch (Exception ignored) { }
+        }).start();
+    }
+
+    void startUpdate(String url) {
+        if (Build.VERSION.SDK_INT >= 26 && !getPackageManager().canRequestPackageInstalls()) {
+            pendingApkUrl = url;
+            Toast.makeText(this, "فعّل «السماح من هذا المصدر» لروضة الدروس، ثم ارجع للتطبيق", Toast.LENGTH_LONG).show();
+            try { startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName()))); } catch (Exception e) { openInBrowser(url); }
+            return;
+        }
+        ProgressDialog pd = new ProgressDialog(this);
+        pd.setMessage("جارٍ تنزيل التحديث…");
+        pd.setCancelable(false);
+        pd.show();
+        new Thread(() -> {
+            try {
+                PackageInstaller pi = getPackageManager().getPackageInstaller();
+                PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
+                params.setAppPackageName(getPackageName());
+                int sid = pi.createSession(params);
+                PackageInstaller.Session session = pi.openSession(sid);
+                HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+                c.setInstanceFollowRedirects(true);
+                c.setConnectTimeout(15000); c.setReadTimeout(30000);
+                try (InputStream in = c.getInputStream(); OutputStream out = session.openWrite("rawda.apk", 0, -1)) {
+                    byte[] buf = new byte[65536]; int n; while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+                    session.fsync(out);
+                }
+                Intent st = new Intent(this, MainActivity.class).setAction(ACTION_INSTALL);
+                int flags = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
+                PendingIntent piStatus = PendingIntent.getActivity(this, sid, st, flags);
+                session.commit(piStatus.getIntentSender());
+                session.close();
+                runOnUiThread(pd::dismiss);
+            } catch (Exception e) {
+                runOnUiThread(() -> { pd.dismiss(); Toast.makeText(MainActivity.this, "تعذّر التحديث من داخل التطبيق، سيُفتح رابط التنزيل", Toast.LENGTH_LONG).show(); openInBrowser(url); });
+            }
+        }).start();
+    }
+
+    void openInBrowser(String url) {
+        try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignored) { }
+    }
+
+    void handleInstallStatus(Intent it) {
+        if (it == null || !ACTION_INSTALL.equals(it.getAction())) return;
+        int status = it.getIntExtra(PackageInstaller.EXTRA_STATUS, -999);
+        if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
+            Intent confirm = it.getParcelableExtra(Intent.EXTRA_INTENT);
+            if (confirm != null) { confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); try { startActivity(confirm); } catch (Exception ignored) { } }
+        } else if (status != PackageInstaller.STATUS_SUCCESS && status != -999) {
+            Toast.makeText(this, "لم يكتمل التحديث", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent it) { super.onNewIntent(it); setIntent(it); handleInstallStatus(it); }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (pendingApkUrl != null && (Build.VERSION.SDK_INT < 26 || getPackageManager().canRequestPackageInstalls())) { String u = pendingApkUrl; pendingApkUrl = null; startUpdate(u); }
     }
 
     @Override
