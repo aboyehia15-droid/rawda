@@ -96,8 +96,13 @@ public class MainActivity extends Activity {
             public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
                 if (fileCb != null) fileCb.onReceiveValue(null);
                 fileCb = cb;
-                Intent i = p.createIntent();
+                // accept every type the page asks for (PDF and images together), not only the first one
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
+                i.setType("*/*");
+                List<String> types = new ArrayList<>();
+                for (String t : p.getAcceptTypes()) for (String x : t.split(",")) { x = x.trim(); if (!x.isEmpty()) types.add(x.startsWith(".") ? "application/octet-stream" : x); }
+                if (!types.isEmpty()) i.putExtra(Intent.EXTRA_MIME_TYPES, types.toArray(new String[0]));
                 if (p.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE) i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 try { startActivityForResult(Intent.createChooser(i, "اختر الملفات"), REQ_FILE); }
                 catch (ActivityNotFoundException e) { fileCb = null; return false; }

@@ -247,6 +247,7 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .lbody{display:grid;gap:6px;padding:10px 12px;align-content:start}
 .lname{font-size:1rem;line-height:1.4}
 .lshelf{padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font:inherit;font-size:.85rem}
+.lshare{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 16px;border:2px solid #3a86ff;border-radius:18px;background:rgba(58,134,255,.07)}
 .lren{padding:7px 9px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg)}
 /* whiteboard */
 .wb{display:grid;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-width:0}
@@ -808,7 +809,11 @@ let loading=null; // {name,i,n}
 const bkKey=id=>"bk|"+id;let booksRestored=false;
 async function persistBook(id){const b=books.find(x=>x.id===id);if(!b||!b.pages.length)return;try{await MDB.set(bkKey(id),{pages:b.pages.map(p=>({n:p.n,blob:p.blob,thumb:p.thumb,pdfText:p.pdfText||"",fp:p.fp||""}))});S.books[id]&&(S.books[id].stored=true,S.books[id].np=b.pages.length);save()}catch(e){}}
 async function restoreBooks(){const ids=Object.keys(S.books);for(const id of ids){if(books.find(b=>b.id===id))continue;const d=await MDB.get(bkKey(id));if(d&&d.pages&&d.pages.length)books.push({id,pages:d.pages})}booksRestored=true;try{renderSide()}catch(e){}if(mode==="library"||(mode==="lesson"&&S.books[S.cur])){try{renderMain()}catch(e){}}}
-async function loadFiles(files,opts){const before=new Set(books.map(b=>b.id));await loadFiles0(files,opts);for(const b of books){if(!before.has(b.id)||!S.books[b.id]||!S.books[b.id].stored)await persistBook(b.id)}if(mode==="library")renderMain()}
+async function sniffFile(f){if(f.type==="application/pdf"||/^image\//.test(f.type))return f;let h;try{h=new Uint8Array(await f.slice(0,12).arrayBuffer())}catch(e){return f}
+  const is=(...b)=>b.every((v,i)=>h[i]===v);let type="",ext="";
+  if(is(0x25,0x50,0x44,0x46)){type="application/pdf";ext="pdf"}else if(is(0xFF,0xD8,0xFF)){type="image/jpeg";ext="jpg"}else if(is(0x89,0x50,0x4E,0x47)){type="image/png";ext="png"}else if(is(0x47,0x49,0x46)){type="image/gif";ext="gif"}else if(is(0x52,0x49,0x46,0x46)&&h[8]===0x57&&h[9]===0x45){type="image/webp";ext="webp"}
+  if(!type)return f;let name=f.name||"كتاب";if(!/\.[a-z0-9]{2,4}$/i.test(name))name+="."+ext;try{const g=new File([f],name,{type,lastModified:f.lastModified||Date.now()});try{Object.defineProperty(g,"webkitRelativePath",{value:f.webkitRelativePath||""})}catch(e){}return g}catch(e){return f}}
+async function loadFiles(files,opts){files=await Promise.all([...files].map(sniffFile));const before=new Set(books.map(b=>b.id));await loadFiles0(files,opts);for(const b of books){if(!before.has(b.id)||!S.books[b.id]||!S.books[b.id].stored)await persistBook(b.id)}if(mode==="library")renderMain()}
 function bookFor(name){let id=Object.keys(S.books).find(k=>S.books[k].name===name);
   if(!id){id="B"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);S.books[id]={num:S.nextNum++,name,meta:{},st:{state:""}}}
   books=books.filter(b=>b.id!==id);const b={id,pages:[]};books.push(b);return b}
@@ -956,19 +961,20 @@ function bookStatusHTML(id){const B=S.books[id],st=(B&&B.st)||{};
   if(st.state==="done"&&st.msg)return `<span>${esc(st.msg)}</span>`;
   return ""}
 let openBook=null;const openNodes={add(){},delete(){},has(){return false}};
+function foldBooks(id){$$("#tree .bnode").forEach(n=>{const on=!!id&&n.querySelector(".bk").dataset.id===id;n.dataset.open=String(on);const l=n.querySelector(".blessons");if(l)l.hidden=!on})}
 function renderSide(){
   const ids=Object.keys(S.books).sort((a,b)=>S.books[a].num-S.books[b].num);
   const node=(id,name,sub,cov)=>{const open=openBook===id;const L=lessonsOf(id);const st=bookStatusHTML(id);const busy=(S.books[id]&&S.books[id].st&&/reading|queued/.test(S.books[id].st.state))||(loading&&loading.id===id);
     let lessons=L.map((l,li)=>libHead(id,L,li)+`<button class="litem" data-id="${l.id}" aria-pressed="${selected.has(l.id)}"><span class="box">✓</span><span class="le">${esc(l.emoji)}</span><span class="lt"><b>${esc(l.title)}${S.done&&S.done[l.id]?" ✅":""}</b><small>${l.pages&&l.pages.length?"ص "+(l.pages.length>1?ar(l.pages[0])+"–"+ar(l.pages[l.pages.length-1]):ar(l.pages[0])):""}${l.domain?(l.pages&&l.pages.length?" · ":"")+esc(l.domain):""}${l.provisional?' · <span class="chip">مبدئي</span>':""}</small></span></button>`).join("");
     if(!L.length)lessons=busy?'<div class="skel"></div><div class="skel"></div>':(id===DEMO?"":`<div class="small muted">لا توجد دروس بعد.</div>${kitBtns(id,"full")}<button class="btn ghost small full" data-addl="${id}">＋ إضافة درس من صفحات الكتاب</button>`);
     return `<div class="bnode" data-open="${open}"><div class="bkrow"><button class="bk" data-id="${id}" aria-current="${S.cur===id}"><span class="cov">${cov}</span><span class="bt"><b>${esc(name)}</b><span>${sub}</span></span><span class="chev">▾</span></button>${id!==DEMO&&id!=="lib"?`<button class="bkdel" data-del="${id}" title="حذف الكتاب" aria-label="حذف الكتاب">🗑</button>`:""}</div>
-      <div class="blessons">${st?`<div class="readstatus">${st}</div>`:""}${L.length?`<div class="lrow"><span class="muted">${ar(L.length)} درس</span><span><button class="link" data-all="${id}">تحديد الكل</button><button class="link" data-none="${id}">إلغاء</button></span></div>`:""}${lessons}</div></div>`};
+      <div class="blessons" ${open?"":"hidden"}>${st?`<div class="readstatus">${st}</div>`:""}${L.length?`<div class="lrow"><span class="muted">${ar(L.length)} درس</span><span><button class="link" data-all="${id}">تحديد الكل</button><button class="link" data-none="${id}">إلغاء</button></span></div>`:""}${lessons}</div></div>`};
   $("#tree").innerHTML=node("lib","مكتبة الروضة",`<span class="chip">مدمجة</span> ${ar(LIB_LESSONS.length)} درسًا`,"🏫")+ids.map(id=>{const B=S.books[id],mb=memBook(id),n=Object.keys(B.meta).length,ls=lessonsOf(id).length,st=B.st||{};
     let sub=`${ar(n)} صفحة`;if(loading&&loading.id===id)sub=`<span class="spin s"></span> تجهيز`;else if(/reading|queued/.test(st.state||""))sub+=` · <span class="spin s"></span> قراءة`;else if(ls)sub+=` · ${ar(ls)} درس`;
     return node(id,`${ar(B.num)}. ${B.name}`,sub,mb&&mb.pages[0]?`<img class="cov" src="${mb.pages[0].thumb}" alt="">`:"📗")}).join("")
 ;
-  $$("#tree .bk").forEach(b=>b.onclick=()=>{const id=b.dataset.id;if(openBook===id){openBook=null;$$("#tree .bnode").forEach(n=>n.dataset.open="false");return}
-    openBook=id;if(S.cur===id){$$("#tree .bnode").forEach(n=>n.dataset.open=String(n.querySelector(".bk").dataset.id===id));return}
+  $$("#tree .bk").forEach(b=>b.onclick=()=>{const id=b.dataset.id;if(openBook===id){openBook=null;foldBooks(null);return}
+    openBook=id;if(S.cur===id){foldBooks(id);return}
     mode="lesson";renderNav();S.cur=id;[...selected].forEach(x=>{const l=allLessons().find(y=>y.id===x);if(!l||l.bookId!==id)selected.delete(x)});freeMode=false;if(id!==DEMO)curTool="ebook";save();renderSide();onSelChange()});
   $$("#tree [data-del]").forEach(b=>b.onclick=()=>delBook(b.dataset.del));
   $$("#tree .litem").forEach(b=>b.onclick=()=>{const id=b.dataset.id;const was=selected.size;selected.has(id)?selected.delete(id):selected.add(id);b.setAttribute("aria-pressed",selected.has(id));freeMode=false;
@@ -1995,11 +2001,38 @@ function guessShelf(n){n=String(n||"");if(/قرآن|قران|مصحف|إسلام
 const shelfOf=id=>(S.books[id]&&S.books[id].shelf)||guessShelf(S.books[id]&&S.books[id].name);
 function openBookNow(id){mode="lesson";renderNav();S.cur=id;openBook=id;[...selected].forEach(x=>{const l=allLessons().find(y=>y.id===x);if(!l||l.bookId!==id)selected.delete(x)});freeMode=false;if(id!==DEMO&&id!==LIB)curTool="ebook";save();renderSide();renderMain();onSelChange();window.scrollTo({top:0,behavior:"smooth"})}
 function groupByFolder(files){const g={};for(const f of files){const rp=f.webkitRelativePath||f.name;const parts=rp.split("/");const key=parts.length>2?parts[parts.length-2]:(parts.length===2?parts[0]:"");(g[key]=g[key]||[]).push(f)}return g}
-async function libUpload(files,folders){files=[...files].filter(f=>/^image\//.test(f.type)||f.type==="application/pdf"||/\.pdf$/i.test(f.name));if(!files.length){flash("اختر ملفات PDF أو صور صفحات","err");return}
+async function libUpload(files,folders){files=(await Promise.all([...files].map(sniffFile))).filter(f=>/^image\//.test(f.type)||f.type==="application/pdf"||/\.pdf$/i.test(f.name));if(!files.length){flash("اختر ملفات PDF أو صور صفحات","err");return}
   flash(`جارٍ تجهيز ${ar(files.length)} ملف…`,"ok");
   if(folders){const g=groupByFolder(files);for(const [name,fs] of Object.entries(g)){const pdfs=fs.filter(f=>!/^image\//.test(f.type)),imgs=fs.filter(f=>/^image\//.test(f.type));if(pdfs.length)await loadFiles(pdfs);if(imgs.length)await loadFiles(imgs,{name:name||undefined})}}
   else{const pdfs=files.filter(f=>!/^image\//.test(f.type)),imgs=files.filter(f=>/^image\//.test(f.type));if(pdfs.length)await loadFiles(pdfs);if(imgs.length)await loadFiles(imgs)}
   if(libShelf!=="all")Object.keys(S.books).forEach(id=>{if(!S.books[id].shelf&&guessShelf(S.books[id].name)==="other")S.books[id].shelf=libShelf});save();mode="library";renderNav();renderMain();flash("✓ أُضيفت الكتب إلى المكتبة","ok")}
+/* ================= shared library on GitHub ================= */
+const GH={owner:"aboyehia15-droid",repo:"rawda",dir:"books"};
+const ghUpload=`https://github.com/${GH.owner}/${GH.repo}/upload/main/${GH.dir}`;
+let syncing=null,syncMsg="";
+async function ghList(path){const r=await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,"/")}?ref=main`,{cache:"no-store"});if(!r.ok)throw new Error("gh "+r.status);return r.json()}
+const isBookFile=n=>/\.(pdf|png|jpe?g|webp|gif)$/i.test(n);
+async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{S.shared=S.shared||{};let added=0,updated=0,total=0;
+  try{syncMsg="جارٍ فحص المكتبة المشتركة…";if(mode==="library")renderMain();
+    const top=await ghList(GH.dir);const jobs=[];
+    for(const it of top){if(it.type==="file"&&isBookFile(it.name))jobs.push({key:it.path,name:it.name.replace(/\.[^.]+$/,""),sha:it.sha,files:[it]});
+      else if(it.type==="dir"){try{const sub=(await ghList(it.path)).filter(x=>x.type==="file"&&/\.(png|jpe?g|webp|gif)$/i.test(x.name)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));if(sub.length)jobs.push({key:it.path,name:it.name,sha:hashStr(sub.map(x=>x.sha).join("|")),files:sub,folder:true})}catch(e){}}}
+    total=jobs.length;let k=0;
+    for(const j of jobs){k++;const rec=S.shared[j.key];const have=rec&&S.books[rec.id]&&books.find(b=>b.id===rec.id);if(rec&&rec.sha===j.sha&&have)continue;
+      syncMsg=`تنزيل «${j.name}» (${ar(k)} من ${ar(total)})…`;if(mode==="library")renderMain();
+      const fs=[];for(const f of j.files){const r=await fetch(f.download_url,{cache:"no-store"});if(!r.ok)throw new Error("dl");const b=await r.blob();fs.push(new File([b],j.folder?f.name:(j.name+f.name.slice(f.name.lastIndexOf("."))),{type:b.type||""}))}
+      const beforeIds=new Set(Object.keys(S.books));const isPdf=!j.folder&&/\.pdf$/i.test(j.files[0].name);
+      const keepCur=S.cur,keepOpen=openBook;await loadFiles(fs,isPdf?undefined:{name:j.name});S.cur=keepCur;openBook=keepOpen;save();renderSide();
+      const id=Object.keys(S.books).find(x=>S.books[x].name===j.name)||Object.keys(S.books).find(x=>!beforeIds.has(x));
+      if(id){S.books[id].gh=j.key;S.shared[j.key]={sha:j.sha,id};rec?updated++:added++}}
+    S.lastSync=Date.now();save();syncMsg=added||updated?`✓ أُضيف ${ar(added)} كتاب${updated?` وحُدِّث ${ar(updated)}`:""} من المكتبة المشتركة`:`✓ المكتبة محدَّثة (${ar(total)} كتاب مشترك)`;
+    if(added||updated||manual)flash(syncMsg,"ok")}
+  catch(e){syncMsg=navigator.onLine===false?"لا يوجد اتصال بالإنترنت؛ تعمل الكتب المحفوظة على هذه الشاشة.":"تعذّرت المزامنة الآن. حاول لاحقًا.";if(manual)flash(syncMsg,"err")}
+  finally{syncing=null;if(mode==="library")renderMain()}})();return syncing}
+function sharedPanelHTML(){const n=Object.keys(S.shared||{}).filter(k=>S.shared[k]&&S.books[S.shared[k].id]).length;
+  return `<div class="lshare"><div style="display:grid;gap:4px"><b>☁️ المكتبة المشتركة لكل الشاشات</b><span class="small muted">ارفع الكتاب مرة واحدة إلى مجلد <b dir="ltr">books</b> في مستودعك على GitHub، فينزل وحده على كل شاشة فيها البرنامج عند فتحه.${n?` · ${ar(n)} كتاب مشترك على هذه الشاشة`:""}</span>
+     <span class="small" id="syncMsg">${syncing?'<span class="spin s"></span> ':""}${esc(syncMsg||(S.lastSync?"آخر مزامنة: "+new Date(S.lastSync).toLocaleString("ar"):""))}</span></div>
+    <div class="row"><a class="btn primary small" href="${ghUpload}" target="_blank" rel="noopener">⬆ رفع كتب للمكتبة المشتركة</a><button class="btn small" id="syncNow" ${syncing?"disabled":""}>🔄 مزامنة الآن</button><label class="check small"><input type="checkbox" id="autoSync" ${S.autoSync!==false?"checked":""}> مزامنة تلقائية عند الفتح</label></div></div>`}
 function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books[b].num-S.books[a].num);const cnt={all:ids.length};ids.forEach(id=>{const k=shelfOf(id);cnt[k]=(cnt[k]||0)+1});
   const shown=ids.filter(id=>(libShelf==="all"||shelfOf(id)===libShelf)&&(!libQ||S.books[id].name.includes(libQ)));
   const pages=ids.reduce((a,id)=>a+(memBook(id)?memBook(id).pages.length:(S.books[id].np||Object.keys(S.books[id].meta||{}).length)),0);
@@ -2012,6 +2045,7 @@ function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books
   h.innerHTML=`<div class="libv">
    <div class="foot"><div><h2 style="font-size:1.6rem">🗂️ مكتبتي</h2><span class="small muted">${ar(ids.length)} كتاب · ${ar(pages)} صفحة · محفوظة على هذا الجهاز وتفتح مباشرة</span></div>
      <div class="row"><input type="search" id="libQ" placeholder="ابحث عن كتاب" value="${esc(libQ)}" class="libq"></div></div>
+   ${window.claude&&window.claude.use?"":sharedPanelHTML()}
    <div class="ldrop" id="ldrop" tabindex="0"><span style="font-size:2.4rem">📥</span><b>اسحب الكتب إلى هنا، أو اختر من الجهاز أو الفلاشة</b><span class="small muted">PDF (كل ملف كتاب) · صور صفحات · مجلد كامل (كل مجلد كتاب) · عدة كتب دفعة واحدة</span>
      <div class="row" style="justify-content:center"><label class="btn primary">📄 اختيار كتب<input type="file" id="libFiles" accept="application/pdf,image/*" multiple class="sr"></label><label class="btn">📁 اختيار مجلد كتب<input type="file" id="libDir" webkitdirectory directory multiple class="sr"></label></div></div>
    <div class="lshelves">${SHELVES.map(x=>`<button data-shelf="${x[0]}" aria-pressed="${libShelf===x[0]}">${x[1]} ${x[2]} <small>${ar(cnt[x[0]]||0)}</small></button>`).join("")}</div>
@@ -2020,6 +2054,8 @@ function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books
      ${shown.map(card).join("")||(ids.length?`<p class="muted">لا توجد كتب في هذا الرف.</p>`:"")}
    </div></div>`;
   const run=(fs,dir)=>{if(fs.length)libUpload(fs,dir)};
+  const sn=$("#syncNow");if(sn)sn.onclick=()=>syncShared(true);const as=$("#autoSync");if(as)as.onchange=()=>{S.autoSync=as.checked;save()};
+  if(window.RawdaAndroid){const d=$("#libDir");if(d&&d.closest("label"))d.closest("label").hidden=true}
   $("#libFiles").onchange=e=>{const f=[...e.target.files];e.target.value="";run(f,false)};
   $("#libDir").onchange=e=>{const f=[...e.target.files];e.target.value="";run(f,true)};
   const dz=$("#ldrop");["dragenter","dragover"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.add("on")}));["dragleave","drop"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.remove("on")}));
@@ -2718,7 +2754,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#viewer").hi
 /* ================= boot ================= */
 load();renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
 aiInit.then(()=>{renderSide()});
-restoreBooks().catch(()=>{});
+restoreBooks().catch(()=>{}).then(()=>{if(S.autoSync!==false&&!(window.claude&&window.claude.use))syncShared(false)});
 </script>
 
 </body></html>
