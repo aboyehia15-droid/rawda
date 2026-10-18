@@ -73,6 +73,8 @@ header.top .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding
 .progress i{display:block;height:100%;background:var(--leaf);width:0;transition:width .3s}
 
 /* app shell */
+body:not([data-mode="lesson"]) #side{display:none}
+body:not([data-mode="lesson"]) .app{grid-template-columns:minmax(0,1fr)}
 .app{display:grid;grid-template-columns:310px minmax(0,1fr);gap:18px;padding-block:18px 50px;align-items:start}
 @media (max-width:900px){.app{grid-template-columns:minmax(0,1fr)}}
 .side{position:sticky;top:calc(76px + env(safe-area-inset-top,0px));max-height:calc(100vh - 92px);overflow:auto;display:grid;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px}
@@ -229,10 +231,16 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .side{top:calc(130px + env(safe-area-inset-top,0px))!important;max-height:calc(100vh - 146px)!important}
 .lgh{font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--muted);padding:6px 4px 0}
 #modeView{display:grid;gap:14px;min-width:0}
+.fsback{position:fixed;top:14px;right:14px;z-index:2147483000;padding:12px 20px;border:0;border-radius:999px;background:#1d2b36;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
+.fsback:hover{background:#2a9d8f}
 .libv{display:grid;gap:14px}
 .libq{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-width:200px}
-.ldrop{display:grid;gap:8px;justify-items:center;text-align:center;padding:22px 16px;border:3px dashed #2a9d8f;border-radius:20px;background:rgba(42,157,143,.07);transition:background .15s}
+.ldrop{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;text-align:start;padding:14px 18px;border:3px dashed #2a9d8f;border-radius:20px;background:rgba(42,157,143,.07);transition:background .15s}
+.ldrop>span:first-child{font-size:2rem!important}.ldrop>b{flex:1 1 260px}.ldrop>.small{order:5;flex-basis:100%}.ldrop>.row{justify-content:flex-start!important}
 .ldrop.on{background:rgba(42,157,143,.2)}
+.qext{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--paper,var(--bg))}
+.qext summary{cursor:pointer;font-weight:700}
+.qext .recbox{margin-top:10px}
 .lshelves{display:flex;flex-wrap:wrap;gap:8px}
 .lshelves button{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font:inherit;cursor:pointer}
 .lshelves button small{opacity:.7}
@@ -355,6 +363,10 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .ayah{cursor:pointer;border-radius:10px;padding:0 .12em;transition:background .25s}
 .ayah:hover{background:rgba(47,107,79,.08)}
 .ayah.cur{background:rgba(255,183,3,.35);box-shadow:0 0 0 2px rgba(255,183,3,.5)}
+.qtafsir{display:grid;gap:6px;padding:14px 18px;border-radius:18px;background:rgba(42,157,143,.08);border:2px solid rgba(42,157,143,.35)}
+.qtf-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.qtf-t{margin:0;font-size:1.25rem;line-height:2;font-family:"Amiri","Scheherazade New",serif}
+.mushaf:fullscreen~.qtafsir{display:none}
 .basm.cur,.isti.cur{background:rgba(255,183,3,.35);box-shadow:0 0 0 2px rgba(255,183,3,.5);border-radius:12px}
 .isti{text-align:center;margin:0 0 .3em;color:#2f6b4f;font-size:.85em}
 .qpacks{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}.qpack{display:grid;gap:6px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}.qpack b{font-size:.98rem}
@@ -894,11 +906,26 @@ let readQ=[],reading=null;
 function setSt(id,st){if(S.books[id]){S.books[id].st=st;save();if(id===S.cur)renderSide()}}
 function enqueueRead(id){if(!readQ.includes(id)&&!(reading&&reading.id===id)){readQ.push(id);setSt(id,{state:"queued"})}pumpRead()}
 async function pumpRead(){if(reading)return;const id=readQ.shift();if(!id)return;reading={id,ctl:new AbortController()};
-  try{await readBook(id,reading.ctl.signal)}finally{reading=null;pumpRead()}}
+  try{await readBook(id,reading.ctl.signal);autoShelf(id);save()}finally{reading=null;pumpRead()}}
 function stopRead(id){readQ=readQ.filter(x=>x!==id);if(reading&&reading.id===id)reading.ctl.abort();else setSt(id,{state:"stopped"})}
+/* reading without Claude: text from the PDF itself, and Arabic OCR (Tesseract) for picture pages */
+let TESS=null;
+function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=()=>res();sc.onerror=()=>rej(new Error("tess"));document.head.appendChild(sc)})}
+async function ocrWorker(){if(TESS)return TESS;await loadTess();TESS=await Tesseract.createWorker("ara");return TESS}
+async function ocrRead(id,sig){const bk=memBook(id),B=S.books[id];if(!bk||!B)return;const meta=B.meta;
+  const todo=bk.pages.filter(p=>!((meta[p.n]&&meta[p.n].text)||p.pdfText));const st={state:"reading",done:0,total:Math.max(1,todo.length)};setSt(id,st);
+  let ok=0;
+  if(todo.length){let w=null;try{w=await ocrWorker()}catch(e){setSt(id,{state:"done",msg:"القراءة المحلية تحتاج اتصالًا بالإنترنت أول مرة. ستُعاد عند فتح الكتاب لاحقًا."});return}
+    for(const p of todo){if(sig&&sig.aborted){setSt(id,{state:"stopped",msg:"توقفت القراءة."});return}
+      try{const r=await w.recognize(p.blob);const t=String(r&&r.data&&r.data.text||"").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();meta[p.n]=meta[p.n]||{text:"",read:null};if(t){meta[p.n].text=t;ok++}}catch(e){}
+      st.done++;setSt(id,{...st});save()}}
+  if(!S.lessons.some(l=>l.bookId===id&&!l.provisional)){const loc=localLessons(id);if(loc.length)S.lessons=S.lessons.filter(l=>l.bookId!==id).concat(loc)}
+  autoShelf(id);save();setSt(id,{state:"done",msg:`قُرئ الكتاب على هذا الجهاز${ok?` (${ar(ok)} صفحة مصوّرة)`:""}. صحّح أي نص من «تصحيح النص» عند الحاجة.`});try{renderSide();if(mode==="library")renderMain()}catch(e){}}
+function bookText(id){const m=(S.books[id]&&S.books[id].meta)||{};return Object.values(m).map(x=>(x.read&&x.read.text)||x.text||"").join(" ").slice(0,6000)}
+function autoShelf(id){const B=S.books[id];if(!B||B.shelfManual)return;const g=guessShelf(B.name,bookText(id));if(g)B.shelf=g}
 async function readBook(id,sig){
   await aiInit;const bk=memBook(id),B=S.books[id];if(!bk||!B)return;
-  if(!sample){setSt(id,{state:"noai"});return}
+  if(!sample){return ocrRead(id,sig)}
   if(!imgMax&&!bk.pages.some(p=>p.pdfText)){setSt(id,{state:"noai"});return}
   const meta=B.meta,name=B.name,per=imgMax?1:3;
   const todo=bk.pages.filter(p=>!(meta[p.n]&&meta[p.n].read));const batches=[];for(let i=0;i<todo.length;i+=per)batches.push(todo.slice(i,i+per));
@@ -1686,8 +1713,8 @@ function renderQuranView(host){S.recits=S.recits||{};if(QR.s)return renderReader
     <div class="row"><input type="search" id="qSearch" placeholder="ابحث باسم السورة أو رقمها" value="${esc(qFilter)}" style="flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)"><button class="btn small ghost" data-jq="30">جزء عمّ</button><button class="btn small ghost" data-jq="29">جزء تبارك</button><button class="btn small ghost" data-jq="28">جزء قد سمع</button>
       </div>
     ${libPanelHTML()}
-    <div class="recbox"><b>🧒 القارئ:</b><select id="qRec" aria-label="القارئ" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);flex:1;min-width:220px"><optgroup label="تعليمي للأطفال (المصحف المعلم)">${RECITERS.filter(r=>r.kids).map(r=>`<option value="${r.id}" ${curRec().id===r.id?"selected":""}>${r.n} — ${r.t}</option>`).join("")}</optgroup><optgroup label="تلاوات أخرى">${RECITERS.filter(r=>!r.kids).map(r=>`<option value="${r.id}" ${curRec().id===r.id?"selected":""}>${r.n}</option>`).join("")}</optgroup></select>
-      <a class="btn small" href="${curRec().page}" target="_blank" rel="noopener">صفحة القارئ ↗</a><span class="small muted" style="flex-basis:100%">${curRec().per?"زر «🎧 استماع» يفتح السورة نفسها بصوت هذا القارئ في صفحة جديدة.":"هذا القارئ يُفتح على صفحة مصحفه التعليمي، ومنها تختار السورة."} المصحف المعلم: يقرأ الشيخ الآية ثم يترك وقتًا ليردّد الأطفال خلفه.</span></div>
+    <details class="qext"><summary>🌐 الاستماع لسور أخرى من مواقع القرّاء</summary><div class="recbox"><b>🧒 القارئ:</b><select id="qRec" aria-label="القارئ" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);flex:1;min-width:220px"><optgroup label="تعليمي للأطفال (المصحف المعلم)">${RECITERS.filter(r=>r.kids).map(r=>`<option value="${r.id}" ${curRec().id===r.id?"selected":""}>${r.n} — ${r.t}</option>`).join("")}</optgroup><optgroup label="تلاوات أخرى">${RECITERS.filter(r=>!r.kids).map(r=>`<option value="${r.id}" ${curRec().id===r.id?"selected":""}>${r.n}</option>`).join("")}</optgroup></select>
+      <a class="btn small" href="${curRec().page}" target="_blank" rel="noopener">صفحة القارئ ↗</a><span class="small muted" style="flex-basis:100%">${curRec().per?"زر «🎧 استماع» يفتح السورة نفسها بصوت هذا القارئ في صفحة جديدة.":"هذا القارئ يُفتح على صفحة مصحفه التعليمي، ومنها تختار السورة."} المصحف المعلم: يقرأ الشيخ الآية ثم يترك وقتًا ليردّد الأطفال خلفه.</span></div></details>
     ${!qJuz&&!qFilter?`<h3 class="qstep">١. اختر الجزء</h3><div class="jgrid">${Array.from({length:30},(_,k)=>{const j=k+1,ss=juzSurahs(j),a=ss[0],b=ss[ss.length-1];return `<button class="jcard" data-juz="${j}"><span class="jnum">${ar(j)}</span><b>الجزء ${ar(j)}${JUZ_NAMES[k]?` (${JUZ_NAMES[k]})`:""}</b><small>من ${esc(a.n)} ${a.from>1?ar(a.from):""} إلى ${esc(b.n)} ${b.whole?"":ar(b.to)}</small><small class="muted">${ss.length===1?"سورة واحدة":ss.length===2?"سورتان":ar(ss.length)+" "+(ss.length<11?"سور":"سورة")}</small></button>`}).join("")}</div>`
       :`<div class="foot"><h3 class="qstep">${qFilter?`نتائج البحث عن «${esc(qFilter)}»`:`٢. اختر السورة من الجزء ${ar(qJuz)}${JUZ_NAMES[qJuz-1]?` (${JUZ_NAMES[qJuz-1]})`:""}`}</h3><div class="row">${!qFilter&&qJuz>1?`<button class="btn small ghost" data-jq="${qJuz-1}">→ الجزء ${ar(qJuz-1)}</button>`:""}${!qFilter&&qJuz<30?`<button class="btn small ghost" data-jq="${qJuz+1}">الجزء ${ar(qJuz+1)} ←</button>`:""}<button class="btn small" id="qBack">📚 كل الأجزاء</button></div></div>
     <div class="sgrid">${list.map(s=>{const up=S.recits[s.i];return `<div class="scard"><span class="snum">${ar(s.i)}</span><div class="sname"><b>سورة ${esc(s.n)}${hasAudio(s.i)?' <span class="chip" title="تلاوة جاهزة للتشغيل المباشر">🎧 جاهزة</span>':""}</b><small>${s.whole?`${ar(s.a)} آية`:`الآيات ${ar(s.from)}–${ar(s.to)} من ${ar(s.a)}`}${qFilter?` · الجزء ${surahJuz(s.i).map(ar).join(" و")}`:""}</small></div>
@@ -1807,6 +1834,15 @@ function wireLibPanel(rerender){const g=id=>document.getElementById(id);if(!g("q
 
 /* ================= Quran reader: whole surah or verse by verse, with listening ================= */
 let QTEXT=null,QLOAD=null,LDATA=null;
+/* التفسير الميسر (مجمع الملك فهد) — shown verbatim, one ayah at a time, in large friendly type */
+let QTAF=null,QTAFL=null;
+function loadTafsir(){if(QTAF)return Promise.resolve(QTAF);if(QTAFL)return QTAFL;QTAFL=fetch("tafsir-muyassar.json").then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>typeof localData==="function"?localData().then(D=>{if(!D.tafsir)throw 0;return D.tafsir}):Promise.reject()).then(d=>{QTAF=d;return d}).catch(e=>{QTAFL=null;throw e});return QTAFL}
+function drawTafsir(i){const box=$("#qTafsir");if(!box||S.qTafsir===false||!QR.s)return;const s=QR.s;const k=i==null?QR.cur:i;
+  if(QR.pre){const bt=QTAF&&QTAF.t[1]?QTAF.t[1][0]:"";box.innerHTML=`<div class="qtf-h"><b>💡 ${QR.pre==="basm"?"البسملة":"الاستعاذة"}</b></div><p class="qtf-t">${esc(QR.pre==="basm"?(bt||"بسم الله الرحمن الرحيم"):"نستعيذ بالله: نطلب منه أن يحمينا من الشيطان.")}</p>`;if(!QTAF)loadTafsir().then(()=>drawTafsir(i)).catch(()=>{});return}
+  if(!QTAF){box.innerHTML=`<div class="qtf-h"><b>💡 تفسير الآية ${ar(k+1)}</b></div><p class="qtf-t muted"><span class="spin s"></span> تحميل التفسير…</p>`;loadTafsir().then(()=>drawTafsir(i)).catch(()=>{box.innerHTML=`<p class="small muted">تعذّر تحميل التفسير الآن.</p>`});return}
+  const t=(QTAF.t[s]||[])[k]||"";
+  box.innerHTML=`<div class="qtf-h"><b>💡 معنى الآية ${ar(k+1)}</b><button class="btn small ghost" id="qtfSay">🔊 استمع للمعنى</button></div><p class="qtf-t">${esc(t)}</p><small class="muted">التفسير الميسّر — مجمع الملك فهد لطباعة المصحف الشريف</small>`;
+  const b=$("#qtfSay");if(b)b.onclick=()=>{if(QR.playing)stopQ();speak(t,.85)}}
 function localData(){if(window.RAWDA_DATA)return Promise.resolve(window.RAWDA_DATA);if(LDATA)return LDATA;LDATA=new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="data.js";sc.onload=()=>window.RAWDA_DATA?res(window.RAWDA_DATA):rej(0);sc.onerror=()=>{LDATA=null;rej(0)};document.head.appendChild(sc)});return LDATA}
 function loadQuran(){if(QTEXT)return Promise.resolve(QTEXT);if(QLOAD)return QLOAD;QLOAD=fetch("quran-uthmani.json").then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>localData().then(D=>D.quran)).then(d=>{QTEXT=d.surahs;return QTEXT}).catch(e=>{QLOAD=null;throw e});return QLOAD}
 const BASM_RE=/^(بِّ?سْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ) /;
@@ -1823,13 +1859,15 @@ function renderReader(host){const s=QR.s,sur=SURAHS[s-1];S.qTimes=S.qTimes||{};S
   host.innerHTML=`<div class="quran"><div class="foot"><div><h2 style="font-size:1.6rem;font-family:'Amiri Quran','Amiri',serif">سُورَةُ ${esc(sur.n)}</h2><span class="small muted">${ar(sur.a)} آية${QR.from>1||QR.to<sur.a?` · المعروض: الآيات ${ar(QR.from)}–${ar(QR.to)}`:""}</span></div>
      <div class="row">${QR.from>1||QR.to<sur.a?`<button class="btn small ghost" id="qrAll">عرض السورة كاملة</button>`:""}<button class="btn small" id="qrBack">→ رجوع إلى السور</button></div></div>
    <div class="qrbar"><div class="modebar"><button data-qv="full" aria-pressed="${QR.view==="full"}">📜 السورة كاملة</button><button data-qv="ayah" aria-pressed="${QR.view==="ayah"}">🔢 آية آية</button></div>
-     <div class="row"><button class="btn small ghost" id="qrSm" aria-label="تصغير الخط">ا−</button><button class="btn small ghost" id="qrLg" aria-label="تكبير الخط">ا+</button><button class="btn small ghost" id="qrFull">⛶ عرض للصف</button></div></div>
+     <div class="row"><button class="btn small ghost" id="qrSm" aria-label="تصغير الخط">ا−</button><button class="btn small ghost" id="qrLg" aria-label="تكبير الخط">ا+</button><button class="btn small ghost" id="qrTaf" aria-pressed="${S.qTafsir!==false}">💡 التفسير</button><button class="btn small ghost" id="qrFull">⛶ عرض للصف</button></div></div>
    <div class="qplayer" id="qPlayer"></div>
    <div class="mushaf" id="mushaf" style="--qs:${QR.size}rem"><div class="qload"><span class="spin"></span> تحميل نص السورة…</div></div>
+   <div class="qtafsir" id="qTafsir" ${S.qTafsir===false?"hidden":""}></div>
    <p class="small muted" style="margin:0">نص القرآن الكريم بالرسم العثماني من <a href="https://tanzil.net" target="_blank" rel="noopener">مشروع تنزيل tanzil.net</a> كما هو دون أي تغيير (رخصة المشاع الإبداعي CC BY 3.0).</p></div>`;
   $("#qrBack").onclick=()=>{qAudioEl.pause();QR.s=0;renderQuranView(host)};const qa=$("#qrAll");if(qa)qa.onclick=()=>openReader(s,1,sur.a);
   $$("[data-qv]").forEach(b=>b.onclick=()=>{QR.view=b.dataset.qv;renderReader(host)});
   $("#qrSm").onclick=()=>{QR.size=Math.max(1.3,QR.size-.3);$("#mushaf").style.setProperty("--qs",QR.size+"rem")};$("#qrLg").onclick=()=>{QR.size=Math.min(5,QR.size+.3);$("#mushaf").style.setProperty("--qs",QR.size+"rem")};
+  $("#qrTaf").onclick=()=>{S.qTafsir=S.qTafsir===false;save();$("#qrTaf").setAttribute("aria-pressed",S.qTafsir!==false);$("#qTafsir").hidden=S.qTafsir===false;drawTafsir()};
   $("#qrFull").onclick=()=>{const m=$("#mushaf");if(document.fullscreenElement){document.exitFullscreen();return}(m.requestFullscreen?m.requestFullscreen():Promise.reject()).catch(()=>flash("ملء الشاشة غير متاح هنا"))};
   loadQuran().then(()=>{if(QR.s===s){drawMushaf();drawPlayer()}}).catch(()=>{$("#mushaf").innerHTML=`<div class="notice err">تعذّر تحميل نص المصحف. أعد فتح البرنامج من رابطه.</div>`;drawPlayer()})}
 function drawMushaf(){const m=$("#mushaf");if(!m||!QTEXT)return;const s=QR.s,V=QTEXT[s-1];
@@ -1838,10 +1876,12 @@ function drawMushaf(){const m=$("#mushaf");if(!m||!QTEXT)return;const s=QR.s,V=Q
   else{const a=QR.cur+1;const p=ayahParts(s,a-1,V[a-1]);m.innerHTML=`<div class="qone">${QR.pre==="ist"?`<div class="isti cur">أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ</div>`:""}${p.basm?`<div class="basm${QR.pre==="basm"?" cur":""}">${p.basm}</div>`:""}<div class="ayah cur big" data-a="${a}">${p.text} <span class="anum">﴿${toAr(a)}﴾</span></div>
       <div class="row" style="justify-content:center"><button class="btn" id="qPrevA">→ الآية السابقة</button><b>الآية ${ar(a)} من ${ar(QR.to)}</b><button class="btn" id="qNextA">الآية التالية ←</button></div></div>`;
     $("#qPrevA").onclick=()=>gotoAyah(QR.cur-1,QR.playing);$("#qNextA").onclick=()=>gotoAyah(QR.cur+1,QR.playing)}
+  m.querySelectorAll(".ayah[data-a]").forEach(el=>{el.onmouseenter=()=>drawTafsir(+el.dataset.a-1);el.onmouseleave=()=>drawTafsir()});
+  drawTafsir();
   m.querySelectorAll(".ayah[data-a]").forEach(el=>el.onclick=()=>{const i=+el.dataset.a-1;if(QR.timing)return;gotoAyah(i,QR.playing||!!readerSrc())});
   if(QR.pre){m.querySelectorAll(".ayah.cur").forEach(x=>x.classList.remove("cur"));const bs=m.querySelector(".basm");if(QR.pre==="basm"&&bs)bs.classList.add("cur")}
   const cur=m.querySelector(".ayah.cur,.basm.cur,.isti.cur");if(cur&&QR.view==="full"&&QR.playing)cur.scrollIntoView({block:"center",behavior:"smooth"})}
-function hiAyah(){const m=$("#mushaf");if(!m)return;if(QR.view==="ayah"||QR.pre||m.querySelector(".isti")){drawMushaf();if(QR.view==="ayah"||QR.pre){const lb=$("#qAyLbl");if(lb)lb.textContent=QR.pre==="basm"?"البسملة":QR.pre==="ist"?"الاستعاذة":`الآية ${ar(QR.cur+1)}`;return}}m.querySelectorAll(".ayah.cur,.basm.cur").forEach(x=>x.classList.remove("cur"));const el=m.querySelector(`.ayah[data-a="${QR.cur+1}"]`);if(el){el.classList.add("cur");el.scrollIntoView({block:"center",behavior:"smooth"})}const lb=$("#qAyLbl");if(lb)lb.textContent=`الآية ${ar(QR.cur+1)}`}
+function hiAyah(){drawTafsir();const m=$("#mushaf");if(!m)return;if(QR.view==="ayah"||QR.pre||m.querySelector(".isti")){drawMushaf();if(QR.view==="ayah"||QR.pre){const lb=$("#qAyLbl");if(lb)lb.textContent=QR.pre==="basm"?"البسملة":QR.pre==="ist"?"الاستعاذة":`الآية ${ar(QR.cur+1)}`;return}}m.querySelectorAll(".ayah.cur,.basm.cur").forEach(x=>x.classList.remove("cur"));const el=m.querySelector(`.ayah[data-a="${QR.cur+1}"]`);if(el){el.classList.add("cur");el.scrollIntoView({block:"center",behavior:"smooth"})}const lb=$("#qAyLbl");if(lb)lb.textContent=`الآية ${ar(QR.cur+1)}`}
 function drawPlayer(){const box=$("#qPlayer");if(!box)return;const s=QR.s,src=readerSrc(),R=curRec(),L=qlib();const rs=recsFor(s);S.qTimes=S.qTimes||{};const times=S.qTimes[tKey()];
   box.innerHTML=`${src?`<div class="row"><button class="btn green" id="qPlay" style="font-size:1.1rem">${QR.playing?"⏸ إيقاف":"▶ استمع"}</button><button class="btn ghost small" id="qStopP" aria-label="إيقاف تام">⏹</button><b id="qAyLbl">${QR.pre==="basm"?"البسملة":QR.pre==="ist"?"الاستعاذة":`الآية ${ar(QR.cur+1)}`}</b>
       ${rs.length>1?`<label class="small">القارئ <select id="qRecSel">${rs.map(r=>`<option value="${r}" ${r===QR.rec?"selected":""}>${esc(recName(r))}</option>`).join("")}</select></label>`:`<span class="small">🎙️ ${esc(recName(QR.rec))}</span>`}</div>
@@ -1992,12 +2032,13 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
 /* ================= top navigation ================= */
 let mode="library";
 const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["voices","🔊","الأصوات"]];
-function renderNav(){const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})})}
+function renderNav(){document.body.dataset.mode=mode;const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})})}
 function renderMode(){const h=$("#modeView");({library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
 let libShelf="all",libQ="",libRen=null;
-function guessShelf(n){n=String(n||"");if(/قرآن|قران|مصحف|إسلام|اسلام|توحيد|فقه|حديث|تجويد|أذكار|دعاء/.test(n))return "islam";if(/رياض|حساب|أعداد|اعداد|أرقام|ارقام|عدد|math/i.test(n))return "math";if(/قصة|قصص|حكاية|story/i.test(n))return "story";if(/علوم|science|حيوان|نبات|جسم/i.test(n))return "sci";if(/english|انجليزي|إنجليزي|abc/i.test(n))return "en";if(/لغتي|لغة|حروف|عربي|قراءة|كتابة|هجاء|خط/.test(n))return "ar";return "other"}
+function guessShelf(n,txt){n=String(n||"");const byName=guessShelfName(n);if(byName!=="other"||!txt)return byName;const T=String(txt);const c=re=>(T.match(re)||[]).length;const sc={islam:c(/سورة|آية|القرآن|الصلاة|الوضوء|النبي|الرسول|ﷺ|المسجد|الإسلام/g)*3,math:c(/[0-9٠-٩]/g)/4+c(/عدد|أعداد|اجمع|اطرح|أكبر|أصغر|مثلث|دائرة|مربع|شكل|يساوي/g)*3,en:c(/\b[A-Za-z]{2,}\b/g),sci:c(/نبات|حيوان|الماء|جسم|حواس|الطقس|الفصول|الحشرات|الشمس/g)*3,story:c(/كان يا ما كان|ذات يوم|قصة|حكاية|في يوم من الأيام/g)*4,ar:c(/حرف|الحروف|اكتب|اقرأ|كلمة|صوت|تتبع|لون/g)*2};const best=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0];return best&&best[1]>=4?best[0]:(/[\u0600-\u06FF]{3}/.test(T)?"ar":"other")}
+function guessShelfName(n){n=String(n||"");if(/قرآن|قران|مصحف|إسلام|اسلام|توحيد|فقه|حديث|تجويد|أذكار|دعاء/.test(n))return "islam";if(/رياض|حساب|أعداد|اعداد|أرقام|ارقام|عدد|math/i.test(n))return "math";if(/قصة|قصص|حكاية|story/i.test(n))return "story";if(/علوم|science|حيوان|نبات|جسم/i.test(n))return "sci";if(/english|انجليزي|إنجليزي|abc/i.test(n))return "en";if(/لغتي|لغة|حروف|عربي|قراءة|كتابة|هجاء|خط/.test(n))return "ar";return "other"}
 const shelfOf=id=>(S.books[id]&&S.books[id].shelf)||guessShelf(S.books[id]&&S.books[id].name);
 function openBookNow(id){mode="lesson";renderNav();S.cur=id;openBook=id;[...selected].forEach(x=>{const l=allLessons().find(y=>y.id===x);if(!l||l.bookId!==id)selected.delete(x)});freeMode=false;if(id!==DEMO&&id!==LIB)curTool="ebook";save();renderSide();renderMain();onSelChange();window.scrollTo({top:0,behavior:"smooth"})}
 function groupByFolder(files){const g={};for(const f of files){const rp=f.webkitRelativePath||f.name;const parts=rp.split("/");const key=parts.length>2?parts[parts.length-2]:(parts.length===2?parts[0]:"");(g[key]=g[key]||[]).push(f)}return g}
@@ -2025,6 +2066,9 @@ async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{S
       const keepCur=S.cur,keepOpen=openBook;await loadFiles(fs,isPdf?undefined:{name:j.name});S.cur=keepCur;openBook=keepOpen;save();renderSide();
       const id=Object.keys(S.books).find(x=>S.books[x].name===j.name)||Object.keys(S.books).find(x=>!beforeIds.has(x));
       if(id){S.books[id].gh=j.key;S.shared[j.key]={sha:j.sha,id};rec?updated++:added++}}
+    try{S.sharedVoices=S.sharedVoices||{};const vs=(await ghList("voices")).filter(x=>x.type==="file"&&/\.json$/i.test(x.name));
+      for(const v of vs){if(S.sharedVoices[v.path]===v.sha)continue;syncMsg=`تجهيز الحزمة الصوتية «${v.name}»…`;if(mode==="library")renderMain();
+        const d=await (await fetch(v.download_url,{cache:"no-store"})).json();if(d&&d.format==="rawda-voice-pack"){for(const [k,it] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(it.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:it.type})).catch(()=>{});recKeys.add(k)}S.sharedVoices[v.path]=v.sha;flash("🔊 جُهّزت الحزمة الصوتية المشتركة","ok")}}}catch(e){}
     S.lastSync=Date.now();save();syncMsg=added||updated?`✓ أُضيف ${ar(added)} كتاب${updated?` وحُدِّث ${ar(updated)}`:""} من المكتبة المشتركة`:`✓ المكتبة محدَّثة (${ar(total)} كتاب مشترك)`;
     if(added||updated||manual)flash(syncMsg,"ok")}
   catch(e){syncMsg=navigator.onLine===false?"لا يوجد اتصال بالإنترنت؛ تعمل الكتب المحفوظة على هذه الشاشة.":"تعذّرت المزامنة الآن. حاول لاحقًا.";if(manual)flash(syncMsg,"err")}
@@ -2039,7 +2083,7 @@ function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books
   const card=id=>{const B=S.books[id],mb=memBook(id),np=mb?mb.pages.length:(B.np||Object.keys(B.meta||{}).length),ls=lessonsOf(id).length;const cov=mb&&mb.pages[0]?`<img src="${mb.pages[0].thumb}" alt="">`:`<span class="lcov-e">${(SHELVES.find(x=>x[0]===shelfOf(id))||SHELVES[7])[1]}</span>`;
     return `<div class="lcard"><button class="lcov" data-lopen="${id}" aria-label="افتح ${esc(B.name)}">${cov}${!mb&&booksRestored?`<span class="lwarn">أعد رفعه لعرض الصفحات</span>`:""}</button>
       <div class="lbody">${libRen===id?`<input class="lren" id="lren" value="${esc(B.name)}" aria-label="اسم الكتاب"><div class="row"><button class="btn small primary" data-lrensave="${id}">حفظ</button><button class="btn small ghost" data-lrencancel>إلغاء</button></div>`:`<b class="lname">${esc(B.name)}</b>`}
-       <span class="small muted">${ar(np)} صفحة${ls?` · ${ar(ls)} درس`:""}</span>
+       <span class="small muted">${ar(np)} صفحة${ls?` · ${ar(ls)} درس`:""}</span>${(B.st&&B.st.state==="reading")?`<span class="small"><span class="spin s"></span> يُقرأ الآن ${ar(B.st.done||0)}/${ar(B.st.total||1)}</span>`:(B.st&&B.st.state==="queued")?`<span class="small"><span class="spin s"></span> بانتظار القراءة</span>`:""}
        <select class="lshelf" data-lshelf="${id}" aria-label="الرف">${SHELVES.slice(1).map(x=>`<option value="${x[0]}" ${shelfOf(id)===x[0]?"selected":""}>${x[1]} ${x[2]}</option>`).join("")}</select>
        <div class="row"><button class="btn small green" data-lopen="${id}">📖 افتح</button><button class="btn small ghost" data-lren="${id}" aria-label="إعادة تسمية">✏️</button><button class="btn small ghost" data-ldel="${id}" aria-label="حذف" style="color:var(--coral)">🗑</button></div></div></div>`};
   h.innerHTML=`<div class="libv">
@@ -2063,7 +2107,7 @@ function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books
   $("#libQ").oninput=e=>{libQ=e.target.value.trim();const pos=e.target.selectionStart;renderLibraryView(h);const q=$("#libQ");q.focus();try{q.setSelectionRange(pos,pos)}catch(x){}};
   $$("[data-shelf]").forEach(b=>b.onclick=()=>{libShelf=b.dataset.shelf;renderLibraryView(h)});
   $$("[data-lopen]").forEach(b=>b.onclick=()=>openBookNow(b.dataset.lopen));
-  $$("[data-lshelf]").forEach(sl=>sl.onchange=()=>{S.books[sl.dataset.lshelf].shelf=sl.value;save();renderLibraryView(h)});
+  $$("[data-lshelf]").forEach(sl=>sl.onchange=()=>{const B=S.books[sl.dataset.lshelf];B.shelf=sl.value;B.shelfManual=true;save();renderLibraryView(h)});
   $$("[data-lren]").forEach(b=>b.onclick=()=>{libRen=b.dataset.lren;renderLibraryView(h);const i=$("#lren");i.focus();i.select()});
   $$("[data-lrencancel]").forEach(b=>b.onclick=()=>{libRen=null;renderLibraryView(h)});
   $$("[data-lrensave]").forEach(b=>b.onclick=()=>{const id=b.dataset.lrensave,v=$("#lren").value.trim();if(v){S.books[id].name=v;S.lessons.forEach(l=>{if(l.bookId===id)l.book=v})}libRen=null;save();renderSide();renderLibraryView(h)});
@@ -2161,7 +2205,7 @@ function renderMain(clicked){
   const one=ls.length===1&&ls[0].manual;$("#delLesson").hidden=!one;$("#editLesson").hidden=!(ls.length===1&&ls[0].id!==DEMO_LESSON.id&&!ls[0].lib);
   {const dl=$("#doneLesson");dl.hidden=ls.length!==1;if(ls.length===1){const d=S.done&&S.done[ls[0].id];dl.textContent=d?"✅ أُنجز الدرس":"✓ أنهيت الدرس";dl.classList.toggle("green",!!d);dl.classList.toggle("ghost",!d)}}
   const ban=$("#aiBanner");const needAI=(hasSel&&!isLetterSel()&&curTool!=="ebook"&&curTool!=="letters")||(curTool==="ebook"&&real&&!Object.values(real.meta).some(m=>m.read));
-  ban.hidden=!(needAI&&aiWhy!=="ok"&&aiWhy!=="loading"&&!(S.packs[keyOf()]||{})[curTool]);ban.innerHTML=`${esc(aiReason())} <b>دروس الحروف والأعداد والأشكال تعمل كاملة بدون ذلك</b>: من القائمة الجانبية أو الكتاب الإلكتروني اختر «أضف دروس الحروف» أو «الأعداد» أو «الأشكال».`;
+  ban.hidden=!(needAI&&curTool!=="ebook"&&aiWhy!=="ok"&&aiWhy!=="loading"&&!(S.packs[keyOf()]||{})[curTool]);ban.innerHTML=`${esc(aiReason())} <b>دروس الحروف والأعداد والأشكال تعمل كاملة بدون ذلك</b>: من القائمة الجانبية أو الكتاب الإلكتروني اختر «أضف دروس الحروف» أو «الأعداد» أو «الأشكال».`;
   renderTool(clicked);
 }
 function renderTool(clicked){
@@ -2750,6 +2794,12 @@ $("#vOrig").onchange=showViewerImg;
 $("#vZoom").oninput=e=>{$("#vImg").style.width=e.target.value+"%";$("#vImg").style.maxWidth="none"};
 $("#vSpeak").onclick=()=>speak($("#vText").textContent);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#viewer").hidden)closeViewer();$("#settings").hidden=true}});
+
+/* ================= full screen: always a visible way back ================= */
+const fsBack=document.createElement("button");fsBack.className="fsback";fsBack.type="button";fsBack.innerHTML="→ رجوع";fsBack.setAttribute("aria-label","الخروج من ملء الشاشة");
+fsBack.onclick=e=>{e.stopPropagation();const x=document.exitFullscreen||document.webkitExitFullscreen;if(x)x.call(document)};
+function fsChanged(){const el=document.fullscreenElement||document.webkitFullscreenElement;if(el&&!/^(VIDEO|CANVAS|IMG|IFRAME)$/.test(el.tagName))el.appendChild(fsBack);else fsBack.remove()}
+document.addEventListener("fullscreenchange",fsChanged);document.addEventListener("webkitfullscreenchange",fsChanged);
 
 /* ================= boot ================= */
 load();renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
