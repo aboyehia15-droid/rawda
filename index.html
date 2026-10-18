@@ -229,6 +229,25 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .side{top:calc(130px + env(safe-area-inset-top,0px))!important;max-height:calc(100vh - 146px)!important}
 .lgh{font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--muted);padding:6px 4px 0}
 #modeView{display:grid;gap:14px;min-width:0}
+.libv{display:grid;gap:14px}
+.libq{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-width:200px}
+.ldrop{display:grid;gap:8px;justify-items:center;text-align:center;padding:22px 16px;border:3px dashed #2a9d8f;border-radius:20px;background:rgba(42,157,143,.07);transition:background .15s}
+.ldrop.on{background:rgba(42,157,143,.2)}
+.lshelves{display:flex;flex-wrap:wrap;gap:8px}
+.lshelves button{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font:inherit;cursor:pointer}
+.lshelves button small{opacity:.7}
+.lshelves button[aria-pressed=true]{background:#2a9d8f;color:#fff;border-color:#2a9d8f}
+.lgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.lcard{display:grid;grid-template-rows:auto 1fr;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--paper,var(--bg));box-shadow:0 3px 12px rgba(0,0,0,.05)}
+.lcov{position:relative;display:grid;place-items:center;aspect-ratio:3/4;border:0;padding:0;background:linear-gradient(160deg,#e9f5f3,#fdf3e1);cursor:pointer;overflow:hidden}
+.lcov img{width:100%;height:100%;object-fit:cover}
+.lcov.lib{background:linear-gradient(160deg,#dbeafe,#fde68a)}
+.lcov-e{font-size:4rem}
+.lwarn{position:absolute;bottom:8px;inset-inline:8px;background:rgba(0,0,0,.6);color:#fff;font-size:.75rem;padding:4px 6px;border-radius:8px}
+.lbody{display:grid;gap:6px;padding:10px 12px;align-content:start}
+.lname{font-size:1rem;line-height:1.4}
+.lshelf{padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font:inherit;font-size:.85rem}
+.lren{padding:7px 9px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg)}
 /* whiteboard */
 .wb{display:grid;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-width:0}
 .wb:fullscreen{border-radius:0;grid-template-rows:auto 1fr;overflow:auto}
@@ -785,10 +804,15 @@ const drop=$("#drop");
 ["dragleave","drop"].forEach(ev=>document.addEventListener(ev,e=>{if(ev==="dragleave"&&e.relatedTarget)return;document.body.classList.remove("dragging")}));
 document.addEventListener("drop",e=>{if(e.dataTransfer&&e.dataTransfer.files.length){e.preventDefault();loadFiles([...e.dataTransfer.files])}});
 let loading=null; // {name,i,n}
+/* ================= book storage: page images stay on this device ================= */
+const bkKey=id=>"bk|"+id;let booksRestored=false;
+async function persistBook(id){const b=books.find(x=>x.id===id);if(!b||!b.pages.length)return;try{await MDB.set(bkKey(id),{pages:b.pages.map(p=>({n:p.n,blob:p.blob,thumb:p.thumb,pdfText:p.pdfText||"",fp:p.fp||""}))});S.books[id]&&(S.books[id].stored=true,S.books[id].np=b.pages.length);save()}catch(e){}}
+async function restoreBooks(){const ids=Object.keys(S.books);for(const id of ids){if(books.find(b=>b.id===id))continue;const d=await MDB.get(bkKey(id));if(d&&d.pages&&d.pages.length)books.push({id,pages:d.pages})}booksRestored=true;try{renderSide()}catch(e){}if(mode==="library"||(mode==="lesson"&&S.books[S.cur])){try{renderMain()}catch(e){}}}
+async function loadFiles(files,opts){const before=new Set(books.map(b=>b.id));await loadFiles0(files,opts);for(const b of books){if(!before.has(b.id)||!S.books[b.id]||!S.books[b.id].stored)await persistBook(b.id)}if(mode==="library")renderMain()}
 function bookFor(name){let id=Object.keys(S.books).find(k=>S.books[k].name===name);
   if(!id){id="B"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);S.books[id]={num:S.nextNum++,name,meta:{},st:{state:""}}}
   books=books.filter(b=>b.id!==id);const b={id,pages:[]};books.push(b);return b}
-async function loadFiles(files){
+async function loadFiles0(files,opts){
   const pdfs=files.filter(f=>f.type==="application/pdf"||/\.pdf$/i.test(f.name));
   const imgs=files.filter(f=>f.type.startsWith("image/")).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
   if(!pdfs.length&&!imgs.length){flash("الملفات المقبولة: PDF أو صور","err");return}
@@ -813,7 +837,7 @@ async function loadFiles(files){
     }catch(e){bad++}
   }
   if(imgs.length){
-    try{const bk=bookFor("صور: "+imgs[0].name.replace(/\.[^.]+$/,"")+(imgs.length>1?` (${ar(imgs.length)} صفحة)`:""));const meta=S.books[bk.id].meta;
+    try{const bk=bookFor(opts&&opts.name?opts.name:"صور: "+imgs[0].name.replace(/\.[^.]+$/,"")+(imgs.length>1?` (${ar(imgs.length)} صفحة)`:""));const meta=S.books[bk.id].meta;
       S.cur=bk.id;loading={id:bk.id,i:0,n:imgs.length};
       for(const f of imgs){const n=bk.pages.length+1;loading.i=n;renderSide();
         const bmp=await createImageBitmap(f);const sc=Math.min(1,1800/Math.max(bmp.width,bmp.height));
@@ -1960,10 +1984,55 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
     saveFile("الحزمة-الصوتية-روضة-الدروس.json",new Blob([JSON.stringify(out)],{type:"application/json"}))};
   $("#vcImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text());if(d.format!=="rawda-voice-pack")throw 0;let n=0;for(const [k,v] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(v.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:v.type}));recKeys.add(k);n++}flash(`استُورد ${ar(n)} مقطعًا صوتيًا`,"ok");re()}catch(err){flash("هذا الملف ليس حزمة صوتية من روضة الدروس","err")}}}
 /* ================= top navigation ================= */
-let mode="lesson";
-const MODES=[["lesson","📚","الدروس"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["voices","🔊","الأصوات"]];
+let mode="library";
+const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["voices","🔊","الأصوات"]];
 function renderNav(){const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})})}
-function renderMode(){const h=$("#modeView");({board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+function renderMode(){const h=$("#modeView");({library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+/* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
+const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
+let libShelf="all",libQ="",libRen=null;
+function guessShelf(n){n=String(n||"");if(/قرآن|قران|مصحف|إسلام|اسلام|توحيد|فقه|حديث|تجويد|أذكار|دعاء/.test(n))return "islam";if(/رياض|حساب|أعداد|اعداد|أرقام|ارقام|عدد|math/i.test(n))return "math";if(/قصة|قصص|حكاية|story/i.test(n))return "story";if(/علوم|science|حيوان|نبات|جسم/i.test(n))return "sci";if(/english|انجليزي|إنجليزي|abc/i.test(n))return "en";if(/لغتي|لغة|حروف|عربي|قراءة|كتابة|هجاء|خط/.test(n))return "ar";return "other"}
+const shelfOf=id=>(S.books[id]&&S.books[id].shelf)||guessShelf(S.books[id]&&S.books[id].name);
+function openBookNow(id){mode="lesson";renderNav();S.cur=id;openBook=id;[...selected].forEach(x=>{const l=allLessons().find(y=>y.id===x);if(!l||l.bookId!==id)selected.delete(x)});freeMode=false;if(id!==DEMO&&id!==LIB)curTool="ebook";save();renderSide();renderMain();onSelChange();window.scrollTo({top:0,behavior:"smooth"})}
+function groupByFolder(files){const g={};for(const f of files){const rp=f.webkitRelativePath||f.name;const parts=rp.split("/");const key=parts.length>2?parts[parts.length-2]:(parts.length===2?parts[0]:"");(g[key]=g[key]||[]).push(f)}return g}
+async function libUpload(files,folders){files=[...files].filter(f=>/^image\//.test(f.type)||f.type==="application/pdf"||/\.pdf$/i.test(f.name));if(!files.length){flash("اختر ملفات PDF أو صور صفحات","err");return}
+  flash(`جارٍ تجهيز ${ar(files.length)} ملف…`,"ok");
+  if(folders){const g=groupByFolder(files);for(const [name,fs] of Object.entries(g)){const pdfs=fs.filter(f=>!/^image\//.test(f.type)),imgs=fs.filter(f=>/^image\//.test(f.type));if(pdfs.length)await loadFiles(pdfs);if(imgs.length)await loadFiles(imgs,{name:name||undefined})}}
+  else{const pdfs=files.filter(f=>!/^image\//.test(f.type)),imgs=files.filter(f=>/^image\//.test(f.type));if(pdfs.length)await loadFiles(pdfs);if(imgs.length)await loadFiles(imgs)}
+  if(libShelf!=="all")Object.keys(S.books).forEach(id=>{if(!S.books[id].shelf&&guessShelf(S.books[id].name)==="other")S.books[id].shelf=libShelf});save();mode="library";renderNav();renderMain();flash("✓ أُضيفت الكتب إلى المكتبة","ok")}
+function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books[b].num-S.books[a].num);const cnt={all:ids.length};ids.forEach(id=>{const k=shelfOf(id);cnt[k]=(cnt[k]||0)+1});
+  const shown=ids.filter(id=>(libShelf==="all"||shelfOf(id)===libShelf)&&(!libQ||S.books[id].name.includes(libQ)));
+  const pages=ids.reduce((a,id)=>a+(memBook(id)?memBook(id).pages.length:(S.books[id].np||Object.keys(S.books[id].meta||{}).length)),0);
+  const card=id=>{const B=S.books[id],mb=memBook(id),np=mb?mb.pages.length:(B.np||Object.keys(B.meta||{}).length),ls=lessonsOf(id).length;const cov=mb&&mb.pages[0]?`<img src="${mb.pages[0].thumb}" alt="">`:`<span class="lcov-e">${(SHELVES.find(x=>x[0]===shelfOf(id))||SHELVES[7])[1]}</span>`;
+    return `<div class="lcard"><button class="lcov" data-lopen="${id}" aria-label="افتح ${esc(B.name)}">${cov}${!mb&&booksRestored?`<span class="lwarn">أعد رفعه لعرض الصفحات</span>`:""}</button>
+      <div class="lbody">${libRen===id?`<input class="lren" id="lren" value="${esc(B.name)}" aria-label="اسم الكتاب"><div class="row"><button class="btn small primary" data-lrensave="${id}">حفظ</button><button class="btn small ghost" data-lrencancel>إلغاء</button></div>`:`<b class="lname">${esc(B.name)}</b>`}
+       <span class="small muted">${ar(np)} صفحة${ls?` · ${ar(ls)} درس`:""}</span>
+       <select class="lshelf" data-lshelf="${id}" aria-label="الرف">${SHELVES.slice(1).map(x=>`<option value="${x[0]}" ${shelfOf(id)===x[0]?"selected":""}>${x[1]} ${x[2]}</option>`).join("")}</select>
+       <div class="row"><button class="btn small green" data-lopen="${id}">📖 افتح</button><button class="btn small ghost" data-lren="${id}" aria-label="إعادة تسمية">✏️</button><button class="btn small ghost" data-ldel="${id}" aria-label="حذف" style="color:var(--coral)">🗑</button></div></div></div>`};
+  h.innerHTML=`<div class="libv">
+   <div class="foot"><div><h2 style="font-size:1.6rem">🗂️ مكتبتي</h2><span class="small muted">${ar(ids.length)} كتاب · ${ar(pages)} صفحة · محفوظة على هذا الجهاز وتفتح مباشرة</span></div>
+     <div class="row"><input type="search" id="libQ" placeholder="ابحث عن كتاب" value="${esc(libQ)}" class="libq"></div></div>
+   <div class="ldrop" id="ldrop" tabindex="0"><span style="font-size:2.4rem">📥</span><b>اسحب الكتب إلى هنا، أو اختر من الجهاز أو الفلاشة</b><span class="small muted">PDF (كل ملف كتاب) · صور صفحات · مجلد كامل (كل مجلد كتاب) · عدة كتب دفعة واحدة</span>
+     <div class="row" style="justify-content:center"><label class="btn primary">📄 اختيار كتب<input type="file" id="libFiles" accept="application/pdf,image/*" multiple class="sr"></label><label class="btn">📁 اختيار مجلد كتب<input type="file" id="libDir" webkitdirectory directory multiple class="sr"></label></div></div>
+   <div class="lshelves">${SHELVES.map(x=>`<button data-shelf="${x[0]}" aria-pressed="${libShelf===x[0]}">${x[1]} ${x[2]} <small>${ar(cnt[x[0]]||0)}</small></button>`).join("")}</div>
+   <div class="lgrid">
+     ${libShelf==="all"&&!libQ?`<div class="lcard"><button class="lcov lib" data-lopen="${LIB}"><span class="lcov-e">🏫</span></button><div class="lbody"><b class="lname">مكتبة الروضة</b><span class="small muted">${ar(LIB_LESSONS.length)} درسًا جاهزًا: حروف وأعداد وأشكال</span><div class="row"><button class="btn small green" data-lopen="${LIB}">📖 افتح</button></div></div></div>`:""}
+     ${shown.map(card).join("")||(ids.length?`<p class="muted">لا توجد كتب في هذا الرف.</p>`:"")}
+   </div></div>`;
+  const run=(fs,dir)=>{if(fs.length)libUpload(fs,dir)};
+  $("#libFiles").onchange=e=>{const f=[...e.target.files];e.target.value="";run(f,false)};
+  $("#libDir").onchange=e=>{const f=[...e.target.files];e.target.value="";run(f,true)};
+  const dz=$("#ldrop");["dragenter","dragover"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.add("on")}));["dragleave","drop"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.remove("on")}));
+  dz.addEventListener("drop",e=>{const f=[...(e.dataTransfer&&e.dataTransfer.files||[])];run(f,false)});
+  $("#libQ").oninput=e=>{libQ=e.target.value.trim();const pos=e.target.selectionStart;renderLibraryView(h);const q=$("#libQ");q.focus();try{q.setSelectionRange(pos,pos)}catch(x){}};
+  $$("[data-shelf]").forEach(b=>b.onclick=()=>{libShelf=b.dataset.shelf;renderLibraryView(h)});
+  $$("[data-lopen]").forEach(b=>b.onclick=()=>openBookNow(b.dataset.lopen));
+  $$("[data-lshelf]").forEach(sl=>sl.onchange=()=>{S.books[sl.dataset.lshelf].shelf=sl.value;save();renderLibraryView(h)});
+  $$("[data-lren]").forEach(b=>b.onclick=()=>{libRen=b.dataset.lren;renderLibraryView(h);const i=$("#lren");i.focus();i.select()});
+  $$("[data-lrencancel]").forEach(b=>b.onclick=()=>{libRen=null;renderLibraryView(h)});
+  $$("[data-lrensave]").forEach(b=>b.onclick=()=>{const id=b.dataset.lrensave,v=$("#lren").value.trim();if(v){S.books[id].name=v;S.lessons.forEach(l=>{if(l.bookId===id)l.book=v})}libRen=null;save();renderSide();renderLibraryView(h)});
+  const ri=$("#lren");if(ri)ri.onkeydown=e=>{if(e.key==="Enter")$("[data-lrensave]").click();if(e.key==="Escape")$("[data-lrencancel]").click()};
+  $$("[data-ldel]").forEach(b=>b.onclick=()=>{const id=b.dataset.ldel;if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="تأكيد الحذف؟";setTimeout(()=>{if(b.isConnected){b.dataset.arm="";b.textContent="🗑"}},3500);return}delArm=id;delBook(id);mode="library";renderNav();renderMain()})}
 function libHead(id,L,i){if(id!==LIB)return "";const k=lkind(L[i]);if(i>0&&lkind(L[i-1])===k)return "";return `<div class="lgh">${{letter:"🔤 الحروف",number:"🔢 الأعداد",shape:"🔺 الأشكال"}[k]||""}</div>`}
 
 /* ================= web: search in new tabs, then bring results into the program ================= */
@@ -2628,7 +2697,7 @@ function renderVideo(body,V){
 let vN=1;
 let delArm=null;
 function delBook(id){if(delArm!==id){delArm=id;flash("اضغط «حذف» مرة أخرى للتأكيد");setTimeout(()=>{if(delArm===id)delArm=null},4000);return}
-  delArm=null;stopRead(id);S.lessons.filter(l=>l.bookId===id).forEach(l=>selected.delete(l.id));S.lessons=S.lessons.filter(l=>l.bookId!==id);delete S.books[id];books=books.filter(b=>b.id!==id);S.cur=Object.keys(S.books)[0]||DEMO;save();renderSide();renderMain();flash("حُذف الكتاب")}
+  delArm=null;stopRead(id);S.lessons.filter(l=>l.bookId===id).forEach(l=>selected.delete(l.id));S.lessons=S.lessons.filter(l=>l.bookId!==id);delete S.books[id];books=books.filter(b=>b.id!==id);MDB.del(bkKey(id)).catch(()=>{});S.cur=Object.keys(S.books)[0]||DEMO;save();renderSide();renderMain();flash("حُذف الكتاب")}
 function openViewer(n){vN=n;$("#viewer").hidden=false;$("#vZoom").value=100;$("#vImg").style.width="";showViewerImg();showViewerText()}
 async function showViewerImg(){const bk=memBook(S.cur);const p=bk&&bk.pages.find(x=>x.n===vN);if(!p)return;$("#vTitle").textContent=`صفحة ${ar(vN)}`;
   const img=$("#vImg");if($("#vOrig").checked){img.src=URL.createObjectURL(p.blob);return}img.style.opacity=.5;img.src=await enhURL(p);img.style.opacity=1}
@@ -2649,6 +2718,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#viewer").hi
 /* ================= boot ================= */
 load();renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
 aiInit.then(()=>{renderSide()});
+restoreBooks().catch(()=>{});
 </script>
 
 </body></html>
