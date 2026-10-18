@@ -1,0 +1,24 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.rawda.app'
+    compileSdk 34
+    defaultConfig {
+        applicationId "com.rawda.app"
+        minSdk 21
+        targetSdk 34
+        versionCode((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger())
+        versionName "1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
+    }
+    signingConfigs {
+        rawda {
+            storeFile file("rawda.keystore")
+            storePassword "rawda-app-2026"
+            keyAlias "rawda"
+            keyPassword "rawda-app-2026"
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; signingConfig signingConfigs.rawda }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

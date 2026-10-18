@@ -1,5 +1,24 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2a9d8f"><title>روضة الدروس</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0}</style></head><body>
+<script>
+/* inside the Android app: speak Arabic with the device's own voice, since the app window has no browser voice */
+if(window.RawdaAndroid){(function(){var A=window.RawdaAndroid,cbs={},n=0,V=[];
+ function load(){try{V=JSON.parse(A.voices()||"[]").map(function(v){return {name:v.name,lang:v.lang,voiceURI:v.name,localService:true,default:false}})}catch(e){V=[]}return V}
+ function U(t){this.text=t||"";this.lang="ar-SA";this.rate=1;this.pitch=1;this.volume=1;this.voice=null;this.onend=null;this.onstart=null;this.onerror=null;this.onboundary=null;this._l={}}
+ U.prototype.addEventListener=function(t,f){(this._l[t]=this._l[t]||[]).push(f)};U.prototype.removeEventListener=function(){};
+ function fire(u,t){var e={type:t,utterance:u,charIndex:0,elapsedTime:0};try{u["on"+t]&&u["on"+t](e)}catch(x){}(u._l[t]||[]).forEach(function(f){try{f(e)}catch(x){}})}
+ var S={speaking:false,pending:false,paused:false,onvoiceschanged:null,_l:[],
+  getVoices:function(){return V.length?V:load()},
+  speak:function(u){var id="u"+(++n);cbs[id]=u;S.speaking=true;A.speak(String(u.text||""),(u.voice&&u.voice.lang)||u.lang||"ar",String(u.rate||1),String(u.pitch||1),(u.voice&&u.voice.name)||"",id)},
+  cancel:function(){var k=Object.keys(cbs);cbs={};S.speaking=false;A.stop();k.forEach(function(){})},
+  pause:function(){},resume:function(){},
+  addEventListener:function(t,f){if(t==="voiceschanged")S._l.push(f)},removeEventListener:function(){}};
+ window.__rawdaTTS=function(id,ev){var u=cbs[id];if(!u)return;if(ev==="start"){fire(u,"start");return}delete cbs[id];if(!Object.keys(cbs).length)S.speaking=false;fire(u,ev==="error"?"error":"end")};
+ window.__rawdaVoicesReady=function(){load();try{S.onvoiceschanged&&S.onvoiceschanged({})}catch(x){}S._l.forEach(function(f){try{f({})}catch(x){}})};
+ try{Object.defineProperty(window,"speechSynthesis",{value:S,configurable:true,writable:true})}catch(e){window.speechSynthesis=S}
+ window.SpeechSynthesisUtterance=U;
+})()}
+</script>
 <title>روضة الدروس</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2481,7 +2500,8 @@ const b64bytes=b=>Uint8Array.from(atob(b),c=>c.charCodeAt(0));
 
 /* ================= exports ================= */
 async function saveFile(filename,data){
-  await aiInit;if(!downloads){try{const b=data instanceof Blob?data:new Blob([data]);const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);flash("تم الحفظ","ok");return true}catch(e){flash("تعذّر الحفظ","err");return false}}
+  await aiInit;if(!downloads&&window.RawdaAndroid){try{const b=data instanceof Blob?data:new Blob([data]);const u8=new Uint8Array(await b.arrayBuffer());let bin="";for(let i=0;i<u8.length;i+=32768)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));const ok=window.RawdaAndroid.saveBase64(filename,btoa(bin),b.type||"");return !!ok}catch(e){flash("تعذّر الحفظ","err");return false}}
+  if(!downloads){try{const b=data instanceof Blob?data:new Blob([data]);const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);flash("تم الحفظ","ok");return true}catch(e){flash("تعذّر الحفظ","err");return false}}
   try{await downloads.save({filename,data});flash("تم الحفظ","ok");return true}catch(e){if(e&&e.code!=="declined")flash("تعذّر الحفظ","err");return false}}
 const cleanName=s=>String(s).replace(/[\\/:*?"<>|]/g,"").replace(/\s+/g," ").trim().slice(0,70);
 async function exportPart(part,fmt,btn){
