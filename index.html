@@ -1672,7 +1672,7 @@ const QBUNDLE=[{id:"b-husary",d:"h",n:"محمود خليل الحصري — ال
  {id:"b-minshawi",d:"m",n:"محمد صديق المنشاوي — مرتّل",t:"الفاتحة + قد سمع وتبارك وعمّ",ss:[1,...range(58,114)]},
  {id:"b-alafasy",d:"a",n:"مشاري راشد العفاسي — مرتّل",t:"الفاتحة + قد سمع وتبارك وعمّ",ss:[1,...range(58,114)]}];
 const bundleOf=r=>QBUNDLE.find(b=>b.id===r);
-const QBIDX={};function bundleIdx(r){const b=bundleOf(r);if(!b)return Promise.reject();if(QBIDX[r])return QBIDX[r];QBIDX[r]=fetch(`q/${b.d}/index.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).catch(e=>{delete QBIDX[r];throw e});return QBIDX[r]}
+const QBIDX={};function bundleIdx(r){const b=bundleOf(r);if(!b)return Promise.reject();if(QBIDX[r])return QBIDX[r];QBIDX[r]=fetch(`q/${b.d}/index.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).catch(()=>localData().then(D=>D.idx[b.d])).catch(e=>{delete QBIDX[r];throw e});return QBIDX[r]}
 const bundleUrl=(r,s)=>`q/${bundleOf(r).d}/${String(s).padStart(3,"0")}.mp3`;
 function recsFor(s){const L=qlib();return [...QBUNDLE.filter(b=>b.ss.includes(s)).map(b=>b.id),...Object.keys(L).filter(r=>L[r].full&&L[r].full[s]||arr(L[r].ay&&L[r].ay[s]).length)]}
 const hasAudio=s=>recsFor(s).length>0;
@@ -1757,8 +1757,9 @@ function wireLibPanel(rerender){const g=id=>document.getElementById(id);if(!g("q
     const z=zipStore(files);await saveFile(`تلاوات - ${tokName(L[r].n).replace(/[\\/:*?"<>|]/g,"").slice(0,50)}.zip`,new Blob([z],{type:"application/zip"}));b.disabled=false;b.textContent="📦 حفظ كحزمة ZIP"})}
 
 /* ================= Quran reader: whole surah or verse by verse, with listening ================= */
-let QTEXT=null,QLOAD=null;
-function loadQuran(){if(QTEXT)return Promise.resolve(QTEXT);if(QLOAD)return QLOAD;QLOAD=fetch("quran-uthmani.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{QTEXT=d.surahs;return QTEXT}).catch(e=>{QLOAD=null;throw e});return QLOAD}
+let QTEXT=null,QLOAD=null,LDATA=null;
+function localData(){if(window.RAWDA_DATA)return Promise.resolve(window.RAWDA_DATA);if(LDATA)return LDATA;LDATA=new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="data.js";sc.onload=()=>window.RAWDA_DATA?res(window.RAWDA_DATA):rej(0);sc.onerror=()=>{LDATA=null;rej(0)};document.head.appendChild(sc)});return LDATA}
+function loadQuran(){if(QTEXT)return Promise.resolve(QTEXT);if(QLOAD)return QLOAD;QLOAD=fetch("quran-uthmani.json").then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>localData().then(D=>D.quran)).then(d=>{QTEXT=d.surahs;return QTEXT}).catch(e=>{QLOAD=null;throw e});return QLOAD}
 const BASM_RE=/^(بِّ?سْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ) /;
 const noSh=x=>x.replace(/\u0651/g,"");
 function ayahParts(s,i,t){if(s!==1&&s!==9&&i===0&&QTEXT){const B=noSh(QTEXT[0][0]);for(const k of [QTEXT[0][0].length,QTEXT[0][0].length+1,QTEXT[0][0].length-1]){const c=t.slice(0,k);if(t[k]===" "&&noSh(c)===B)return {basm:c,text:t.slice(k+1)}}}return {basm:"",text:t}}
