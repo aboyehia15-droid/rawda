@@ -1,0 +1,39 @@
+name: الحزمة الصوتية بأصوات Gemini
+
+on:
+  push:
+    branches: [main]
+    paths: ['tools/gemini-voice.txt']
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */3 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools
+            voices
+            .github
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Build with Gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python3 tools/make_gemini_pack.py
+      - name: Commit
+        run: |
+          git config user.name "aboyehia15-droid"
+          git config user.email "aboyehia15-droid@users.noreply.github.com"
+          git add voices
+          git diff --cached --quiet && exit 0
+          git commit -m "الحزمة الصوتية بصوت Gemini (تُستورد تلقائيًا على كل الشاشات)"
+          git pull --rebase -q origin main
+          git push
