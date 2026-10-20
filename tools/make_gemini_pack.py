@@ -16,7 +16,7 @@ if os.path.exists("voices/.gemini-done.json"):
 
 
 def call(model, text):
-    body = {"contents": [{"role": "user", "parts": [{"text": f"اقرأ النص التالي فقط بالعربية الفصحى، بصوت معلم روضة واضح ودافئ وبطيء قليلًا، وانطق التشكيل كما هو: {text}"}]}],
+    body = {"contents": [{"role": "user", "parts": [{"text": text}]}],
             "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice}}}}}
     req = urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
                                  data=json.dumps(body).encode(), headers={"Content-Type": "application/json", "x-goog-api-key": key})
@@ -70,6 +70,9 @@ for voice in VOICES:
                     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", *inp, "-af",
                                     "silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse,apad=pad_dur=0.12",
                                     "-ac", "1", "-ar", "24000", "-b:a", "48k", mp3], check=True)
+                    dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp3], capture_output=True, text=True).stdout or 0)
+                    if dur > 1.5 + 0.35 * len(spoken):
+                        print("too long, skipped", k, dur); break
                     pack["items"][k] = {"type": "audio/mpeg", "b64": base64.b64encode(open(mp3, "rb").read()).decode()}
                     done.add(k); ok += 1
                     break

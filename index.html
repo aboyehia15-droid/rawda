@@ -2161,6 +2161,7 @@ async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{w
       const id=Object.keys(S.books).find(x=>S.books[x].name===j.name)||Object.keys(S.books).find(x=>!beforeIds.has(x));
       if(id){S.books[id].gh=j.key;if(!S.books[id].shelfManual)S.books[id].shelf=guessShelf(j.name);S.shared[j.key]={sha:j.sha,id};rec?updated++:added++}}
     try{S.sharedVoices=S.sharedVoices||{};const vs=(await ghList("voices")).filter(x=>x.type==="file"&&/\.json$/i.test(x.name));
+      {const live=new Set(vs.map(x=>x.path));for(const [pid,P] of Object.entries(S.voicePacks||{})){if(P.path&&!live.has(P.path)){for(const k of (P.keys||[]))await VDB.del(pid+PK+k).catch(()=>{});delete S.voicePacks[pid];delete S.sharedVoices[P.path];if(S.voiceMode===pid)S.voiceMode="auto";packSets={}}}}
       for(const v of vs){if(S.sharedVoices[v.path]===v.sha)continue;syncMsg=`تجهيز الحزمة الصوتية «${v.name}»…`;if(mode==="library")renderMain();
         const d=await (await fetch(v.download_url,{cache:"no-store"})).json();if(d&&d.format==="rawda-voice-pack"){const pid=String(d.id||("p"+hashStr(v.path)));S.voicePacks=S.voicePacks||{};const keys=[];for(const [k,it] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(it.b64),c=>c.charCodeAt(0));await VDB.set(pid+PK+k,new Blob([bin],{type:it.type})).catch(()=>{});keys.push(k)}
           S.voicePacks[pid]={name:d.voice||v.name.replace(/\.json$/i,""),label:d.label||"",keys,path:v.path,n:keys.length};packSets={};
