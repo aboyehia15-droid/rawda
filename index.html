@@ -241,6 +241,7 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .qext{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--paper,var(--bg))}
 .qext summary{cursor:pointer;font-weight:700}
 .qext .recbox{margin-top:10px}
+.vgen{display:grid;gap:8px;padding:12px 14px;border:2px dashed #3a86ff;border-radius:16px;background:rgba(58,134,255,.06)}
 .lshelves{display:flex;flex-wrap:wrap;gap:8px}
 .lshelves button{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font:inherit;cursor:pointer}
 .lshelves button small{opacity:.7}
@@ -2008,6 +2009,60 @@ function packItems(){const it=[];LETTERS.forEach(([c])=>{const L=LET[c],F=forms(
   it.push({g:"التشجيع",sub:"عبارات التشجيع والصف",list:[...PRAISE,"انْتَهَى الوَقْت","حَاوِلْ مَرَّةً أُخْرَى","أَحْسَنْتُمْ يَا أَبْطَال","صَمْت","هَمْس","نَشَاطٌ وَمُشَارَكَة"]});
   it.push({g:"السلوك",sub:"لعبة سلوكي الجميل",list:VALUES.map(v=>v.t)});return it}
 let vcOpen=null,vcUp=false;
+/* record every pack item from a device voice through screen/tab audio sharing */
+let vgRun=null;
+const GEM_MODEL="gemini-3.8-flash-tts",GEM_FALLBACK=["gemini-3.8-flash-tts","gemini-3.8-flash-lite-tts","gemini-2.5-flash-preview-tts"];
+const GEM_VOICES=["Kore","Puck","Charon","Zephyr","Fenrir","Leda","Orus","Aoede","Callirrhoe","Autonoe","Enceladus","Iapetus","Umbriel","Algieba","Despina","Erinome","Algenib","Rasalgethi","Laomedeia","Achernar","Alnilam","Schedar","Gacrux","Pulcherrima","Achird","Zubenelgenubi","Vindemiatrix","Sadachbia","Sadaltager","Sulafat"];
+const gemKey=()=>{try{return localStorage.getItem("rawda-gemini-key")||""}catch(e){return ""}};
+function gemErr(e){const st=e&&e.status;if(st===400&&/key/i.test(e.detail||""))return "المفتاح غير صحيح. انسخه من Google AI Studio مرة أخرى.";if(st===401||st===403)return "المفتاح لا يملك صلاحية لهذه الخدمة.";if(st===404)return "اسم النموذج غير موجود. جرّب: "+GEM_FALLBACK.join(" أو ");if(st===429)return "تجاوزت الحد المسموح الآن من Google. انتظر قليلًا ثم أكمل (المقاطع المنجزة محفوظة).";if(e&&e.message==="noaudio")return "لم يُرجع Google صوتًا لهذا المقطع.";if(e&&e.message==="Failed to fetch")return "تعذّر الاتصال بـ Google. افتح البرنامج من رابط GitHub (داخل Claude لا يُسمح بالاتصال).";return "تعذّر الإنشاء: "+((e&&(e.detail||e.message))||"")}
+function pcmToWav(pcm,rate){const h=new DataView(new ArrayBuffer(44));const w=(o,t)=>{for(let i=0;i<t.length;i++)h.setUint8(o+i,t.charCodeAt(i))};w(0,"RIFF");h.setUint32(4,36+pcm.length,true);w(8,"WAVE");w(12,"fmt ");h.setUint32(16,16,true);h.setUint16(20,1,true);h.setUint16(22,1,true);h.setUint32(24,rate,true);h.setUint32(28,rate*2,true);h.setUint16(32,2,true);h.setUint16(34,16,true);w(36,"data");h.setUint32(40,pcm.length,true);const out=new Uint8Array(44+pcm.length);out.set(new Uint8Array(h.buffer),0);out.set(pcm,44);return out}
+let gemAC=null;
+async function shrinkWav(bytes){try{gemAC=gemAC||new (window.AudioContext||window.webkitAudioContext)();const buf=await gemAC.decodeAudioData(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
+    const R=16000,len=Math.max(1,Math.ceil(buf.duration*R));const oc=new OfflineAudioContext(1,len,R);const src=oc.createBufferSource();src.buffer=buf;src.connect(oc.destination);src.start();const r=await oc.startRendering();let d=r.getChannelData(0);
+    let a=0,b=d.length-1;while(a<b&&Math.abs(d[a])<0.008)a++;while(b>a&&Math.abs(d[b])<0.008)b--;a=Math.max(0,a-Math.round(R*.06));b=Math.min(d.length-1,b+Math.round(R*.12));d=d.subarray(a,b+1);
+    const pcm=new Uint8Array(d.length*2);const dv=new DataView(pcm.buffer);for(let i=0;i<d.length;i++){const v=Math.max(-1,Math.min(1,d[i]));dv.setInt16(i*2,v<0?v*32768:v*32767,true)}
+    return new Blob([pcmToWav(pcm,R)],{type:"audio/wav"})}catch(e){return new Blob([bytes],{type:"audio/wav"})}}
+async function gemTTS(text,voice,model){const body={contents:[{role:"user",parts:[{text:`اقرأ النص التالي فقط بالعربية الفصحى، بصوت معلم روضة واضح ودافئ وبطيء قليلًا، وانطق التشكيل كما هو: ${text}`}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:voice}}}}};
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":gemKey()},body:JSON.stringify(body)});
+  if(!r.ok){const e=new Error("gem "+r.status);e.status=r.status;try{const j=await r.json();e.detail=j.error&&j.error.message;const rd=JSON.stringify(j).match(/"retryDelay":"(\d+)s"/);if(rd)e.retry=+rd[1]}catch(x){}throw e}
+  const d=await r.json();const parts=(((d.candidates||[])[0]||{}).content||{}).parts||[];const ad=parts.find(p=>p.inlineData||p.inline_data);if(!ad)throw new Error("noaudio");
+  const inl=ad.inlineData||ad.inline_data;const bin=Uint8Array.from(atob(inl.data),c=>c.charCodeAt(0));const mt=String(inl.mimeType||inl.mime_type||"");
+  const wav=(/wav/i.test(mt)||(bin[0]===0x52&&bin[1]===0x49&&bin[2]===0x46))?bin:pcmToWav(bin,+(mt.match(/rate=(\d+)/)||[0,24000])[1]);
+  return shrinkWav(wav)}
+async function genGeminiPack(all,voice,model,skip,done){const msg=t=>{const m=$("#gmMsg");if(m)m.textContent=t};if(!gemKey()){msg("ضع مفتاح Gemini أولًا.");return}
+  const todo=all.filter(t=>!(skip&&recKeys.has(recKey(t))));let ok=0,fail=0;vgRun={stop:false};
+  const bS=$("#gmStart"),bX=$("#gmStop");if(bS)bS.disabled=true;if(bX){bX.hidden=false;bX.onclick=()=>{vgRun.stop=true;msg("يتوقف بعد المقطع الحالي…")}}
+  try{for(let i=0;i<todo.length;i++){if(vgRun.stop)break;const t=todo[i];msg(`صوت Gemini: ${ar(i+1)} من ${ar(todo.length)} — ${t}`);let tries=0;
+      while(true){try{const b=await gemTTS(t,voice,model);await VDB.set(recKey(t),b);recKeys.add(recKey(t));ok++;break}
+        catch(e){tries++;if(e.status===429&&tries<6&&!vgRun.stop){const w=Math.min(90,(e.retry||15)*tries);msg(`حدّ Google المؤقت؛ انتظار ${ar(w)} ثانية ثم المتابعة… (${ar(i)} من ${ar(todo.length)})`);await new Promise(r=>setTimeout(r,w*1000));continue}
+          if([400,401,403,404].includes(e.status)||e.message==="Failed to fetch"){msg(gemErr(e));vgRun.stop=true}else fail++;break}}}}
+  finally{vgRun=null}
+  flash(`✓ أُنشئ ${ar(ok)} مقطعًا بصوت ${voice}${fail?`، وتعذّر ${ar(fail)}`:""}. احفظ الحزمة وارفعها إلى مجلد voices.`,ok?"ok":"err");if(ok||!$("#gmMsg")||!$("#gmMsg").textContent)done()}
+async function genVoicePack(all,voiceURI,skip,done){const msg=t=>{const m=$("#vgMsg");if(m)m.textContent=t};
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){msg("هذا المتصفح لا يسمح بالتقاط الصوت. افتح البرنامج في Edge أو Chrome على الحاسوب من رابط GitHub.");return}
+  const v=arVoices().find(x=>x.voiceURI===voiceURI);if(!v){msg("اختر صوتًا عربيًا أولًا.");return}
+  let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:true,audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},systemAudio:"include",preferCurrentTab:true,selfBrowserSurface:"include"})}
+  catch(e){msg(e&&e.name==="NotAllowedError"?"لم تُمنح مشاركة الشاشة. حاول مرة أخرى واختر «مشاركة». (داخل Claude قد يمنعها المتصفح؛ استخدم رابط GitHub.)":"تعذّر بدء الالتقاط.");return}
+  const at=st.getAudioTracks();st.getVideoTracks().forEach(t=>t.stop());
+  if(!at.length){msg("لم يُلتقط صوت. أعد المحاولة وفعّل «مشاركة صوت النظام» أو «مشاركة صوت التبويب».");return}
+  const aud=new MediaStream(at);const mime=["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||"";
+  const todo=all.filter(t=>!(skip&&recKeys.has(recKey(t))));let ok=0,fail=0;vgRun={stop:false};
+  const bS=$("#vgStart"),bX=$("#vgStop");if(bS)bS.disabled=true;if(bX){bX.hidden=false;bX.onclick=()=>{vgRun.stop=true;try{speechSynthesis.cancel()}catch(e){}}}
+  stopSpeak();
+  const one=t=>new Promise(res=>{let rec=null,chunks=[],fin=false;const end=ok_=>{if(fin)return;fin=true;clearTimeout(guard);
+      const stopRec=()=>{if(rec&&rec.state!=="inactive"){rec.onstop=()=>res(ok_&&chunks.length?new Blob(chunks,{type:mime||"audio/webm"}):null);rec.stop()}else res(null)};setTimeout(stopRec,220)};
+    const u=new SpeechSynthesisUtterance(t);u.voice=v;u.lang=v.lang;u.rate=Math.min(1,(S.rate||.85));u.pitch=S.pitch||1;
+    u.onstart=()=>{try{rec=new MediaRecorder(aud,mime?{mimeType:mime,audioBitsPerSecond:32000}:undefined);rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};rec.start()}catch(e){end(false)}};
+    u.onend=()=>end(true);u.onerror=()=>end(false);
+    const guard=setTimeout(()=>{try{speechSynthesis.cancel()}catch(e){}end(false)},Math.max(8000,t.length*450));
+    try{speechSynthesis.speak(u)}catch(e){end(false)}});
+  try{for(let i=0;i<todo.length;i++){if(vgRun.stop)break;const t=todo[i];msg(`جارٍ التسجيل ${ar(i+1)} من ${ar(todo.length)}: ${t}`);
+      const b=await one(t);
+      if(ok===0&&b){let silent=false;try{const ac=new (window.AudioContext||window.webkitAudioContext)();const buf=await ac.decodeAudioData(await b.arrayBuffer());const d=buf.getChannelData(0);let mx=0;for(let k=0;k<d.length;k+=8)mx=Math.max(mx,Math.abs(d[k]));ac.close();silent=mx<0.01}catch(e){}
+        if(silent){msg("المتصفح لا يلتقط صوت النطق بهذه الطريقة. أعد المحاولة واختر «الشاشة بأكملها» مع «مشاركة صوت النظام».");break}}
+      if(b&&b.size>600){await VDB.set(recKey(t),b).catch(()=>{});recKeys.add(recKey(t));ok++}else fail++;await new Promise(r=>setTimeout(r,120))}}
+  finally{at.forEach(x=>x.stop());vgRun=null}
+  flash(`✓ سُجّل ${ar(ok)} مقطعًا${fail?`، وتعذّر ${ar(fail)}`:""}. احفظ الحزمة كملف واحد وارفعه إلى مجلد voices.`,ok?"ok":"err");done()}
 function renderVoicesView(host){const vs=arVoices();const items=packItems();const all=items.flatMap(g=>g.list);const have=all.filter(t=>recKeys.has(recKey(t))).length;
   host.innerHTML=`<div class="voices"><div><h2 style="font-size:1.5rem">🔊 مركز الأصوات</h2><span class="small muted">اختر صوتًا عربيًا من أصوات جهازك، أو استخدم الحزمة الصوتية الكاملة بصوت بشري.</span></div>
    <section class="panel" style="display:grid;gap:10px"><h3 style="font-size:1.15rem">١. أصوات الجهاز العربية <span class="small muted">(${ar(vs.length)} صوت)</span></h3>
@@ -2017,6 +2072,21 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
    <section class="panel" style="display:grid;gap:10px"><div class="foot"><h3 style="font-size:1.15rem">٢. الحزمة الصوتية الكاملة (صوت بشري) <span class="small muted">${ar(have)} من ${ar(all.length)} مقطعًا</span></h3>
      <div class="row"><label class="btn small primary">📥 استيراد حزمة صوتية<input type="file" id="vcImport" accept=".json,application/json" class="sr"></label><button class="btn small" id="vcExport" ${have?"":"disabled"}>📤 حفظ الحزمة كملف واحد</button><label class="btn small">🗂️ رفع ملفات صوتية دفعة واحدة<input type="file" id="vcBatch" accept="audio/*" multiple class="sr"></label><button class="btn ghost small" id="vcNames">📄 قائمة أسماء الملفات</button></div></div>
      <div class="progress"><i style="width:${Math.round(have/all.length*100)}%"></i></div>
+     <div class="vgen gem"><b>✨ أصوات Google AI Studio (Gemini) — أعلى جودة</b>
+      <span class="small muted">ضع مفتاحك من Google AI Studio مرة واحدة على هذا الجهاز، واختر الصوت، فيُنشئ البرنامج كل المقاطع (${ar(all.length)} مقطعًا) بصوت Gemini. ثم احفظ الحزمة وارفعها إلى مجلد voices، فتعمل على كل الشاشات <b>بلا مفتاح ولا إنترنت إضافي</b>. المفتاح يُحفظ على هذا الجهاز فقط ولا يُرفع إلى GitHub.</span>
+      <div class="row"><input type="password" id="gmKey" placeholder="مفتاح Gemini API" value="${esc(gemKey())}" style="flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)" autocomplete="off"><a class="btn small ghost" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">الحصول على مفتاح ↗</a></div>
+      <div class="row"><label class="small">الصوت: <select id="gmVoice">${GEM_VOICES.map(v=>`<option ${(S.gemVoice||"Kore")===v?"selected":""}>${v}</option>`).join("")}</select></label>
+       <label class="small">النموذج: <input id="gmModel" value="${esc(S.gemModel||GEM_MODEL)}" style="width:190px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)" dir="ltr"></label>
+       <button class="btn small" id="gmTry">🔊 تجربة الصوت</button><button class="btn small primary" id="gmStart">▶ إنشاء الحزمة كاملة</button><button class="btn small ghost" id="gmStop" hidden>⏹ إيقاف</button></div>
+      <label class="check small"><input type="checkbox" id="gmSkip" checked> لا تغيّر المقاطع المسجّلة من قبل (يمكنك الإيقاف والإكمال لاحقًا)</label>
+      <span class="small" id="gmMsg"></span></div>
+     <div class="vgen"><b>🎙️ إنشاء الحزمة تلقائيًا من صوت هذا الجهاز</b>
+      <span class="small muted">يسجّل البرنامج بنفسه كل المقاطع (${ar(all.length)} مقطعًا) بالصوت الذي تختاره، مثل أصوات Microsoft الطبيعية في Edge، ثم تحفظها ملفًا واحدًا ترفعه إلى مجلد voices فتعمل على كل الشاشات.</span>
+      <div class="row"><label class="small">الصوت: <select id="vgVoice">${vs.map(v=>`<option value="${esc(v.voiceURI)}" ${arVoice&&arVoice.voiceURI===v.voiceURI?"selected":""}>${esc(v.name)}</option>`).join("")}</select></label>
+       <label class="check small"><input type="checkbox" id="vgSkip" checked> لا تغيّر المقاطع المسجّلة من قبل</label>
+       <button class="btn small primary" id="vgStart" ${vs.length?"":"disabled"}>▶ ابدأ الإنشاء</button><button class="btn small ghost" id="vgStop" hidden>⏹ إيقاف</button></div>
+      <span class="small" id="vgMsg"></span>
+      <details class="small"><summary>كيف تعمل؟</summary><ol class="qsteps"><li>اضغط «ابدأ الإنشاء»، فيطلب المتصفح مشاركة الشاشة.</li><li>اختر <b>«الشاشة بأكملها»</b> وفعّل <b>«مشاركة صوت النظام»</b> (أو اختر هذا التبويب وفعّل «مشاركة صوت التبويب»)، ثم «مشاركة».</li><li>اترك الجهاز حتى ينتهي ولا تشغّل أصواتًا أخرى، ثم اضغط «📤 حفظ الحزمة كملف واحد» وارفع الملف إلى مجلد voices على GitHub.</li></ol><span class="muted">يعمل في Edge وChrome على الحاسوب، ومن رابط GitHub (داخل Claude قد يمنع المتصفح مشاركة الشاشة).</span></details></div>
      <span class="small">كل مقطع مسجّل يُستخدم تلقائيًا بدل صوت الجهاز في البرنامج كله: البطاقات والألعاب والاختبارات والكتاب. الحزمة تُحفظ في ملف واحد يمكن نقله إلى أجهزة الصف أو مشاركته مع زملائك. للرفع دفعة واحدة سمِّ كل ملف بالنص نفسه (مثل «بَ.mp3» أو «ثَلَاثَة.mp3»)؛ «قائمة أسماء الملفات» تعطيك الأسماء كلها.</span>
      <label class="check small"><input type="checkbox" id="vcUpMode" ${vcUp?"checked":""}> وضع الرفع: الضغط على مقطع يرفع تسجيلًا له (وإلا يُسمعه)</label>
      ${items.map((g,gi)=>{const n=g.list.filter(t=>recKeys.has(recKey(t))).length;return `<details ${vcOpen===gi?"open":""} data-gi="${gi}"><summary>${esc(g.sub)} <span class="small muted">${ar(n)}/${ar(g.list.length)}</span></summary><div class="sylls" style="margin-top:8px">${g.list.map(t=>`<button class="vchip ${recKeys.has(recKey(t))?"rec":""}" data-vt="${esc(t)}">${esc(t)}</button>`).join("")}</div></details>`}).join("")}
@@ -2030,9 +2100,17 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
   let target=null;$$(".vchip").forEach(b=>b.onclick=async()=>{const t=b.dataset.vt;if(vcUp||!recKeys.has(recKey(t))){if(!vcUp&&!recKeys.has(recKey(t))){speak(t,.8);return}target=t;$("#vcOne").click();return}b.classList.add("on");await playRec(recKey(t));b.classList.remove("on")});
   $("#vcOne").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f||!target)return;await VDB.set(recKey(target),f);recKeys.add(recKey(target));flash("حُفظ التسجيل","ok");re()};
   $("#vcBatch").onchange=async e=>{const fs=[...e.target.files];e.target.value="";const known=new Set(all.map(recKey));let ok=0,other=0;for(const f of fs){const k=recKey(f.name.replace(/\.[^.]+$/,""));await VDB.set(k,f).catch(()=>{});recKeys.add(k);known.has(k)?ok++:other++}flash(`رُفع ${ar(ok)} مقطعًا من الحزمة${other?`، و${ar(other)} مقطعًا إضافيًا`:""}`,"ok");re()};
+  const gk=$("#gmKey");if(gk){gk.onchange=()=>{try{localStorage.setItem("rawda-gemini-key",gk.value.trim())}catch(e){}};$("#gmVoice").onchange=e=>{S.gemVoice=e.target.value;save()};$("#gmModel").onchange=e=>{S.gemModel=e.target.value.trim()||GEM_MODEL;save()};
+    const gmsg=t=>{const m=$("#gmMsg");if(m)m.textContent=t};
+    $("#gmTry").onclick=async()=>{gk.onchange();if(!gemKey()){gmsg("ضع مفتاح Gemini أولًا.");return}gmsg("جارٍ إنشاء التجربة…");try{const b=await gemTTS("بِسْمِ اللَّهِ، أَهْلًا يَا أَبْطَال. هٰذَا حَرْفُ الْبَاءِ: بَ، بُ، بِ.",$("#gmVoice").value,$("#gmModel").value.trim()||GEM_MODEL);gmsg("");const a=new Audio(URL.createObjectURL(b));a.play().catch(()=>{})}catch(e){gmsg(gemErr(e))}};
+    $("#gmStart").onclick=()=>{gk.onchange();genGeminiPack(all,$("#gmVoice").value,$("#gmModel").value.trim()||GEM_MODEL,$("#gmSkip").checked,()=>renderVoicesView(host))}}
+  const vgS=$("#vgStart");if(vgS)vgS.onclick=()=>genVoicePack(all,$("#vgVoice").value,$("#vgSkip").checked,()=>renderVoicesView(host));
   $("#vcNames").onclick=()=>saveFile("أسماء-ملفات-الحزمة-الصوتية.txt",items.map(g=>`# ${tokName(g.sub)}\n`+g.list.join("\n")).join("\n\n"));
   $("#vcExport").onclick=async()=>{const keys=await VDB.keys();const out={format:"rawda-voice-pack",version:1,items:{}};for(const k of keys){const b=await VDB.get(k);if(!b)continue;const buf=new Uint8Array(await b.arrayBuffer());let s="";for(let i=0;i<buf.length;i+=32768)s+=String.fromCharCode.apply(null,buf.subarray(i,i+32768));out.items[k]={type:b.type||"audio/mpeg",b64:btoa(s)}}
-    saveFile("الحزمة-الصوتية-روضة-الدروس.json",new Blob([JSON.stringify(out)],{type:"application/json"}))};
+    const ents=Object.entries(out.items);const parts=[];let cur={},size=0;for(const [k,v] of ents){const z=v.b64.length+k.length*2+40;if(size+z>19e6&&Object.keys(cur).length){parts.push(cur);cur={};size=0}cur[k]=v;size+=z}if(Object.keys(cur).length)parts.push(cur);
+    if(parts.length<=1){saveFile("الحزمة-الصوتية-روضة-الدروس.json",new Blob([JSON.stringify(out)],{type:"application/json"}));return}
+    flash(`الحزمة كبيرة، ستُحفظ في ${ar(parts.length)} ملفات؛ ارفعها كلها إلى مجلد voices`,"ok");
+    for(let i=0;i<parts.length;i++){await saveFile(`الحزمة-الصوتية-روضة-الدروس-${i+1}.json`,new Blob([JSON.stringify({format:"rawda-voice-pack",version:1,part:i+1,parts:parts.length,items:parts[i]})],{type:"application/json"}));await new Promise(r=>setTimeout(r,800))}};
   $("#vcImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text());if(d.format!=="rawda-voice-pack")throw 0;let n=0;for(const [k,v] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(v.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:v.type}));recKeys.add(k);n++}flash(`استُورد ${ar(n)} مقطعًا صوتيًا`,"ok");re()}catch(err){flash("هذا الملف ليس حزمة صوتية من روضة الدروس","err")}}}
 /* ================= top navigation ================= */
 let mode="library";
