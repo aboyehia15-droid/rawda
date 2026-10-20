@@ -667,8 +667,10 @@ let S={books:{},cur:"lib",nextNum:1,lessons:[],packs:{},brand:{school:"",teacher
 let books=[];            // in memory: {id,pages:[{n,blob,thumb,pdfText,enh,enhKey,enhURL}]}
 let selected=new Set(), freeMode=false, curTool="explain";
 let sample=null, downloads=null, imgMax=0;
-function save(){try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem(STORE)||localStorage.getItem("rawda-v2")||"null");if(d&&d.lessons)["books","cur","nextNum","lessons","packs","brand","voice","rate","pitch","stars","done","videos","recits","reciter","names","picked","teams"].forEach(k=>{if(d[k]!==undefined)S[k]=d[k]})}catch(e){}
+let saveT=null;function saveNow(){clearTimeout(saveT);saveT=null;try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
+function save(){if(!saveT)saveT=setTimeout(saveNow,400)}
+addEventListener("pagehide",saveNow);document.addEventListener("visibilitychange",()=>{if(document.hidden)saveNow()});
+function load(){try{const d=JSON.parse(localStorage.getItem(STORE)||localStorage.getItem("rawda-v2")||"null");if(d&&d.lessons)Object.keys(d).forEach(k=>{if(d[k]!==undefined)S[k]=d[k]})}catch(e){}
   S.brand=S.brand||{school:"",teacher:"",logo:""};
   Object.values(S.books).forEach(b=>{b.meta=b.meta||{};if(b.st&&(b.st.state==="reading"||b.st.state==="queued"))b.st={state:"stopped"}});
   if(S.cur!=="lib"&&!S.books[S.cur])S.cur="lib";}
@@ -843,7 +845,7 @@ async function loadFiles0(files,opts){
       const bk=merge?(mbk||(mbk=bookFor(opts.name))):bookFor(f.name.replace(/\.[^.]+$/,""));const meta=S.books[bk.id].meta;const off=merge?bk.pages.length:0;
       S.cur=bk.id;loading={id:bk.id,i:0,n:doc.numPages};renderSide();
       for(let i=1;i<=doc.numPages;i++){
-        loading.i=i;if(i===1||i%3===0)renderSide();
+        if(window.__bgLoad)await bgYield();loading.i=i;if(i===1||i%3===0)renderSide();
         const pg=await doc.getPage(i);const v0=pg.getViewport({scale:1});const sc=Math.min(2.6,1500/v0.width);const vp=pg.getViewport({scale:sc});
         const c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
         await pg.render({canvasContext:x,viewport:vp}).promise;
@@ -911,14 +913,15 @@ async function pumpRead(){if(reading)return;const id=readQ.shift();if(!id)return
   try{await readBook(id,reading.ctl.signal);autoShelf(id);save()}finally{reading=null;pumpRead()}}
 function stopRead(id){readQ=readQ.filter(x=>x!==id);if(reading&&reading.id===id)reading.ctl.abort();else setSt(id,{state:"stopped"})}
 /* reading without Claude: text from the PDF itself, and Arabic OCR (Tesseract) for picture pages */
-let TESS=null;
+let TESS=null;let lastInput=0;["pointerdown","pointermove","keydown","touchstart","wheel"].forEach(t=>addEventListener(t,()=>{lastInput=Date.now()},{passive:true,capture:true}));
+async function bgYield(){await new Promise(r=>setTimeout(r,30));let n=0;while((Date.now()-lastInput<2500||document.hidden)&&n<2400){await new Promise(r=>setTimeout(r,250));n++}}
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=()=>res();sc.onerror=()=>rej(new Error("tess"));document.head.appendChild(sc)})}
 async function ocrWorker(){if(TESS)return TESS;await loadTess();TESS=await Tesseract.createWorker("ara");return TESS}
 async function ocrRead(id,sig){const bk=memBook(id),B=S.books[id];if(!bk||!B)return;const meta=B.meta;
   const todo=bk.pages.filter(p=>!((meta[p.n]&&meta[p.n].text)||p.pdfText));const st={state:"reading",done:0,total:Math.max(1,todo.length)};setSt(id,st);
   let ok=0;
   if(todo.length){let w=null;try{w=await ocrWorker()}catch(e){setSt(id,{state:"done",msg:"القراءة المحلية تحتاج اتصالًا بالإنترنت أول مرة. ستُعاد عند فتح الكتاب لاحقًا."});return}
-    for(const p of todo){if(sig&&sig.aborted){setSt(id,{state:"stopped",msg:"توقفت القراءة."});return}
+    for(const p of todo){await bgYield();if(sig&&sig.aborted){setSt(id,{state:"stopped",msg:"توقفت القراءة."});return}
       try{const r=await w.recognize(p.blob);const t=String(r&&r.data&&r.data.text||"").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();meta[p.n]=meta[p.n]||{text:"",read:null};if(t){meta[p.n].text=t;ok++}}catch(e){}
       st.done++;setSt(id,{...st});save()}}
   if(!S.lessons.some(l=>l.bookId===id&&!l.provisional)){const loc=localLessons(id);if(loc.length)S.lessons=S.lessons.filter(l=>l.bookId!==id).concat(loc)}
@@ -927,7 +930,7 @@ function bookText(id){const m=(S.books[id]&&S.books[id].meta)||{};return Object.
 function autoShelf(id){const B=S.books[id];if(!B||B.shelfManual)return;const g=guessShelf(B.name,bookText(id));if(g)B.shelf=g}
 async function readBook(id,sig){
   await aiInit;const bk=memBook(id),B=S.books[id];if(!bk||!B)return;
-  if(!sample){return ocrRead(id,sig)}
+  if(!sample){if(S.books[id]&&(S.books[id].gh||(typeof syncing!=="undefined"&&syncing))&&!S.books[id].ocrWanted){setSt(id,{state:"",msg:""});return}return ocrRead(id,sig)}
   if(!imgMax&&!bk.pages.some(p=>p.pdfText)){setSt(id,{state:"noai"});return}
   const meta=B.meta,name=B.name,per=imgMax?1:3;
   const todo=bk.pages.filter(p=>!(meta[p.n]&&meta[p.n].read));const batches=[];for(let i=0;i<todo.length;i+=per)batches.push(todo.slice(i,i+per));
@@ -1169,7 +1172,7 @@ function normNum(x){if(x==null||x==="")return null;const s=fromAr(String(x)).rep
 /* show shape tokens as vector shapes everywhere in the page */
 function fixTokens(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.nodeValue.includes("⟦")&&!/^(TEXTAREA|SCRIPT|STYLE|OPTION|INPUT)$/.test(n.parentNode.nodeName)?1:3});const list=[];while(w.nextNode())list.push(w.currentNode);
   list.forEach(n=>{const span=document.createElement("span");span.innerHTML=esc(n.nodeValue).replace(TOK_RE,(_,k)=>`<span class="shp">${shapeSVG(k)}</span>`);n.replaceWith(...span.childNodes)})}
-new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType===1)fixTokens(n);else if(n.nodeType===3&&n.parentNode)fixTokens(n.parentNode)}}).observe(document.body,{childList:true,subtree:true,characterData:false});
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType===1){if(n.textContent&&n.textContent.includes("⟦"))fixTokens(n)}else if(n.nodeType===3&&n.parentNode)fixTokens(n.parentNode)}}).observe(document.body,{childList:true,subtree:true,characterData:false});
 
 /* lesson kinds */
 function lkind(l){if(!l)return "";if(LET[l.letter])return "letter";if(l.number!=null&&NUMS[l.number])return "number";if(SHAPES[l.shape])return "shape";return ""}
@@ -2055,7 +2058,7 @@ const ghUpload=`https://github.com/${GH.owner}/${GH.repo}/upload/main/${GH.dir}`
 let syncing=null,syncMsg="";
 async function ghList(path){const r=await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,"/")}?ref=main`,{cache:"no-store"});if(!r.ok)throw new Error("gh "+r.status);return r.json()}
 const isBookFile=n=>/\.(pdf|png|jpe?g|webp|gif)$/i.test(n);
-async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{S.shared=S.shared||{};let added=0,updated=0,total=0;
+async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{window.__bgLoad=!manual;S.shared=S.shared||{};let added=0,updated=0,total=0;
   try{syncMsg="جارٍ فحص المكتبة المشتركة…";if(mode==="library")renderMain();
     const top=await ghList(GH.dir);const jobs=[];
     for(const it of top){if(it.type==="file"&&isBookFile(it.name))jobs.push({key:it.path,name:it.name.replace(/\.[^.]+$/,""),sha:it.sha,files:[it]});
@@ -2067,14 +2070,14 @@ async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{S
       const beforeIds=new Set(Object.keys(S.books));const isPdf=!j.folder&&/\.pdf$/i.test(j.files[0].name);
       const keepCur=S.cur,keepOpen=openBook;await loadFiles(fs,j.parts?{name:j.name,merge:true}:isPdf?undefined:{name:j.name});S.cur=keepCur;openBook=keepOpen;save();renderSide();
       const id=Object.keys(S.books).find(x=>S.books[x].name===j.name)||Object.keys(S.books).find(x=>!beforeIds.has(x));
-      if(id){S.books[id].gh=j.key;S.shared[j.key]={sha:j.sha,id};rec?updated++:added++}}
+      if(id){S.books[id].gh=j.key;if(!S.books[id].shelfManual)S.books[id].shelf=guessShelf(j.name);S.shared[j.key]={sha:j.sha,id};rec?updated++:added++}}
     try{S.sharedVoices=S.sharedVoices||{};const vs=(await ghList("voices")).filter(x=>x.type==="file"&&/\.json$/i.test(x.name));
       for(const v of vs){if(S.sharedVoices[v.path]===v.sha)continue;syncMsg=`تجهيز الحزمة الصوتية «${v.name}»…`;if(mode==="library")renderMain();
         const d=await (await fetch(v.download_url,{cache:"no-store"})).json();if(d&&d.format==="rawda-voice-pack"){for(const [k,it] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(it.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:it.type})).catch(()=>{});recKeys.add(k)}S.sharedVoices[v.path]=v.sha;flash("🔊 جُهّزت الحزمة الصوتية المشتركة","ok")}}}catch(e){}
     S.lastSync=Date.now();save();syncMsg=added||updated?`✓ أُضيف ${ar(added)} كتاب${updated?` وحُدِّث ${ar(updated)}`:""} من المكتبة المشتركة`:`✓ المكتبة محدَّثة (${ar(total)} كتاب مشترك)`;
     if(added||updated||manual)flash(syncMsg,"ok")}
   catch(e){syncMsg=navigator.onLine===false?"لا يوجد اتصال بالإنترنت؛ تعمل الكتب المحفوظة على هذه الشاشة.":"تعذّرت المزامنة الآن. حاول لاحقًا.";if(manual)flash(syncMsg,"err")}
-  finally{syncing=null;if(mode==="library")renderMain()}})();return syncing}
+  finally{syncing=null;window.__bgLoad=false;if(mode==="library")renderMain()}})();return syncing}
 function sharedPanelHTML(){const n=Object.keys(S.shared||{}).filter(k=>S.shared[k]&&S.books[S.shared[k].id]).length;
   return `<div class="lshare"><div style="display:grid;gap:4px"><b>☁️ المكتبة المشتركة لكل الشاشات</b><span class="small muted">ارفع الكتاب مرة واحدة إلى مجلد <b dir="ltr">books</b> في مستودعك على GitHub، فينزل وحده على كل شاشة فيها البرنامج عند فتحه.${n?` · ${ar(n)} كتاب مشترك على هذه الشاشة`:""}</span>
      <span class="small" id="syncMsg">${syncing?'<span class="spin s"></span> ':""}${esc(syncMsg||(S.lastSync?"آخر مزامنة: "+new Date(S.lastSync).toLocaleString("ar"):""))}</span></div>
@@ -2087,7 +2090,7 @@ function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books
       <div class="lbody">${libRen===id?`<input class="lren" id="lren" value="${esc(B.name)}" aria-label="اسم الكتاب"><div class="row"><button class="btn small primary" data-lrensave="${id}">حفظ</button><button class="btn small ghost" data-lrencancel>إلغاء</button></div>`:`<b class="lname">${esc(B.name)}</b>`}
        <span class="small muted">${ar(np)} صفحة${ls?` · ${ar(ls)} درس`:""}</span>${(B.st&&B.st.state==="reading")?`<span class="small"><span class="spin s"></span> يُقرأ الآن ${ar(B.st.done||0)}/${ar(B.st.total||1)}</span>`:(B.st&&B.st.state==="queued")?`<span class="small"><span class="spin s"></span> بانتظار القراءة</span>`:""}
        <select class="lshelf" data-lshelf="${id}" aria-label="الرف">${SHELVES.slice(1).map(x=>`<option value="${x[0]}" ${shelfOf(id)===x[0]?"selected":""}>${x[1]} ${x[2]}</option>`).join("")}</select>
-       <div class="row"><button class="btn small green" data-lopen="${id}">📖 افتح</button><button class="btn small ghost" data-lren="${id}" aria-label="إعادة تسمية">✏️</button><button class="btn small ghost" data-ldel="${id}" aria-label="حذف" style="color:var(--coral)">🗑</button></div></div></div>`};
+       <div class="row"><button class="btn small green" data-lopen="${id}">📖 افتح</button><button class="btn small ghost" data-lren="${id}" aria-label="إعادة تسمية">✏️</button>${!sample&&B.gh&&!(B.st&&/reading|queued/.test(B.st.state||""))?`<button class="btn small ghost" data-lread="${id}" aria-label="قراءة نص الكتاب" title="قراءة نص الكتاب">🔎</button>`:""}<button class="btn small ghost" data-ldel="${id}" aria-label="حذف" style="color:var(--coral)">🗑</button></div></div></div>`};
   h.innerHTML=`<div class="libv">
    <div class="foot"><div><h2 style="font-size:1.6rem">🗂️ مكتبتي</h2><span class="small muted">${ar(ids.length)} كتاب · ${ar(pages)} صفحة · محفوظة على هذا الجهاز وتفتح مباشرة</span></div>
      <div class="row"><input type="search" id="libQ" placeholder="ابحث عن كتاب" value="${esc(libQ)}" class="libq"></div></div>
@@ -2110,6 +2113,7 @@ function renderLibraryView(h){const ids=Object.keys(S.books).sort((a,b)=>S.books
   $$("[data-shelf]").forEach(b=>b.onclick=()=>{libShelf=b.dataset.shelf;renderLibraryView(h)});
   $$("[data-lopen]").forEach(b=>b.onclick=()=>openBookNow(b.dataset.lopen));
   $$("[data-lshelf]").forEach(sl=>sl.onchange=()=>{const B=S.books[sl.dataset.lshelf];B.shelf=sl.value;B.shelfManual=true;save();renderLibraryView(h)});
+  $$("[data-lread]").forEach(b=>b.onclick=()=>{const id=b.dataset.lread;S.books[id].ocrWanted=true;save();enqueueRead(id);flash("بدأت قراءة نص الكتاب في الخلفية","ok");renderLibraryView(h)});
   $$("[data-lren]").forEach(b=>b.onclick=()=>{libRen=b.dataset.lren;renderLibraryView(h);const i=$("#lren");i.focus();i.select()});
   $$("[data-lrencancel]").forEach(b=>b.onclick=()=>{libRen=null;renderLibraryView(h)});
   $$("[data-lrensave]").forEach(b=>b.onclick=()=>{const id=b.dataset.lrensave,v=$("#lren").value.trim();if(v){S.books[id].name=v;S.lessons.forEach(l=>{if(l.bookId===id)l.book=v})}libRen=null;save();renderSide();renderLibraryView(h)});
