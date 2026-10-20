@@ -45,6 +45,8 @@ for voice in VOICES:
     if not os.path.exists(out) and voice == "Kore" and os.path.exists(old) and prev.get("Kore"):
         o = json.load(open(old, encoding="utf-8"))
         json.dump({"format": "rawda-voice-pack", "version": 1, "items": {k: o["items"][k] for k in prev["Kore"] if k in o["items"]}}, open(out, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    if os.path.exists(old) and os.path.exists("voices/piper-kareem.json"):
+        os.remove(old)  # the old mixed pack is replaced by one file per voice
     pack = json.load(open(out, encoding="utf-8")) if os.path.exists(out) else {"format": "rawda-voice-pack", "version": 1, "items": {}}
     pack["voice"] = f"Gemini — {voice}"
     pack["id"] = f"gemini-{voice}"

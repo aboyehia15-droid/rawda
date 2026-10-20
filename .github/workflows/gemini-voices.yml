@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: gemini-voices
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
