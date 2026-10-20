@@ -7,7 +7,7 @@ import base64, json, os, subprocess, sys, tempfile, wave
 
 items = json.load(open("tools/voice-items.json", encoding="utf-8"))
 model = sys.argv[1]
-out_name = sys.argv[2] if len(sys.argv) > 2 else "voices/الحزمة-الصوتية-العربية.json"
+out_name = sys.argv[2] if len(sys.argv) > 2 else "voices/piper-kareem.json"
 
 from piper import PiperVoice  # noqa: E402
 
@@ -28,7 +28,7 @@ def synth(text, path):
             voice.synthesize(text, wf, length_scale=1.15)
 
 
-pack = {"format": "rawda-voice-pack", "version": 1, "voice": "Piper ar_JO-kareem (Arabic Speech Corpus)", "items": {}}
+pack = {"format": "rawda-voice-pack", "version": 1, "id": "piper-kareem", "voice": "كريم (صوت مفتوح المصدر)", "label": "ذكر · Piper، مدوّنة الكلام العربي", "items": {}}
 ok = 0
 with tempfile.TemporaryDirectory() as td:
     for i, (key, spoken) in enumerate(items):
