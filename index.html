@@ -246,6 +246,43 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .side{top:calc(130px + env(safe-area-inset-top,0px))!important;max-height:calc(100vh - 146px)!important}
 .lgh{font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--muted);padding:6px 4px 0}
 #modeView{display:grid;gap:14px;min-width:0}
+.rpv{display:grid;gap:14px}.rphead{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}.rphead h2{margin:0}
+.rphub{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+.rplet{position:relative;display:grid;place-items:center;gap:2px;padding:12px 6px;border:2px solid var(--line);border-radius:18px;background:var(--paper);cursor:pointer;font:inherit}
+.rplet b{font-family:"Amiri",serif;font-size:2.6rem;line-height:1.1;color:var(--sky)}.rplet span{font-size:1.5rem}.rplet i{position:absolute;top:4px;left:6px;font-style:normal;font-size:.7rem}
+.rplet:hover,.rpcard:hover,.rpform:hover,.rpword:hover{border-color:var(--sun);transform:translateY(-2px)}
+.rpbar{align-items:center;gap:10px}.rpbig{font-family:"Amiri",serif;font-size:3rem;line-height:1;color:var(--sky);cursor:pointer}.rpbig2{font-family:"Amiri",serif;font-size:2rem;color:var(--coral)}
+.rpgames{flex-wrap:wrap}.rpgame{display:grid;gap:14px;padding:14px;border:1px solid var(--line);border-radius:18px;background:var(--paper)}
+.rpforms{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.rpform{display:grid;place-items:center;min-width:92px;padding:8px 12px;border:2px solid var(--line);border-radius:16px;background:var(--bg);cursor:pointer;font:inherit}
+.rpform b{font-family:"Amiri",serif;font-size:2.6rem;line-height:1.4}.rpform small{color:var(--muted)}
+.rpwords{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.rpword{display:grid;place-items:center;gap:2px;padding:10px;border:1px solid var(--line);border-radius:16px;background:var(--bg);cursor:pointer;font:inherit}
+.rpword .e{font-size:2rem}.rpword b{font-family:"Amiri",serif;font-size:2rem}.rpword small{color:var(--muted);font-size:.8rem}
+.rpv .hl{color:var(--coral)}
+.rpquiz{display:grid;gap:10px;justify-items:center;padding:14px;border:2px dashed var(--sun);border-radius:18px;background:var(--sun-soft);text-align:center}
+.rpq{font-size:1.25rem;margin:0}.rpw{font-family:"Amiri",serif;font-size:1.6rem}
+.btn.big{font-size:1.1rem;padding:12px 18px}
+.rpfind{display:grid;gap:10px;grid-template-columns:repeat(5,minmax(0,1fr));max-width:620px;margin:auto;width:100%}
+.rpcell{aspect-ratio:1;border:2px solid var(--line);border-radius:16px;background:var(--bg);font-family:"Amiri",serif;font-size:clamp(1.8rem,6vw,3rem);cursor:pointer}
+.rpcell.ok,.rpcard.ok,.rpopt.ok{background:var(--leaf-soft);border-color:var(--leaf)}
+.shake{animation:rpshake .45s}@keyframes rpshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.rpbuild{display:grid;gap:12px;justify-items:center}.rpemoji{font-size:4rem;border:0;background:none;cursor:pointer}
+.rpslot{min-height:90px;min-width:240px;display:grid;place-items:center;border:3px dashed var(--sky);border-radius:18px;font-family:"Amiri",serif;font-size:3.4rem;padding:0 20px;background:var(--sky-soft)}
+.rpslot .okw{color:var(--leaf)}
+.rptiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.rptile{min-width:76px;height:84px;border:2px solid var(--sun);border-radius:16px;background:var(--paper);font-family:"Amiri",serif;font-size:2.6rem;cursor:pointer;box-shadow:0 4px 0 var(--sun)}
+.rptile.used{opacity:.25}
+.rpopts{justify-content:center}.rpopt{min-width:96px;height:96px;border:2px solid var(--line);border-radius:18px;background:var(--paper);font-family:"Amiri",serif;font-size:3rem;cursor:pointer}
+.rplv h3{margin:6px 0}.rpst{display:flex;flex-wrap:wrap;gap:10px}
+.rpstage{display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--line);border-radius:16px;background:var(--paper);cursor:pointer;font:inherit}
+.rpstage i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--sky-soft);font-style:normal;font-weight:700}
+.rpstage.done{border-color:var(--leaf);background:var(--leaf-soft)}
+.rpprog{display:grid;gap:4px;max-width:520px}
+.rpgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}.rpgrid.big{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.rpcard{display:grid;place-items:center;gap:4px;padding:12px;border:2px solid var(--line);border-radius:18px;background:var(--paper);cursor:pointer;font:inherit}
+.rpcard b{font-family:"Amiri",serif;font-size:2.2rem;line-height:1.6}.rpgrid.big .rpcard b{font-size:2.4rem}.rpcard .e{font-size:2.4rem}.rpcard small{color:var(--muted)}
+.rpcard.now{border-color:var(--sun);background:var(--sun-soft);transform:scale(1.04)}
 .stoptalk{position:fixed;bottom:18px;left:18px;z-index:2147483001;padding:14px 22px;border:0;border-radius:999px;background:#e63946;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback{position:fixed;top:14px;right:14px;z-index:2147483000;padding:12px 20px;border:0;border-radius:999px;background:#1d2b36;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback:hover{background:#2a9d8f}
@@ -2190,9 +2227,136 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
   $("#vcImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text());if(d.format!=="rawda-voice-pack")throw 0;let n=0;for(const [k,v] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(v.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:v.type}));recKeys.add(k);n++}flash(`استُورد ${ar(n)} مقطعًا صوتيًا`,"ok");re()}catch(err){flash("هذا الملف ليس حزمة صوتية من روضة الدروس","err")}}}
 /* ================= top navigation ================= */
 let mode="library";
-const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["voices","🔊","الأصوات"]];
-function renderNav(){document.body.dataset.mode=mode;const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})})}
-function renderMode(){const h=$("#modeView");({library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["voices","🔊","الأصوات"]];
+function renderNav(){document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})})}
+
+/* ================= رحلة القراءة: ألعاب الحروف + القراءة المتدرجة ================= */
+const HK="ًٌٍَُِّْٰ";const stripH=w=>String(w).replace(/[ً-ْٰ]/g,"");
+const baseOf=ch=>{if("أإآٱ".includes(ch))return "ا";if(ch==="ى")return "ي";return ch};
+const graphemes=w=>String(w).match(/[^ً-ْٰ][ً-ْٰ]*/g)||[];
+const RW=(list)=>list.map(x=>Array.isArray(x)?{w:x[0],e:x[1]||""}:{w:x,e:""});
+const RP_STAGES=[
+ {lv:1,t:"الحروف وحدها",k:"letters"},
+ {lv:1,t:"شكل الحرف في الكلمة",k:"pos"},
+ {lv:2,t:"الحرف مع الفتحة",k:"har",h:"َ"},
+ {lv:2,t:"الحرف مع الضمة",k:"har",h:"ُ"},
+ {lv:2,t:"الحرف مع الكسرة",k:"har",h:"ِ"},
+ {lv:3,t:"كلمات من حرفين",w:RW([["يَدٌ","✋"],["دَمٌ","🩸"],["أَبٌ","👨"],["أَخٌ","👦"],["فَمٌ","👄"],["مَنْ","❓"]])},
+ {lv:3,t:"كلمات ثلاثية بالفتح",w:RW([["كَتَبَ","✍️"],["ذَهَبَ","🚶"],["جَلَسَ","🪑"],["فَتَحَ","🚪"],["رَسَمَ","🎨"],["أَكَلَ","🍽️"]])},
+ {lv:3,t:"كلمات فيها الكسرة",w:RW([["شَرِبَ","🥛"],["لَعِبَ","⚽"],["فَرِحَ","😄"],["سَمِعَ","👂"],["رَكِبَ","🐴"],["حَمِدَ","🤲"]])},
+ {lv:3,t:"كلمات فيها الضمة",w:RW([["أُذُنٌ","👂"],["كُتُبٌ","📚"],["سُفُنٌ","⛵"],["طُرُقٌ","🛣️"],["عُنُقٌ","🦒"],["رُسُلٌ","📜"]])},
+ {lv:4,t:"المدّ بالألف",w:RW([["بَاب","🚪"],["نَار","🔥"],["تَاج","👑"],["سَاق","🦵"],["دَار","🏡"],["نَام","😴"]])},
+ {lv:4,t:"المدّ بالواو",w:RW([["نُور","💡"],["حُوت","🐋"],["تُوت","🫐"],["فُول","🫘"],["سُوق","🛒"],["يَقُول","🗣️"]])},
+ {lv:4,t:"المدّ بالياء",w:RW([["فِيل","🐘"],["تِين","🍈"],["دِيك","🐓"],["عِيد","🎉"],["رِيش","🪶"],["طِين","🟫"]])},
+ {lv:5,t:"السكون",w:RW([["قَلْب","❤️"],["بَحْر","🌊"],["شَمْس","☀️"],["كَلْب","🐕"],["بِنْت","👧"],["نَهْر","🏞️"]])},
+ {lv:5,t:"الشدّة",w:RW([["بَطَّة","🦆"],["قِطَّة","🐱"],["سُكَّر","🍬"],["أُمّ","👩"],["جَدَّة","👵"],["دُبّ","🐻"]])},
+ {lv:5,t:"التنوين",w:RW([["قَلَمٌ","✏️"],["بَابًا","🚪"],["بَيْتٍ","🏠"],["كِتَابٌ","📖"],["وَلَدًا","👦"],["قَمَرٍ","🌙"]])},
+ {lv:6,t:"اللام الشمسية والقمرية",k:"lam",w:RW([["القَمَرُ","🌙"],["الشَّمْسُ","☀️"],["البَيْتُ","🏠"],["النَّجْمُ","⭐"],["الكِتَابُ","📖"],["الدَّارُ","🏡"],["الوَرْدَةُ","🌹"],["التُّفَّاحَةُ","🍎"]])},
+ {lv:6,t:"كلمات متنوعة",w:RW([["مَدْرَسَة","🏫"],["مَسْجِد","🕌"],["حَدِيقَة","🌳"],["مِفْتَاح","🔑"],["سَيَّارَة","🚗"],["فَرَاشَة","🦋"]])},
+ {lv:6,t:"حروف الجرّ مع الكلمات",w:RW([["فِي البَيْتِ","🏠"],["عَلَى الشَّجَرَةِ","🌳"],["مِنَ المَسْجِدِ","🕌"],["إِلَى المَدْرَسَةِ","🏫"],["بِالقَلَمِ","✏️"],["لِلطِّفْلِ","👶"]])},
+ {lv:7,t:"جمل قصيرة",w:RW([["ذَهَبَ الوَلَدُ إِلَى المَسْجِدِ.","🕌"],["الشَّمْسُ سَاطِعَةٌ.","☀️"],["أُحِبُّ أُمِّي وَأَبِي.","❤️"],["قَرَأَ أَحْمَدُ القُرْآنَ.","📖"],["شَرِبَ الطِّفْلُ الحَلِيبَ.","🥛"],["بِسْمِ اللَّهِ أَبْدَأُ طَعَامِي.","🍽️"]])},
+ {lv:7,t:"التحدي الختامي",k:"final"}];
+const RP_LV=["","بذور الحروف","الحركات","كلماتي الأولى","المدود","السكون والشدة والتنوين","أبطال الكلمات","الطلاقة"];
+function rpItems(st){if(st.w)return st.w;
+  if(st.k==="letters")return LETTERS.map(l=>({w:l[0],e:"",say:l[1]}));
+  if(st.k==="pos")return LETTERS.filter((_,i)=>i%3===0).flatMap(l=>forms(l[0]).pos.map(f=>({w:f.f,e:"",say:l[1]+"، "+f.n,small:f.n})));
+  if(st.k==="har")return LETTERS.map(l=>{const b=l[0]==="ا"?(st.h==="ِ"?"إ":"أ"):l[0];return {w:b+st.h,e:""}});
+  if(st.k==="final")return shuffle(RP_STAGES.filter(x=>x.w).flatMap(x=>x.w)).slice(0,10);return []}
+/* word bank for the letter games: every illustrated word the program knows */
+let RBANK=null;function rbank(){if(RBANK)return RBANK;const m=new Map();
+  LETTERS.forEach(l=>LET[l[0]].words.forEach(w=>m.set(w.w,w)));RP_STAGES.forEach(st=>(st.w||[]).forEach(w=>{if(!/\s/.test(w.w)&&!/^ال/.test(stripH(w.w)))m.set(w.w,w)}));
+  RBANK=[...m.values()];return RBANK}
+function letterPosIn(word,c){const b=graphemes(word).map(g=>baseOf(g[0]));const res=[];b.forEach((x,i)=>{if(x===c)res.push(i===0?"first":i===b.length-1?"last":"mid")});return res}
+const POSN={first:"أَوَّل الكَلِمَة",mid:"وَسَط الكَلِمَة",last:"آخِر الكَلِمَة"};
+function hiLetter(word,c){return graphemes(word).map(g=>baseOf(g[0])===c?`<span class="hl">${esc(g)}</span>`:esc(g)).join("")}
+const LOOKALIKE=["بتثني","جحخ","دذ","رز","سش","صض","طظ","عغ","فق","كل","مه","او"];
+function lookalikes(c){const g=LOOKALIKE.find(x=>x.includes(c))||"";const o=[...g].filter(x=>x!==c);const rest=shuffle(LETTERS.map(l=>l[0]).filter(x=>x!==c&&!o.includes(x)));return [...o,...rest]}
+let RV={tab:"letters",letter:null,game:"shapes",stage:null,smode:"read",q:null};
+function rpDone(){S.rp=S.rp||{};return S.rp}
+function renderReadView(host){
+  host.innerHTML=`<section class="rpv"><div class="rphead"><div><h2>🔤 رحلة القراءة</h2><p class="muted small">ألعاب لكل حرف، ثم قراءة متدرّجة من الحرف إلى الجملة. المس أي حرف أو كلمة لتسمعها.</p></div>
+    <div class="modebar"><button data-rt="letters" aria-pressed="${RV.tab==="letters"}">🎮 ألعاب الحروف</button><button data-rt="path" aria-pressed="${RV.tab==="path"}">🪜 القراءة المتدرّجة</button></div></div><div id="rpBody"></div></section>`;
+  host.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{RV.tab=b.dataset.rt;stopSpeak();renderReadView(host)});
+  const body=$("#rpBody");if(RV.tab==="letters")(RV.letter?rpLetter:rpHub)(body,host);else(RV.stage!=null?rpStage:rpPath)(body,host)}
+function rpHub(body,host){const D=rpDone();
+  body.innerHTML=`<p class="rpq">اختر حرفًا لتبدأ ألعابه 👇</p><div class="rphub">${LETTERS.map(l=>{const w=LET[l[0]].words[0];const n=["shapes","find","build","marks"].filter(g=>D["L"+l[0]+g]).length;return `<button class="rplet" data-l="${l[0]}"><b>${l[0]}</b><span>${w.e}</span>${n?`<i>${"⭐".repeat(n)}</i>`:""}</button>`}).join("")}</div>`;
+  body.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{RV.letter=b.dataset.l;RV.game="shapes";RV.q=null;speak(LET[RV.letter].name);renderReadView(host)})}
+function rpWin(key,host,msg){const D=rpDone();if(!D[key]){D[key]=Date.now();save()}praise();flash(msg||"⭐ أحسنت!","ok")}
+function rpLetter(body,host){const c=RV.letter,L=LET[c],D=rpDone();const G=[["shapes","🔠 أشكال الحرف"],["find","🔍 ابحث عن الحرف"],["build","🧩 كوّن كلمة"],["marks","✳️ الشدّة والتنوين"]];
+  body.innerHTML=`<div class="row rpbar"><button class="btn ghost" id="rpBack">→ كل الحروف</button><b class="rpbig" id="rpSay">${c}</b><span class="muted">حرف ${esc(L.name)}</span>
+    <span class="grow"></span><button class="btn small ghost" id="rpPrev">‹ السابق</button><button class="btn small ghost" id="rpNext">التالي ›</button></div>
+    <div class="modebar rpgames">${G.map(([k,t])=>`<button data-g="${k}" aria-pressed="${RV.game===k}">${t}${D["L"+c+k]?" ⭐":""}</button>`).join("")}</div><div id="rpGame" class="rpgame"></div>`;
+  $("#rpBack").onclick=()=>{RV.letter=null;renderReadView(host)};$("#rpSay").onclick=()=>speak(L.name);
+  const step=d=>{const i=(L.i+d+LETTERS.length)%LETTERS.length;RV.letter=LETTERS[i][0];RV.q=null;speak(LET[RV.letter].name);renderReadView(host)};$("#rpPrev").onclick=()=>step(-1);$("#rpNext").onclick=()=>step(1);
+  body.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{RV.game=b.dataset.g;RV.q=null;stopSpeak();renderReadView(host)});
+  const g=$("#rpGame");({shapes:gShapes,find:gFind,build:gBuild,marks:gMarks})[RV.game](g,c,host)}
+/* 1) the letter's shapes and where it sits in real words */
+function gShapes(g,c,host){const L=LET[c];const F=forms(c).pos;const ws=shuffle(rbank().filter(w=>letterPosIn(w.w,c).length)).slice(0,8);
+  const qs=ws.filter(w=>letterPosIn(w.w,c).length===1).slice(0,5);if(!RV.q)RV.q={i:0,ok:0,list:qs};const Q=RV.q;
+  g.innerHTML=`<div class="rpforms">${F.map(f=>`<button class="rpform" data-say="${esc(L.name+"، "+f.n)}"><b>${esc(f.f)}</b><small>${esc(f.n)}</small></button>`).join("")}</div>
+    <div class="rpwords">${ws.map(w=>`<button class="rpword" data-say="${esc(w.w)}"><span class="e">${w.e}</span><b>${hiLetter(w.w,c)}</b><small>${[...new Set(letterPosIn(w.w,c))].map(x=>POSN[x]).join("، ")}</small></button>`).join("")}</div>
+    ${Q.list.length?`<div class="rpquiz" id="rpQ"></div>`:""}`;
+  g.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+  const draw=()=>{const box=$("#rpQ");if(!box)return;if(Q.i>=Q.list.length){box.innerHTML=`<b>🎉 أحسنت! ${ar(Q.ok)} من ${ar(Q.list.length)}</b> <button class="btn small" id="rpAgain">العب مرة أخرى</button>`;$("#rpAgain").onclick=()=>{RV.q=null;renderReadView(host)};if(Q.ok>=Q.list.length-1)rpWin("L"+c+"shapes",host);return}
+    const w=Q.list[Q.i],ans=letterPosIn(w.w,c)[0];box.innerHTML=`<p class="rpq">أين حرف <b>${c}</b> في كلمة <button class="link rpw" id="rpW">${w.e} ${esc(w.w)}</button>؟</p><div class="row">${["first","mid","last"].map(k=>`<button class="btn big" data-a="${k}">${POSN[k]}</button>`).join("")}</div>`;
+    $("#rpW").onclick=()=>speak(w.w);box.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{if(b.dataset.a===ans){b.classList.add("green");Q.ok+=Q.miss?0:1;Q.miss=false;speak(w.w);setTimeout(()=>{Q.i++;draw()},900)}else{Q.miss=true;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500);speak("حَاوِلْ مَرَّةً أُخْرَى")}})};draw()}
+/* 2) find every copy of the letter among look-alike letters */
+function gFind(g,c,host){if(!RV.q){const lk=lookalikes(c);const marks=["","َ","ُ","ِ"];const base=c==="ا"?"ا":c;const T=6,N=20;const cells=[];for(let i=0;i<T;i++)cells.push({ch:(c==="ا"?["ا","أ","إ","ا","أ","ا"][i]:base)+(c==="ا"?"":marks[i%4]),t:1});
+    for(let i=0;i<N-T;i++){const o=lk[i%Math.min(lk.length,i<6?3:lk.length)];cells.push({ch:o+(o==="ا"?"":marks[(i+1)%4]),t:0})}RV.q={cells:shuffle(cells),found:0,T,wrong:0}}
+  const Q=RV.q;g.innerHTML=`<p class="rpq">المس كل حرف <b class="rpbig2">${c}</b> تراه (${ar(Q.found)} من ${ar(Q.T)})</p><div class="rpfind">${Q.cells.map((x,i)=>`<button class="rpcell ${x.done?"ok":""}" data-i="${i}">${esc(x.ch)}</button>`).join("")}</div>`;
+  g.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{const x=Q.cells[+b.dataset.i];if(x.done)return;if(x.t){x.done=1;Q.found++;b.classList.add("ok");speak(LET[c].name);g.querySelector(".rpq").innerHTML=`المس كل حرف <b class="rpbig2">${c}</b> تراه (${ar(Q.found)} من ${ar(Q.T)})`;
+      if(Q.found===Q.T){rpWin("L"+c+"find",host,"🔍 وجدتها كلها!");setTimeout(()=>{g.insertAdjacentHTML("beforeend",`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn primary" id="rpAgain">لعبة جديدة</button></div>`);$("#rpAgain").onclick=()=>{RV.q=null;renderReadView(host)}},300)}}
+    else{b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500);const o=normLetter(x.ch);speak(o&&LET[o]?"هٰذَا حَرْفُ "+LET[o].name:"حَاوِلْ مَرَّةً أُخْرَى")}})}
+/* 3) build the word from its letters (each letter keeps its marks) */
+function gBuild(g,c,host){if(!RV.q){const ws=shuffle(rbank().filter(w=>letterPosIn(w.w,c).length&&graphemes(w.w).length<=6&&graphemes(w.w).length>=2));RV.q={ws,i:0,got:[],score:0}}
+  const Q=RV.q;if(!Q.ws.length){g.innerHTML=`<p class="muted">لا توجد كلمات لهذا الحرف بعد.</p>`;return}
+  if(Q.i>=Math.min(4,Q.ws.length)){g.innerHTML=`<div class="rpquiz"><b>🎉 بنيت ${ar(Q.score)} كلمات!</b> <button class="btn small" id="rpAgain">العب مرة أخرى</button></div>`;$("#rpAgain").onclick=()=>{RV.q=null;renderReadView(host)};rpWin("L"+c+"build",host,"🧩 أحسنت البناء!");return}
+  const w=Q.ws[Q.i],gs=graphemes(w.w);if(!Q.tiles)Q.tiles=shuffle(gs.map((x,k)=>({x,k})));
+  g.innerHTML=`<div class="rpbuild"><button class="rpemoji" id="rpE">${w.e||"🔊"}</button><div class="rpslot">${Q.got.length?esc(gs.slice(0,Q.got.length).join("")):"<span class=muted>…</span>"}</div><p class="muted small">المس الحروف بالترتيب لتكوّن الكلمة (من اليمين إلى اليسار)</p>
+    <div class="rptiles">${Q.tiles.map((t,i)=>`<button class="rptile ${Q.got.includes(t.k)?"used":""}" data-t="${i}" ${Q.got.includes(t.k)?"disabled":""}>${esc(t.x)}</button>`).join("")}</div></div>`;
+  $("#rpE").onclick=()=>speak(w.w);
+  g.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{const t=Q.tiles[+b.dataset.t];const need=Q.got.length;if(gs[t.k]===gs[need]){Q.got.push(t.k);if(Q.got.length===gs.length){Q.score++;speak(w.w);gBuildRender(g,c,host,true)}else gBuildRender(g,c,host)}
+    else{b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500)}})}
+function gBuildRender(g,c,host,done){const Q=RV.q;if(done){const w=Q.ws[Q.i];g.querySelector(".rpslot").innerHTML=`<b class="okw">${esc(w.w)}</b> ✅`;g.querySelector(".rptiles").innerHTML=`<button class="btn primary" id="rpNx">الكلمة التالية ←</button>`;praise();$("#rpNx").onclick=()=>{Q.i++;Q.got=[];Q.tiles=null;gBuild(g,c,host)};return}gBuild(g,c,host)}
+/* 4) shadda and tanween: pick the right mark */
+function gMarks(g,c,host){const b=c==="ا"?"أ":c;const M=[["َ","فَتْحَة"],["ُ","ضَمَّة"],["ِ","كَسْرَة"],["ْ","سُكُون"],["َّ","شَدَّة مَعَ الفَتْحَة"],["ُّ","شَدَّة مَعَ الضَّمَّة"],["ِّ","شَدَّة مَعَ الكَسْرَة"],["ًا","تَنْوِين الفَتْح"],["ٌ","تَنْوِين الضَّمّ"],["ٍ","تَنْوِين الكَسْر"]].filter(m=>!(c==="ا"&&/ّ|ْ/.test(m[0])));
+  const F=m=>(c==="ا"&&m[0]==="ِ"?"إ":c==="ا"&&m[0]==="ٍ"?"إ":b)+m[0];
+  if(!RV.q)RV.q={i:0,ok:0,list:shuffle(M.slice(4)).slice(0,4).concat(shuffle(M.slice(0,4)).slice(0,2))};const Q=RV.q;
+  const card=`<div class="rpforms">${M.map(m=>`<button class="rpform" data-say="${esc(LET[c].name+" "+m[1])}"><b>${esc(F(m))}</b><small>${esc(m[1])}</small></button>`).join("")}</div>`;
+  if(Q.i>=Q.list.length){g.innerHTML=card+`<div class="rpquiz"><b>🎉 ${ar(Q.ok)} من ${ar(Q.list.length)}</b> <button class="btn small" id="rpAgain">العب مرة أخرى</button></div>`;$("#rpAgain").onclick=()=>{RV.q=null;renderReadView(host)};if(Q.ok>=Q.list.length-1)rpWin("L"+c+"marks",host);wireSay(g);return}
+  const m=Q.list[Q.i];const opts=shuffle([m,...shuffle(M.filter(x=>x[0]!==m[0])).slice(0,2)]);
+  g.innerHTML=card+`<div class="rpquiz"><p class="rpq">أين ${esc(LET[c].name)} مع <b>${esc(m[1])}</b>؟ <button class="btn small ghost" id="rpHear">🔊</button></p><div class="row rpopts">${opts.map((o,k)=>`<button class="rpopt" data-k="${k}">${esc(F(o))}</button>`).join("")}</div></div>`;
+  wireSay(g);const ask=()=>speak("أَيْنَ "+LET[c].name+" مَعَ "+m[1]);$("#rpHear").onclick=ask;if(!Q.asked){Q.asked=1;ask()}
+  g.querySelectorAll("[data-k]").forEach(bt=>bt.onclick=()=>{if(opts[+bt.dataset.k][0]===m[0]){bt.classList.add("ok");if(!Q.miss)Q.ok++;Q.miss=false;Q.asked=0;setTimeout(()=>{Q.i++;gMarks(g,c,host)},800)}else{Q.miss=true;bt.classList.add("shake");setTimeout(()=>bt.classList.remove("shake"),500)}})}
+function wireSay(g){g.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say))}
+/* graded reading path */
+function rpPath(body,host){const D=rpDone();let h="";for(let lv=1;lv<=7;lv++){const ss=RP_STAGES.map((st,i)=>[st,i]).filter(([st])=>st.lv===lv);
+    h+=`<div class="rplv"><h3>المستوى ${ar(lv)}: ${RP_LV[lv]}</h3><div class="rpst">${ss.map(([st,i])=>`<button class="rpstage ${D["S"+i]?"done":""}" data-s="${i}"><i>${ar(i+1)}</i><b>${esc(st.t)}</b>${D["S"+i]?"<span>⭐</span>":""}</button>`).join("")}</div></div>`}
+  const n=RP_STAGES.filter((_,i)=>D["S"+i]).length;
+  body.innerHTML=`<div class="rpprog"><div class="progress"><i style="width:${Math.round(n/RP_STAGES.length*100)}%"></i></div><span class="small muted">أُنجز ${ar(n)} من ${ar(RP_STAGES.length)} مرحلة</span></div>${h}`;
+  body.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{RV.stage=+b.dataset.s;RV.smode="read";RV.q=null;RV.items=rpItems(RP_STAGES[RV.stage]);renderReadView(host)})}
+let rpAuto=null;
+function rpStage(body,host){const st=RP_STAGES[RV.stage];const items=RV.items||(RV.items=rpItems(st));const big=items.length<=10;
+  body.innerHTML=`<div class="row rpbar"><button class="btn ghost" id="rpBack">→ كل المراحل</button><b>المرحلة ${ar(RV.stage+1)}: ${esc(st.t)}</b><span class="grow"></span>
+    <div class="modebar"><button data-sm="read" aria-pressed="${RV.smode==="read"}">📖 اقرأ</button><button data-sm="test" aria-pressed="${RV.smode==="test"}">🏆 التحدي</button></div></div><div id="rpS"></div>`;
+  $("#rpBack").onclick=()=>{rpAuto=null;stopSpeak();RV.stage=null;RV.items=null;renderReadView(host)};
+  body.querySelectorAll("[data-sm]").forEach(b=>b.onclick=()=>{rpAuto=null;stopSpeak();RV.smode=b.dataset.sm;RV.q=null;renderReadView(host)});
+  const box=$("#rpS");
+  if(RV.smode==="read"){const lam=st.k==="lam";
+    box.innerHTML=`<div class="row"><button class="btn green" id="rpAll">▶ اقرأ معي الكل</button><span class="muted small">المس أي بطاقة لتسمعها</span></div><div class="rpgrid ${big?"big":""}">${items.map((it,i)=>{return `<button class="rpcard" data-i="${i}">${it.e?`<span class="e">${it.e}</span>`:""}<b>${esc(it.w)}</b>${it.small?`<small>${esc(it.small)}</small>`:""}${lam?`<small>${/ّ/.test((it.w.match(/^ال[^ً-ْٰ]([ً-ْٰ]*)/)||["",""])[1])?"☀️ لام شمسية: تُكتب ولا تُنطق":"🌙 لام قمرية: تُنطق"}</small>`:""}</button>`}).join("")}</div>`;
+    const cards=[...box.querySelectorAll(".rpcard")];const sayI=i=>{const it=items[i];cards.forEach(c=>c.classList.remove("now"));cards[i].classList.add("now");return speak(it.say||it.w,.75)};
+    cards.forEach((c,i)=>c.onclick=()=>{rpAuto=null;sayI(i)});
+    $("#rpAll").onclick=async()=>{const tok=rpAuto={};for(let i=0;i<items.length;i++){if(rpAuto!==tok||mode!=="read")break;cards[i].scrollIntoView({block:"nearest",behavior:"smooth"});await sayI(i);await new Promise(r=>setTimeout(r,700))}cards.forEach(c=>c.classList.remove("now"))};return}
+  // challenge: hear it, find it
+  if(!RV.q){const pool=items.length>=3?items:rpItems(RP_STAGES[0]);RV.q={list:shuffle(pool).slice(0,Math.min(6,pool.length)),pool,i:0,ok:0}}const Q=RV.q;
+  if(Q.i>=Q.list.length){const pass=Q.ok>=Math.ceil(Q.list.length*.7);box.innerHTML=`<div class="rpquiz"><b>${pass?"🎉 نجحت في المرحلة!":"👍 قاربت!"} ${ar(Q.ok)} من ${ar(Q.list.length)}</b><div class="row"><button class="btn" id="rpAgain">أعد التحدي</button>${RV.stage<RP_STAGES.length-1?`<button class="btn primary" id="rpNextS">المرحلة التالية ←</button>`:""}</div></div>`;
+    if(pass)rpWin("S"+RV.stage,host,"🏆 أُنجزت المرحلة");$("#rpAgain").onclick=()=>{RV.q=null;rpStage(body,host)};const nx=$("#rpNextS");if(nx)nx.onclick=()=>{RV.stage++;RV.items=rpItems(RP_STAGES[RV.stage]);RV.smode="read";RV.q=null;renderReadView(host)};return}
+  const it=Q.list[Q.i];const opts=shuffle([it,...shuffle(Q.pool.filter(x=>x.w!==it.w)).slice(0,2)]);
+  box.innerHTML=`<div class="rpquiz"><p class="rpq">استمع ثم المس ما سمعت (${ar(Q.i+1)} من ${ar(Q.list.length)}) <button class="btn green" id="rpHear">🔊 استمع</button></p><div class="rpgrid big">${opts.map((o,k)=>`<button class="rpcard" data-k="${k}"><b>${esc(o.w)}</b></button>`).join("")}</div></div>`;
+  const hear=()=>speak(it.say||it.w,.75);$("#rpHear").onclick=hear;if(!Q.asked){Q.asked=1;hear()}
+  box.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{if(opts[+b.dataset.k]===it){b.classList.add("ok");if(!Q.miss)Q.ok++;Q.miss=false;Q.asked=0;setTimeout(()=>{Q.i++;rpStage(body,host)},800)}else{Q.miss=true;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500);speak("حَاوِلْ مَرَّةً أُخْرَى")}})}
+
+function renderMode(){const h=$("#modeView");({read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
 let libShelf="all",libQ="",libRen=null;
@@ -2975,7 +3139,7 @@ let fsObs=null;function fsChanged(){const el=document.fullscreenElement||documen
 document.addEventListener("fullscreenchange",fsChanged);document.addEventListener("webkitfullscreenchange",fsChanged);
 
 /* ================= boot ================= */
-load();renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
+load();if(S.mode&&MODES.some(m=>m[0]===S.mode))mode=S.mode;renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
 aiInit.then(()=>{renderSide()});
 loadSharedBrand();
 try{Object.assign(ePg,S.ePg||{})}catch(e){}
