@@ -51,6 +51,12 @@ header.top .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding
 .brand .crayons{display:flex;gap:3px}.brand .crayons i{display:block;width:7px;height:26px;border-radius:4px 4px 2px 2px}
 .brand h1{font-size:1.5rem}
 .brand .logo{width:44px;height:44px;object-fit:contain;border-radius:10px;background:#fff;border:1px solid var(--line)}
+.brand .logo.big,.brandleft .logo{width:auto;height:54px;max-width:170px;border:0;background:transparent;border-radius:0}
+.brandleft{order:9}
+.brandcenter{flex-basis:100%;display:flex;justify-content:center;align-items:center;gap:28px;padding-bottom:4px}
+.brandcenter[hidden]{display:none}
+.brandcenter img{height:62px;width:auto;max-width:42vw;object-fit:contain}
+@media (max-width:640px){.brand .logo.big,.brandleft .logo{height:40px}.brandcenter img{height:46px}}
 .btn{border:0;border-radius:12px;padding:9px 15px;font-weight:700;cursor:pointer;background:var(--sky-soft);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
 .btn.primary{background:var(--sun);color:#1D2B36}
 .btn.green{background:var(--leaf);color:#fff}
@@ -124,6 +130,10 @@ body:not([data-mode="lesson"]) .app{grid-template-columns:minmax(0,1fr)}
 .ebar select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
 .book3d{perspective:2200px;display:grid;place-items:center;background:linear-gradient(180deg,var(--bg),var(--line));border-radius:16px;padding:18px;min-height:280px;overflow:hidden;touch-action:pan-y}
 .book3d:fullscreen{background:#26323b}
+.ebfs:fullscreen{background:#26323b;overflow:auto;display:grid;align-content:center;padding:0}
+.ebfs:fullscreen .ebook>*:not(#bookStage){display:none!important}
+.ebfs:fullscreen .book3d{background:#26323b;border-radius:0}
+.ebfs:fullscreen .book3d .leaf img{max-height:calc(86vh * var(--z,1))!important}
 .leaf{position:relative;display:inline-block;max-width:100%;line-height:0;transform-origin:100% 50%;background:#fff;border-radius:4px 10px 10px 4px;box-shadow:0 18px 40px rgba(0,0,0,.22),-5px 0 0 #fff,-6px 0 0 #cdd6dc,-10px 0 0 #fff,-11px 0 0 #cdd6dc}
 .leaf img{display:block;max-width:100%;max-height:76vh;width:auto;height:auto;border-radius:4px 10px 10px 4px;min-width:200px;min-height:200px;background:#fff}
 .book3d:fullscreen .leaf img{max-height:94vh}
@@ -131,6 +141,11 @@ body:not([data-mode="lesson"]) .app{grid-template-columns:minmax(0,1fr)}
 .leaf.turn-p{animation:turnP .7s cubic-bezier(.2,.8,.2,1);transform-origin:0 50%}
 @keyframes turnN{from{transform:rotateY(-100deg);opacity:.2}to{transform:none;opacity:1}}
 @keyframes turnP{from{transform:rotateY(100deg);opacity:.2}to{transform:none;opacity:1}}
+.ptlayer{position:absolute;inset:0;z-index:6;cursor:crosshair;touch-action:none}
+.ptbox{position:absolute;border:3px solid #2F7DE1;background:rgba(47,125,225,.12);border-radius:8px;pointer-events:none}
+.ptbox.busy{animation:ptpulse 1s infinite}@keyframes ptpulse{50%{background:rgba(47,125,225,.3)}}
+.ptbub{position:absolute;z-index:7;display:grid;gap:6px;max-width:60%;padding:10px 12px;border-radius:14px;background:#fffbe6;border:2px solid #e9c46a;box-shadow:0 8px 20px rgba(0,0,0,.2);line-height:1.6;font-size:1rem;color:#1d2b36}
+.ptt{font-size:1.6rem;font-family:"Amiri","Scheherazade New",serif;line-height:1.7}
 .spot{position:absolute;border:0;border-radius:10px;background:rgba(255,183,3,.16);outline:2px dashed rgba(233,96,79,.55);cursor:pointer;padding:0}
 .spot:hover,.spot.on{background:rgba(255,183,3,.45);outline-style:solid}
 .hidespots .spot{background:transparent;outline-color:transparent}
@@ -231,6 +246,7 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .side{top:calc(130px + env(safe-area-inset-top,0px))!important;max-height:calc(100vh - 146px)!important}
 .lgh{font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--muted);padding:6px 4px 0}
 #modeView{display:grid;gap:14px;min-width:0}
+.stoptalk{position:fixed;bottom:18px;left:18px;z-index:2147483001;padding:14px 22px;border:0;border-radius:999px;background:#e63946;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback{position:fixed;top:14px;right:14px;z-index:2147483000;padding:12px 20px;border:0;border-radius:999px;background:#1d2b36;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback:hover{background:#2a9d8f}
 .libv{display:grid;gap:14px}
@@ -563,10 +579,12 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 </style>
 
 <header class="top"><div class="wrap">
+  <div class="brandcenter" id="brandCenter" hidden></div>
   <div class="brand"><span id="brandMark"></span><div><h1>روضة الدروس</h1><div class="small muted" id="brandSchool"></div></div></div>
   <button class="stars" id="stars" title="نجوم الصف">⭐ ٠</button>
   <label class="btn primary" for="file">📚 رفع كتب</label>
   <button class="btn ghost" id="setBtn">⚙️ المدرسة والشعار</button>
+  <span class="brandleft" id="brandLeft" hidden></span>
   <nav class="modenav" id="modeNav" aria-label="أقسام البرنامج"></nav>
 </div></header>
 <input type="file" id="file" accept="application/pdf,image/*" multiple class="sr">
@@ -624,9 +642,12 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
     <div class="foot"><h2 style="font-size:1.3rem">المدرسة والشعار</h2><button class="btn ghost small" id="setClose">إغلاق ✕</button></div>
     <label class="f">اسم المدرسة أو الروضة<input type="text" id="sSchool" placeholder="مثال: روضة الأمل الأهلية"></label>
     <label class="f">اسم المعلم (اختياري)<input type="text" id="sTeacher" placeholder="مثال: أ. محمد"></label>
-    <div style="display:grid;gap:6px"><b>شعار المدرسة</b>
+    <div style="display:grid;gap:6px"><b>الشعارات</b>
       <div class="row"><div class="logoprev" id="sLogoPrev">لا يوجد شعار</div>
-        <div style="display:grid;gap:8px"><label class="btn" for="sLogo">رفع شعار</label><input type="file" id="sLogo" accept="image/*" class="sr"><button class="btn ghost" id="sLogoDel">إزالة الشعار</button></div></div>
+        <div style="display:grid;gap:8px"><b class="small">شعار اليمين (مثل: جمعية تعلم)</b><label class="btn" for="sLogo">رفع شعار اليمين</label><input type="file" id="sLogo" accept="image/*" class="sr"><button class="btn ghost" id="sLogoDel">إزالة</button></div></div>
+      <div class="row"><div class="logoprev" id="sLogoPrev2">لا يوجد شعار</div>
+        <div style="display:grid;gap:8px"><b class="small">شعار اليسار (مثل: مجمع ابن تيمية)</b><label class="btn" for="sLogo2">رفع شعار اليسار</label><input type="file" id="sLogo2" accept="image/*" class="sr"><button class="btn ghost" id="sLogoDel2">إزالة</button></div></div>
+      <label class="f">مكان الشعارين<select id="sLayout"><option value="sides">شعار أعلى اليمين وشعار أعلى اليسار</option><option value="center">الشعاران معًا في الوسط (اليمين بجانب اليسار)</option></select></label>
       <span class="small muted">يظهر الشعار واسم المدرسة في البرنامج، وعلى الشرائح والفيديو، وفي ملفات Word و PDF.</span></div>
     <div style="display:grid;gap:8px"><b>القراءة الذكية والصوت</b><div class="diag" id="diag"></div>
       <label class="f">صوت القراءة<select id="sVoice" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)"></select></label>
@@ -780,13 +801,23 @@ function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}if(curAudio){try{cur
 
 /* ================= school & logo ================= */
 let brandImg=null,draftLogo=null;
-function renderBrand(){const B=S.brand;
+function renderBrand(){const B=S.brand;const R=B.logoR||"",L=B.logoL||"",lay=B.layout||"sides";const two=R||L;
+  const cen=$("#brandCenter"),lft=$("#brandLeft");cen.hidden=!(two&&lay==="center");lft.hidden=!(two&&lay==="sides"&&L);
+  cen.innerHTML=two&&lay==="center"?[R,L].filter(Boolean).map(u=>`<img src="${esc(u)}" alt="شعار">`).join(""):"";
+  lft.innerHTML=two&&lay==="sides"&&L?`<img class="logo" src="${esc(L)}" alt="شعار">`:"";
+  if(two&&lay==="sides"&&R){$("#brandMark").innerHTML=`<img class="logo big" src="${esc(R)}" alt="شعار">`}else if(two&&lay==="center"){$("#brandMark").innerHTML=""}else
   $("#brandMark").innerHTML=B.logo?`<img class="logo" src="${B.logo}" alt="شعار ${esc(B.school)}">`:`<span class="crayons" aria-hidden="true"><i style="background:var(--coral)"></i><i style="background:var(--sun)"></i><i style="background:var(--leaf)"></i><i style="background:var(--sky)"></i></span>`;
   $("#brandSchool").textContent=[B.school,B.teacher].filter(Boolean).join(" · ");
   brandImg=null;if(B.logo){const im=new Image();im.onload=()=>{brandImg=im};im.src=B.logo}}
+async function composeLogos(R,L){const load=u=>new Promise(r=>{if(!u)return r(null);const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=u});const [a,b]=await Promise.all([load(R),load(L)]);const ims=[b,a].filter(Boolean);if(!ims.length)return "";
+  const H=180,gap=50;const ws=ims.map(i=>Math.round(i.width*H/i.height));const c=document.createElement("canvas");c.width=ws.reduce((x,y)=>x+y,0)+gap*(ims.length-1);c.height=H;const g=c.getContext("2d");let x=0;ims.forEach((im,k)=>{g.drawImage(im,x,0,ws[k],H);x+=ws[k]+gap});return c.toDataURL("image/png")}
+/* the two logos shared from GitHub (brand/brand.json) are used on every screen unless a screen sets its own */
+async function loadSharedBrand(){try{const r=await fetch("brand/brand.json",{cache:"no-store"});if(!r.ok)return;const d=await r.json();const B=S.brand;if(B.custom)return;
+  const ch=B.logoR!==d.right||B.logoL!==d.left||(d.layout&&B.layout!==d.layout&&!B.layoutSet);B.logoR=d.right||"";B.logoL=d.left||"";if(!B.layoutSet)B.layout=d.layout||"sides";if(!B.school&&d.school)B.school=d.school;
+  if(ch||!B.logo){B.logo=await composeLogos(B.logoR,B.logoL)}save();renderBrand()}catch(e){}}
 function brandBadge(){const B=S.brand;if(!B.logo&&!B.school)return "";return `<div class="badge">${B.logo?`<img src="${B.logo}" alt="">`:""}${B.school?`<span>${esc(B.school)}</span>`:""}</div>`}
-function showLogoPrev(){$("#sLogoPrev").innerHTML=draftLogo?`<img src="${draftLogo}" alt="الشعار">`:"لا يوجد شعار"}
-$("#setBtn").onclick=()=>{const B=S.brand;$("#sSchool").value=B.school;$("#sTeacher").value=B.teacher;draftLogo=B.logo;showLogoPrev();$("#sRate").value=S.rate||.85;$("#settings").hidden=false;renderDiag()};
+let draftLogo2=null;function showLogoPrev(){$("#sLogoPrev").innerHTML=draftLogo?`<img src="${draftLogo}" alt="الشعار">`:"لا يوجد شعار";const p2=$("#sLogoPrev2");if(p2)p2.innerHTML=draftLogo2?`<img src="${draftLogo2}" alt="الشعار">`:"لا يوجد شعار"}
+$("#setBtn").onclick=()=>{const B=S.brand;$("#sSchool").value=B.school;$("#sTeacher").value=B.teacher;draftLogo=B.logoR||(!B.logoL?B.logo:"")||"";draftLogo2=B.logoL||"";$("#sLayout").value=B.layout||"sides";showLogoPrev();$("#sRate").value=S.rate||.85;$("#settings").hidden=false;renderDiag()};
 function renderDiag(){const vs=arVoices();
   $("#diag").innerHTML=[`${sample?"✅":"❌"} القراءة الذكية والتحضير: ${sample?"متاحة":esc(aiReason()||"جارٍ الفحص…")}`,
     `${imgMax?"✅":"❌"} قراءة الصور المصوّرة: ${imgMax?"متاحة":"غير متاحة"}${aiWhy==="denied"?" (رُفض الإذن)":""}`,
@@ -803,10 +834,12 @@ $("#sTestAI").onclick=async()=>{const out=$("#sTestOut");await aiInit;if(!sample
   try{const r=await sample("ما الحرف وحركته في هذه الصورة؟ أجب بكلمات قليلة بالعربية.",{images:[await toBlob(c,"image/png")],modelTier:"quick",cache:false});out.textContent="✅ القراءة تعمل. الجواب: "+r.text.slice(0,80)}
   catch(e){if(e&&e.code==="not_granted")aiWhy="denied";out.textContent="❌ "+(e&&e.code?`(${e.code}) `:"")+aiErr(e);renderDiag()}};
 $("#setClose").onclick=()=>{$("#settings").hidden=true};
-$("#sLogoDel").onclick=()=>{draftLogo="";showLogoPrev()};
+$("#sLogoDel").onclick=()=>{draftLogo="";showLogoPrev()};$("#sLogoDel2").onclick=()=>{draftLogo2="";showLogoPrev()};
 $("#sLogo").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
-  try{const bmp=await createImageBitmap(f);const sc=Math.min(1,320/Math.max(bmp.width,bmp.height));const c=document.createElement("canvas");c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);draftLogo=c.toDataURL("image/png");showLogoPrev()}catch(err){flash("تعذّر فتح صورة الشعار","err")}};
-$("#setSave").onclick=()=>{const B=S.brand;B.school=$("#sSchool").value.trim();B.teacher=$("#sTeacher").value.trim();B.logo=draftLogo||"";save();renderBrand();$("#settings").hidden=true;renderMain();flash("تم الحفظ","ok")};
+  try{const bmp=await createImageBitmap(f);const sc=Math.min(1,480/Math.max(bmp.width,bmp.height));const c=document.createElement("canvas");c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);draftLogo=c.toDataURL("image/png");showLogoPrev()}catch(err){flash("تعذّر فتح صورة الشعار","err")}};
+$("#sLogo2").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{const bmp=await createImageBitmap(f);const sc=Math.min(1,480/Math.max(bmp.width,bmp.height));const c=document.createElement("canvas");c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);draftLogo2=c.toDataURL("image/png");showLogoPrev()}catch(err){flash("تعذّر فتح صورة الشعار","err")}};
+$("#setSave").onclick=async()=>{const B=S.brand;B.school=$("#sSchool").value.trim();B.teacher=$("#sTeacher").value.trim();B.logoR=draftLogo||"";B.logoL=draftLogo2||"";B.layout=$("#sLayout").value;B.layoutSet=true;B.custom=true;B.logo=(B.logoR&&B.logoL)?await composeLogos(B.logoR,B.logoL):(B.logoR||B.logoL||"");save();renderBrand();$("#settings").hidden=true;renderMain();flash("تم الحفظ","ok")};
 
 /* ================= loading books ================= */
 const toBlob=(c,t="image/jpeg",q=.9)=>new Promise(r=>c.toBlob(r,t,q));
@@ -923,12 +956,13 @@ let TESS=null;let lastInput=0;["pointerdown","pointermove","keydown","touchstart
 async function bgYield(){await new Promise(r=>setTimeout(r,30));let n=0;while((Date.now()-lastInput<2500||document.hidden)&&n<2400){await new Promise(r=>setTimeout(r,250));n++}}
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=()=>res();sc.onerror=()=>rej(new Error("tess"));document.head.appendChild(sc)})}
 async function ocrWorker(){if(TESS)return TESS;await loadTess();TESS=await Tesseract.createWorker("ara");return TESS}
+async function ocrPageMode(w){try{await w.setParameters({tessedit_pageseg_mode:"3"})}catch(e){}}
 async function ocrRead(id,sig){const bk=memBook(id),B=S.books[id];if(!bk||!B)return;const meta=B.meta;
   const todo=bk.pages.filter(p=>!((meta[p.n]&&meta[p.n].text)||p.pdfText));const st={state:"reading",done:0,total:Math.max(1,todo.length)};setSt(id,st);
   let ok=0;
   if(todo.length){let w=null;try{w=await ocrWorker()}catch(e){setSt(id,{state:"done",msg:"القراءة المحلية تحتاج اتصالًا بالإنترنت أول مرة. ستُعاد عند فتح الكتاب لاحقًا."});return}
     for(const p of todo){await bgYield();if(sig&&sig.aborted){setSt(id,{state:"stopped",msg:"توقفت القراءة."});return}
-      try{const r=await w.recognize(p.blob);const t=String(r&&r.data&&r.data.text||"").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();meta[p.n]=meta[p.n]||{text:"",read:null};if(t){meta[p.n].text=t;ok++}}catch(e){}
+      try{await ocrPageMode(w);const r=await w.recognize(p.blob);const t=String(r&&r.data&&r.data.text||"").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();meta[p.n]=meta[p.n]||{text:"",read:null};if(t){meta[p.n].text=t;ok++}}catch(e){}
       st.done++;setSt(id,{...st});save()}}
   if(!S.lessons.some(l=>l.bookId===id&&!l.provisional)){const loc=localLessons(id);if(loc.length)S.lessons=S.lessons.filter(l=>l.bookId!==id).concat(loc)}
   autoShelf(id);save();setSt(id,{state:"done",msg:`قُرئ الكتاب على هذا الجهاز${ok?` (${ar(ok)} صفحة مصوّرة)`:""}. صحّح أي نص من «تصحيح النص» عند الحاجة.`});try{renderSide();if(mode==="library")renderMain()}catch(e){}}
@@ -1027,10 +1061,35 @@ function renderSide(){
 }
 
 /* ================= interactive e-book ================= */
-const ePg={};let eInk=false,eZoom=1,showSpots=true,eDir="",eLessonOnly=true,lessonReading=null;
+const ePg={};let ePoint=false,eInk=false,eZoom=1,showSpots=true,eDir="",eLessonOnly=true,lessonReading=null;
 function stopLessonRead(){if(lessonReading){lessonReading.stop=true;lessonReading=null}}
+/* touch-to-read: a tap reads the line under the finger, a drag reads exactly the framed part */
+async function readRegion(blob,box){const bmp=await createImageBitmap(blob);const W=bmp.width,H=bmp.height;
+  const x=Math.max(0,Math.round(box.x*W)),y=Math.max(0,Math.round(box.y*H)),w=Math.min(W-x,Math.round(box.w*W)),h=Math.min(H-y,Math.round(box.h*H));if(w<8||h<8)return "";
+  const sc=Math.max(1,Math.min(4,1400/w));const c=document.createElement("canvas");c.width=Math.round(w*sc);c.height=Math.round(h*sc);const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(bmp,x,y,w,h,0,0,c.width,c.height);
+  await aiInit;
+  if(sample&&imgMax){try{const im=await toBlob(c,"image/jpeg",.9);const r=await sample(`هذه قطعة من صفحة في كتاب عربي للأطفال حدّدها المعلم. اكتب النص العربي المكتوب فيها حرفيًا كما هو بالتشكيل الكامل الصحيح، بلا شرح ولا إضافة ولا ترقيم زائد. إن كانت فيها أرقام فاكتبها كما هي. إن لم يكن فيها نص مقروء فاكتب: ##لا_نص##`,{images:[im],modelTier:"quick",cache:false});const t=String(r&&r.text||"").trim();return /##لا_نص##/.test(t)?"":t}catch(e){}}
+  // on this device: Arabic OCR of just this part, on a clean grey-scale copy
+  const d=g.getImageData(0,0,c.width,c.height),px=d.data;for(let i=0;i<px.length;i+=4){let v=px[i]*.3+px[i+1]*.59+px[i+2]*.11;v=v<150?Math.max(0,v*.6):Math.min(255,v*1.25);px[i]=px[i+1]=px[i+2]=v}g.putImageData(d,0,0);
+  const w8=await ocrWorker();try{await w8.setParameters({tessedit_pageseg_mode:h*sc<160?"7":"6"})}catch(e){}
+  const r=await w8.recognize(c);let t=String(r&&r.data&&r.data.text||"").replace(/[|_~^`<>{}\[\]\\]/g," ").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();
+  if(!/[؀-ۿ0-9٠-٩]/.test(t))t="";return t}
+function wirePointRead(layer,page,n){if(!layer||!page)return;let st=null,boxEl=null;
+  const rel=e=>{const r=layer.getBoundingClientRect();return [Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))]};
+  layer.onpointerdown=e=>{e.preventDefault();layer.setPointerCapture(e.pointerId);st=rel(e);if(boxEl)boxEl.remove();boxEl=document.createElement("div");boxEl.className="ptbox";layer.appendChild(boxEl)};
+  layer.onpointermove=e=>{if(!st)return;const [x,y]=rel(e);const a=Math.min(st[0],x),b=Math.min(st[1],y);Object.assign(boxEl.style,{left:a*100+"%",top:b*100+"%",width:Math.abs(x-st[0])*100+"%",height:Math.abs(y-st[1])*100+"%"})};
+  layer.onpointerup=async e=>{if(!st)return;const [x,y]=rel(e);let box={x:Math.min(st[0],x),y:Math.min(st[1],y),w:Math.abs(x-st[0]),h:Math.abs(y-st[1])};st=null;
+    if(box.w<.03||box.h<.02){box={x:Math.max(0,x-.22),y:Math.max(0,y-.045),w:.44,h:.09}}
+    Object.assign(boxEl.style,{left:box.x*100+"%",top:box.y*100+"%",width:box.w*100+"%",height:box.h*100+"%"});boxEl.classList.add("busy");
+    const bub=document.createElement("div");bub.className="ptbub";bub.style.left=Math.min(70,box.x*100)+"%";bub.style.top=Math.min(85,(box.y+box.h)*100+1)+"%";bub.innerHTML='<span class="spin s"></span> أقرأ…';layer.appendChild(bub);
+    let t="";try{t=await readRegion(page.blob,box)}catch(err){t=""}
+    boxEl.classList.remove("busy");
+    if(!t){bub.innerHTML='لم أجد كلامًا مقروءًا هنا. حدّد السطر بالسحب حوله بدقة. <button class="link" data-x>✕</button>';bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};return}
+    bub.innerHTML=`<b class="ptt">${esc(t)}</b><span class="row"><button class="btn small green" data-again>🔊 مرة أخرى</button><button class="btn small ghost" data-x>✕</button></span>`;
+    bub.querySelector("[data-again]").onclick=ev=>{ev.stopPropagation();speak(t,.75)};bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};
+    bub.onpointerdown=ev=>ev.stopPropagation();speak(t,.75)}}
 function renderEbook(body){
-  const id=S.cur,B=S.books[id],bk=memBook(id);
+  const keepY=window.scrollY;const id=S.cur,B=S.books[id],bk=memBook(id);
   const bookLessons=S.lessons.filter(l=>l.bookId===id);
   const lessonTools=`<details id="newLesson"><summary class="btn ghost small" style="list-style:none">＋ درس جديد من صفحات الكتاب</summary>
       <div class="form" style="margin-top:10px">
@@ -1052,7 +1111,7 @@ function renderEbook(body){
     ${selHere.length?`<div class="lessbar"><b>${selHere.map(l=>esc(l.emoji+" "+l.title)).join(" · ")}</b><span class="small muted">${lockL?`صفحة ${ar(pos+1)} من ${ar(nav.length)} في الدرس`:"تعرض الكتاب كاملًا"}</span><button class="btn green small" id="eReadL">🔊 قراءة الدرس كاملًا</button><button class="btn ghost small" id="eReadStop" ${lessonReading?"":"hidden"}>إيقاف القراءة</button><label class="check small"><input type="checkbox" id="eLock" ${lockL?"checked":""}> صفحات الدرس فقط</label></div>`:""}
     <div class="ebar"><button class="btn" id="ePrev" aria-label="الصفحة السابقة">→</button><select id="eSel" aria-label="رقم الصفحة">${nav.map(k=>`<option value="${k}" ${k===n?"selected":""}>صفحة ${ar(k)} من ${ar(N)}</option>`).join("")}</select><button class="btn" id="eNext" aria-label="الصفحة التالية">←</button>
       <button class="btn green" id="eRead">🔊 قراءة الصفحة</button><label class="check"><input type="checkbox" id="eSpots" ${showSpots?"checked":""}> مواضع اللمس</label><button class="btn ghost small" id="eZoom">🔍 تكبير</button><button class="btn ghost small" id="eFull">⛶ ملء الشاشة</button></div>
-    <div class="book3d ${eInk?"inkmode":""} ${eZoom>1?"zoomed":""}" id="bookStage" style="--z:${eZoom}"><div class="stagebar"><button class="sbtn" id="sPrevP" aria-label="الصفحة السابقة">→</button><button class="sbtn" id="sNextP" aria-label="الصفحة التالية">←</button><button class="sbtn ${eInk?"on":""}" id="eInk">✏️ ${eInk?"إنهاء الكتابة":"اكتب على الصفحة"}</button>${eInk?penBarHTML("pg"):""}<button class="sbtn" id="eZm" aria-label="تصغير">－</button><button class="sbtn" id="eZp" aria-label="تكبير">＋</button><button class="sbtn" id="eFull2" aria-label="ملء الشاشة">⛶</button></div><div class="leaf ${eDir} ${showSpots?"":"hidespots"}" id="leaf"><img id="leafImg" alt="صفحة ${ar(n)}"><div class="pageink" id="pageInk"></div>${arr(r&&r.spots).map(s=>`<button class="spot" style="left:${+s.x||0}%;top:${+s.y||0}%;width:${Math.max(3,+s.w||6)}%;height:${Math.max(3,+s.h||6)}%" data-say="${esc(s.t)}" aria-label="${esc(s.t)}"></button>`).join("")}</div></div>
+    <div class="book3d ${eInk?"inkmode":""} ${eZoom>1?"zoomed":""}" id="bookStage" style="--z:${eZoom}"><div class="stagebar"><button class="sbtn" id="sPrevP" aria-label="الصفحة السابقة">→</button><button class="sbtn" id="sNextP" aria-label="الصفحة التالية">←</button><button class="sbtn ${ePoint?"on":""}" id="ePoint" title="المس كلمة أو اسحب حول سطر ليُقرأ">👆 ${ePoint?"إنهاء القراءة باللمس":"اقرأ ما ألمسه"}</button><button class="sbtn ${eInk?"on":""}" id="eInk">✏️ ${eInk?"إنهاء الكتابة":"اكتب على الصفحة"}</button>${eInk?penBarHTML("pg"):""}<button class="sbtn" id="eZm" aria-label="تصغير">－</button><button class="sbtn" id="eZp" aria-label="تكبير">＋</button><button class="sbtn" id="eFull2" aria-label="ملء الشاشة">⛶</button></div><div class="leaf ${eDir} ${showSpots?"":"hidespots"}" id="leaf"><img id="leafImg" alt="صفحة ${ar(n)}"><div class="pageink" id="pageInk"></div>${ePoint?`<div class="ptlayer" id="ptLayer" aria-label="المس أو حدّد بالسحب الجزء الذي تريد قراءته"></div>`:""}${arr(r&&r.spots).map(s=>`<button class="spot" style="left:${+s.x||0}%;top:${+s.y||0}%;width:${Math.max(3,+s.w||6)}%;height:${Math.max(3,+s.h||6)}%" data-say="${esc(s.t)}" aria-label="${esc(s.t)}"></button>`).join("")}</div></div>
     <div class="strip" id="strip">${bk.pages.filter(p=>!lockL||nav.includes(p.n)).map(p=>`<button data-n="${p.n}" aria-current="${p.n===n}" aria-label="صفحة ${p.n}"><img src="${p.thumb}" alt=""><span>${ar(p.n)}</span></button>`).join("")}</div>
     ${ebFree.html}
     <div class="pinfo">
@@ -1075,28 +1134,30 @@ function renderEbook(body){
   </div>`;
   eDir="";
   const p=bk.pages.find(x=>x.n===n);enhURL(p).then(u=>{const im=$("#leafImg");if(im)im.src=u});
-  const go=(d)=>{const k=nav[pos+d];if(!k)return;ePg[id]=k;eDir=d>0?"turn-n":"turn-p";if(!lessonReading)stopSpeak();renderEbook(body)};
+  const go=(d)=>{const k=nav[pos+d];if(!k)return;ePg[id]=k;S.ePg=Object.assign(S.ePg||{},ePg);save();eDir=d>0?"turn-n":"turn-p";if(!lessonReading)stopSpeak();renderEbook(body)};
   const lk=$("#eLock");if(lk)lk.onchange=()=>{eLessonOnly=lk.checked;renderEbook(body)};
   const rl=$("#eReadL");if(rl)rl.onclick=async()=>{stopLessonRead();stopSpeak();const me={stop:false};lessonReading=me;const pgs=lessonPages.length?lessonPages:[n];
     for(const k of pgs){if(me.stop)break;ePg[id]=k;eDir=k!==ePg[id]?"turn-n":"";renderEbook(body);const mm=B.meta[k]||{};const tt=(mm.read&&mm.read.text)||mm.text;if(tt)await speak(tt);else await sleep(1500);await sleep(400)}
     if(lessonReading===me){lessonReading=null;if(curTool==="ebook")renderEbook(body)}};
   const rs=$("#eReadStop");if(rs)rs.onclick=()=>{stopLessonRead();stopSpeak();renderEbook(body)};
   $("#ePrev").onclick=()=>go(-1);$("#eNext").onclick=()=>go(1);
-  $("#eSel").onchange=e=>{const k=+e.target.value;eDir=k>n?"turn-n":"turn-p";ePg[id]=k;renderEbook(body)};
+  $("#eSel").onchange=e=>{const k=+e.target.value;eDir=k>n?"turn-n":"turn-p";ePg[id]=k;S.ePg=Object.assign(S.ePg||{},ePg);save();renderEbook(body)};
   $$("#strip button").forEach(b=>b.onclick=()=>{const k=+b.dataset.n;if(lockL&&!nav.includes(k)){eLessonOnly=false}eDir=k>n?"turn-n":"turn-p";ePg[id]=k;renderEbook(body)});
-  const cur=$("#strip [aria-current=true]");if(cur)cur.scrollIntoView({block:"nearest",inline:"center"});
+  const cur=$("#strip [aria-current=true]");if(cur){cur.scrollIntoView({block:"nearest",inline:"center"});if(Math.abs(window.scrollY-keepY)>2)window.scrollTo(0,keepY)}
   $("#eRead").onclick=()=>{const t=r&&r.text||m.text;if(!t){flash("لم تُقرأ هذه الصفحة بعد");return}speak(t)};
   $("#eSpots").onchange=e=>{showSpots=e.target.checked;$("#leaf").classList.toggle("hidespots",!showSpots)};
   $$(".ebook [data-say]").forEach(b=>b.onclick=async()=>{b.classList.add("on");await speak(b.dataset.say,.72);b.classList.remove("on")});
   $("#eZoom").onclick=()=>openViewer(n);
-  const fs=()=>{const st=$("#bookStage");if(document.fullscreenElement===st){document.exitFullscreen&&document.exitFullscreen();return}(st.requestFullscreen?st.requestFullscreen():Promise.reject()).catch(()=>flash("ملء الشاشة غير متاح هنا"))};$("#eFull").onclick=fs;$("#eFull2").onclick=fs;
+  const fs=()=>{const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe===body){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}body.classList.add("ebfs");const rq=body.requestFullscreen||body.webkitRequestFullscreen;(rq?Promise.resolve(rq.call(body)):Promise.reject()).catch(()=>{body.classList.remove("ebfs");flash("ملء الشاشة غير متاح هنا")})};$("#eFull").onclick=fs;$("#eFull2").onclick=fs;
   $("#sPrevP").onclick=()=>go(-1);$("#sNextP").onclick=()=>go(1);
-  $("#eInk").onclick=()=>{eInk=!eInk;const inFs=document.fullscreenElement===$("#bookStage");renderEbook(body);if(inFs)fs()};
+  $("#ePoint").onclick=()=>{ePoint=!ePoint;if(ePoint)eInk=false;renderEbook(body);if(ePoint)flash("المس كلمة، أو اسحب إصبعك حول السطر الذي تريد أن يُقرأ","ok")};
+  if(ePoint)wirePointRead($("#ptLayer"),p,n);
+  $("#eInk").onclick=()=>{eInk=!eInk;if(eInk)ePoint=false;const inFs=document.fullscreenElement===$("#bookStage");renderEbook(body);if(inFs)fs()};
   $("#eZm").onclick=()=>{eZoom=Math.max(1,eZoom-.5);renderEbook(body)};$("#eZp").onclick=()=>{eZoom=Math.min(3,eZoom+.5);renderEbook(body)};
   $("#eEditTxt").onclick=()=>editPage(id,n);
   INK["pg|"+id+"|"+n]=INK["pg|"+id+"|"+n]||[];const pgBoard=makeBoard($("#pageInk"),{strokes:INK["pg|"+id+"|"+n],bg:"none",active:eInk,thin:true});if(eInk)wirePenBar($("#bookStage .penbar"),pgBoard);
-  ebFree.mount();
-  const stage=$("#bookStage");let sx=null;stage.onpointerdown=e=>{if(eInk||e.target.closest(".stagebar"))return;sx=e.clientX};stage.onpointerup=e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>60)go(dx>0?1:-1)};
+  ebFree.mount();requestAnimationFrame(()=>{if(Math.abs(window.scrollY-keepY)>2)window.scrollTo(0,keepY)});
+  const stage=$("#bookStage");let sx=null;stage.onpointerdown=e=>{if(eInk||ePoint||e.target.closest(".stagebar"))return;sx=e.clientX};stage.onpointerup=e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>60)go(dx>0?1:-1)};
   $$("[data-open-l]").forEach(b=>b.onclick=()=>{selected.clear();selected.add(b.dataset.openL);freeMode=false;renderSide();onSelChange()});
   const as=$("#eAssign");if(as)as.onchange=()=>{const l=S.lessons.find(x=>x.id===as.value);if(!l)return;l.pages=arr(l.pages);if(l.pages.includes(n))l.pages=l.pages.filter(x=>x!==n);else l.pages.push(n);l.pages.sort((a,b)=>a-b);save();renderSide();renderEbook(body);flash("تم الربط","ok")};
   // new lesson form
@@ -1363,8 +1424,9 @@ function makeBoard(wrap,o){wrap.classList.add("bwrap");wrap.innerHTML=`<canvas c
   function size(){const r=wrap.getBoundingClientRect();if(!r.width||!r.height)return;dpr=Math.min(2,devicePixelRatio||1);[cv,bg].forEach(x=>{x.width=Math.round(r.width*dpr);x.height=Math.round(r.height*dpr)});
     b.clearRect(0,0,bg.width,bg.height);drawBg(b,bg.width,bg.height,o.bg,dpr);if(o.guide)o.guide(b,bg.width,bg.height,dpr);redraw()}
   const pt=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
-  cv.addEventListener("pointerdown",e=>{if(!on)return;e.preventDefault();cv.setPointerCapture(e.pointerId);cur={c:PEN.color,s:PEN.size,x:PEN.erase,p:[pt(e)]};strokes.push(cur);stroke(cur)});
-  cv.addEventListener("pointermove",e=>{if(!cur)return;e.preventDefault();cur.p.push(pt(e));const W=cv.width,H=cv.height,n=cur.p.length;const seg={...cur,p:cur.p.slice(n-2)};stroke(seg)});
+  let rc=null;const ptc=e=>[(e.clientX-rc.left)/rc.width,(e.clientY-rc.top)/rc.height];
+  cv.addEventListener("pointerdown",e=>{if(!on)return;e.preventDefault();cv.setPointerCapture(e.pointerId);rc=cv.getBoundingClientRect();cur={c:PEN.color,s:PEN.size,x:PEN.erase,p:[ptc(e)]};strokes.push(cur);stroke(cur)});
+  cv.addEventListener("pointermove",e=>{if(!cur)return;e.preventDefault();const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];for(const ev of (evs.length?evs:[e])){cur.p.push(ptc(ev));const n=cur.p.length;stroke({...cur,p:cur.p.slice(n-2)})}});
   const end=()=>{cur=null};cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
   new ResizeObserver(()=>size()).observe(wrap);requestAnimationFrame(size);
   const api={recolor(col,all){const list=strokes.filter(x=>!x.x);if(!list.length){flash("لا توجد كتابة لتلوينها");return}(all?list:[list[list.length-1]]).forEach(x=>x.c=col);redraw();flash(all?"تغيّر لون كل الكتابة":"تغيّر لون آخر خط","ok")},undo(){strokes.pop();redraw()},clear(){strokes.length=0;redraw()},setActive(v){on=v;wrap.classList.toggle("inking",v)},setBg(v){o.bg=v;size()},size,el:wrap};api.setActive(on);return api}
@@ -1581,6 +1643,7 @@ function wbItem(c,it,W,H){const L=(it.s||6)/1000*W;c.save();c.lineCap="round";c.
       if(it.f){c.globalAlpha=.85;c.fill();c.globalAlpha=1}c.stroke()}}
   c.restore()}
 let wbTemp=null;
+let wbRAF=0,wbFull=false;function wbDrawSoon(full){wbFull=wbFull||full;if(wbRAF)return;wbRAF=requestAnimationFrame(()=>{wbRAF=0;const f=wbFull;wbFull=false;if(f){wbDraw();return}const ink=$("#wbInk");if(!ink)return;const P=WB.pages[WB.cur];const c=ink.getContext("2d"),W=ink.width,H=ink.height;c.clearRect(0,0,W,H);P.items.forEach(it=>wbItem(c,it,W,H));if(wbTemp)wbItem(c,wbTemp,W,H)})}
 function wbDraw(){const bg=$("#wbBg"),ink=$("#wbInk");if(!bg||!ink)return;const P=WB.pages[WB.cur];const W=ink.width,H=ink.height;
   wbBg(bg.getContext("2d"),W,H,P.bg);const c=ink.getContext("2d");c.clearRect(0,0,W,H);P.items.forEach(it=>wbItem(c,it,W,H));if(wbTemp)wbItem(c,wbTemp,W,H);
   const it=WB.sel!=null&&P.items[WB.sel];if(it&&it.k!=="erase"){const [a,b,cc,d]=wbBox(it,W,H);c.save();c.setLineDash([8,6]);c.strokeStyle="#2F7DE1";c.lineWidth=2;c.strokeRect(a*W-6,b*H-6,(cc-a)*W+12,(d-b)*H+12);c.restore()}
@@ -1629,7 +1692,9 @@ function renderBoardView(host){
     if(T==="text"){wbText(x,y);return}ink.setPointerCapture(e.pointerId);
     if(T==="pen"||T==="hl"||T==="erase"){wbCommit();drag={k:T,c:WB.color,s:WB.size,p:[[x,y]]};P.items.push(drag);wbDraw()}
     else{drag={k:T,c:WB.color,s:WB.size,f:WB.fill,x1:x,y1:y,x2:x,y2:y};wbTemp=drag}};
-  ink.onpointermove=e=>{const [x,y]=pt(e);if(mv&&WB.sel!=null){if(!mv.moved){wbCommit();mv.moved=true}wbMove(P.items[WB.sel],x-mv.x,y-mv.y);mv.x=x;mv.y=y;wbDraw();return}if(!drag)return;if(drag.p)drag.p.push([x,y]);else{drag.x2=x;drag.y2=y}wbDraw()};
+  ink.onpointermove=e=>{const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];const [x,y]=pt(evs.length?evs[evs.length-1]:e);if(mv&&WB.sel!=null){if(!mv.moved){wbCommit();mv.moved=true}wbMove(P.items[WB.sel],x-mv.x,y-mv.y);mv.x=x;mv.y=y;wbDrawSoon(true);return}if(!drag)return;
+    if(drag.p){const c=ink.getContext("2d"),W=ink.width,H=ink.height;for(const ev of (evs.length?evs:[e])){drag.p.push(pt(ev));if(drag.k==="pen"||drag.k==="erase"){const n=drag.p.length;wbItem(c,{...drag,p:drag.p.slice(Math.max(0,n-2))},W,H)}}if(drag.k!=="pen"&&drag.k!=="erase")wbDrawSoon(false)}
+    else{drag.x2=x;drag.y2=y;wbDrawSoon(false)}};
   ink.ondblclick=e=>{const it=WB.sel!=null&&P.items[WB.sel];if(it&&it.k==="text")wbText(it.x,it.y,WB.sel)};
   const up=()=>{mv=null;if(!drag)return;if(!drag.p&&(Math.abs(drag.x2-drag.x1)>.005||Math.abs(drag.y2-drag.y1)>.005)){wbCommit();P.items.push(drag)}wbTemp=null;drag=null;wbDraw()};ink.onpointerup=up;ink.onpointercancel=up;
   new ResizeObserver(wbSize).observe($("#wbStage"));requestAnimationFrame(wbSize);
@@ -2894,15 +2959,26 @@ $("#vZoom").oninput=e=>{$("#vImg").style.width=e.target.value+"%";$("#vImg").sty
 $("#vSpeak").onclick=()=>speak($("#vText").textContent);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#viewer").hidden)closeViewer();$("#settings").hidden=true}});
 
+/* ================= a stop button whenever the program is talking ================= */
+const stopBtn=document.createElement("button");stopBtn.className="stoptalk";stopBtn.type="button";stopBtn.hidden=true;stopBtn.innerHTML="⏹ إيقاف الكلام";
+stopBtn.onclick=()=>{try{stopLessonRead()}catch(e){}stopSpeak();try{if(typeof QR!=="undefined"&&QR.playing)stopQ()}catch(e){}window.__stopAll=Date.now();stopBtn.hidden=true;try{if(mode==="lesson"&&curTool==="ebook")renderMain()}catch(e){}};
+document.body.appendChild(stopBtn);
+setInterval(()=>{let on=false;try{on=(window.speechSynthesis&&speechSynthesis.speaking)||(curAudio&&!curAudio.paused&&!curAudio.ended)||!!lessonReading||(typeof QR!=="undefined"&&QR.playing)}catch(e){}
+  if(stopBtn.hidden===!!on)stopBtn.hidden=!on;const fe=document.fullscreenElement||document.webkitFullscreenElement;const host=fe&&!/^(VIDEO|CANVAS|IMG|IFRAME)$/.test(fe.tagName)?fe:document.body;if(stopBtn.parentNode!==host)host.appendChild(stopBtn)},350);
+
 /* ================= full screen: always a visible way back ================= */
 const fsBack=document.createElement("button");fsBack.className="fsback";fsBack.type="button";fsBack.innerHTML="→ رجوع";fsBack.setAttribute("aria-label","الخروج من ملء الشاشة");
 fsBack.onclick=e=>{e.stopPropagation();const x=document.exitFullscreen||document.webkitExitFullscreen;if(x)x.call(document)};
-function fsChanged(){const el=document.fullscreenElement||document.webkitFullscreenElement;if(el&&!/^(VIDEO|CANVAS|IMG|IFRAME)$/.test(el.tagName))el.appendChild(fsBack);else fsBack.remove()}
+let fsObs=null;function fsChanged(){const el=document.fullscreenElement||document.webkitFullscreenElement;if(fsObs){fsObs.disconnect();fsObs=null}
+  if(el&&!/^(VIDEO|CANVAS|IMG|IFRAME)$/.test(el.tagName)){el.appendChild(fsBack);fsObs=new MutationObserver(()=>{if(fsBack.parentNode!==el)el.appendChild(fsBack)});fsObs.observe(el,{childList:true})}
+  else{fsBack.remove();$$(".ebfs").forEach(x=>x.classList.remove("ebfs"))}}
 document.addEventListener("fullscreenchange",fsChanged);document.addEventListener("webkitfullscreenchange",fsChanged);
 
 /* ================= boot ================= */
 load();renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
 aiInit.then(()=>{renderSide()});
+loadSharedBrand();
+try{Object.assign(ePg,S.ePg||{})}catch(e){}
 restoreBooks().catch(()=>{}).then(()=>{if(S.autoSync!==false&&!(window.claude&&window.claude.use))syncShared(false)});
 </script>
 
