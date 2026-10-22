@@ -18,9 +18,9 @@ jobs:
           : > noorania/download-log.txt
           for i in $(seq 1 17); do
             for t in 1 2 3; do
-              code=$(curl -sSL --http1.1 --connect-timeout 20 --max-time 240 -A "Mozilla/5.0" -o /tmp/nr/n$i.mp3 -w '%{http_code} %{size_download} %{time_total} %{url_effective}' https://archive.org/download/alnawrania1-17/n$i.mp3 2>&1)
+              code=$(curl -sSL --http1.1 --connect-timeout 20 --max-time 240 -A "Mozilla/5.0" -o /tmp/nr/n$i.mp3 -w '%{http_code} %{size_download} %{time_total} %{url_effective}' https://archive.org/download/alnawrania1-17/n$i.mp3 2>&1 || true)
               echo "n$i try$t $code" >> noorania/download-log.txt
-              [ -s /tmp/nr/n$i.mp3 ] && [ $(stat -c%s /tmp/nr/n$i.mp3) -gt 50000 ] && break
+              [ -s /tmp/nr/n$i.mp3 ] && [ $(stat -c%s /tmp/nr/n$i.mp3) -gt 50000 ] && break || true
               sleep 15
             done
           done
