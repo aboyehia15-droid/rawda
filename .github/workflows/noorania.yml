@@ -1,7 +1,7 @@
 name: تحليل صوت القاعدة النورانية
 on:
   push:
-    paths: [tools/noorania.txt, tools/noorania_sync.py, .github/workflows/noorania.yml]
+    paths: [tools/noorania.txt]
   workflow_dispatch:
 concurrency: {group: noorania, cancel-in-progress: true}
 permissions: {contents: write}
@@ -25,6 +25,7 @@ jobs:
             done
           done
           python3 tools/noorania_sync.py /tmp/nr noorania/sync.json >> noorania/download-log.txt 2>&1 || true
+          python3 tools/noorania_align.py tools/noorania_cells.json noorania/sync.json noorania/map.json >> noorania/download-log.txt 2>&1 || true
       - name: commit
         if: always()
         run: |
