@@ -1161,7 +1161,7 @@ function nrBtn(b){const k=+b.dataset.nr;const on=nrCur===k&&nrAudio&&!nrAudio.pa
 function nrPlay(k){if(nrCur===k&&nrAudio&&!nrAudio.paused){nrAudio.pause();document.querySelectorAll("[data-nr]").forEach(nrBtn);return}
   stopSpeak();if(!nrAudio){nrAudio=new Audio();nrAudio.preload="auto";const up=()=>document.querySelectorAll("[data-nr]").forEach(nrBtn);nrAudio.onplay=()=>{up();nrFollow()};nrAudio.onpause=up;nrAudio.onended=()=>{nrCur=-1;nrLastU=-1;up();const el=$("#nrPtr");if(el)el.hidden=true;praise()};
     nrAudio.onerror=()=>{if(nrCur>=0&&nrSrcI<NR_SRCS.length-1){nrSrcI++;const t=nrAudio.currentTime||0;nrAudio.src=NR_SRCS[nrSrcI]+"n"+(nrCur+1)+".mp3";nrAudio.play().catch(()=>{});return}if(nrCur>=0)flash("تعذّر تشغيل صوت الدرس. تأكد من اتصال الشاشة بالإنترنت.","err");nrCur=-1;up()}}
-  if(nrCur!==k){nrAudio.src=NR_SRCS[nrSrcI]+"n"+(k+1)+".mp3";nrCur=k;nrLastU=-1}nrAudio.play().catch(()=>{flash("تعذّر تشغيل صوت الدرس. تأكد من اتصال الشاشة بالإنترنت.","err")})}
+  if(nrCur!==k){nrAudio.src=NR_SRCS[nrSrcI]+"n"+(k+1)+".mp3";nrCur=k;nrLastU=-1}nrAudio.play().catch(e=>{if(e&&e.name==="NotAllowedError")flash("اضغط زر الدرس لتشغيل الصوت","ok")})}
 function nrWire(root,goPage){root.querySelectorAll("[data-nr]").forEach(b=>{nrBtn(b);b.onclick=e=>{e.stopPropagation();nrPlay(+b.dataset.nr)}});
   root.querySelectorAll("[data-nrgo]").forEach(b=>b.onclick=()=>goPage(+b.dataset.nrgo))}
 function renderEbook(body){
