@@ -22,7 +22,7 @@ for pg in range(7, 30):
         for c in row:
             if c[0] == 'H':
                 hu = {"pg": pg, "box": c[1:5], "wt": 3.0, "head": 1}
-                if first: first = False; units[0].insert(0, hu)
+                if first: first = False; units[0].append(hu)
                 else: cur += 1; units[min(cur, 16)].append(hu)
                 continue
             x, y, w, h = c
