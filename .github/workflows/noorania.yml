@@ -12,7 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
       - name: headers
-        run: curl -sSIL -H "Origin: https://aboyehia15-droid.github.io" https://archive.org/download/alnawrania1-17/n1.mp3 | grep -i -E '^(HTTP|access-control|content-type|location)' || true
+        run: |
+          curl -sSIL -H "Origin: https://aboyehia15-droid.github.io" https://archive.org/download/alnawrania1-17/n1.mp3 | grep -i -E '^(HTTP|access-control|content-type|location)' || true
       - name: download and analyse
         run: |
           mkdir -p /tmp/nr
