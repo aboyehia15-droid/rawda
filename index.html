@@ -1138,7 +1138,7 @@ function wirePointRead(layer,page,n){if(!layer||!page)return;let st=null,boxEl=n
     bub.querySelector("[data-again]").onclick=ev=>{ev.stopPropagation();speak(t,.75)};bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};
     bub.onpointerdown=ev=>ev.stopPropagation();speak(t,.75)}}
 /* ================= القاعدة النورانية: صوت كل درس مربوط بصفحاته ================= */
-const NR_SRC="https://archive.org/download/alnawrania1-17/";
+const NR_SRCS=["https://archive.org/download/alnawrania1-17/","https://ia801909.us.archive.org/16/items/alnawrania1-17/","https://ia601909.us.archive.org/16/items/alnawrania1-17/"];let nrSrcI=0;
 const NR=[["حروف الهجاء المفردة",7],["حروف الهجاء المركبة",8,1],["الحروف المقطعة",10],["الحروف المتحركة",11,1],["الحروف المنونة (التنوين)",12],["تدريبات على الحركات والتنوين",13],["الألف والياء والواو الصغيرة",14],["حروف المد واللين",15,1],["تدريبات على التنوين وأحرف المد واللين",17],["السكون",19],["تدريبات على السكون",20,1],["الشدة",23],["تدريبات على الشدة",24],["تدريبات على الشدة والسكون",26],["تدريبات على الشدتين في كلمة",26],["تدريبات على الشدة والسكون مع المد",27],["تدريبات على ما سبق",27]];
 const NR_END=29;const NR_ORD=["الأول","الثاني","الثالث","الرابع","الخامس","السادس","السابع","الثامن","التاسع","العاشر","الحادي عشر","الثاني عشر","الثالث عشر","الرابع عشر","الخامس عشر","السادس عشر","الأخير"];
 const isNoorania=B=>!!B&&/نوراني/.test(B.name||"");
@@ -1160,8 +1160,8 @@ function nrStop(){if(nrAudio){try{nrAudio.pause()}catch(e){}}nrCur=-1;{const el=
 function nrBtn(b){const k=+b.dataset.nr;const on=nrCur===k&&nrAudio&&!nrAudio.paused;b.classList.toggle("on",on);b.innerHTML=`${on?"⏸":"🔊"} الدرس ${NR_ORD[k]}${b.dataset.long?": "+NR[k][0]:""}`}
 function nrPlay(k){if(nrCur===k&&nrAudio&&!nrAudio.paused){nrAudio.pause();document.querySelectorAll("[data-nr]").forEach(nrBtn);return}
   stopSpeak();if(!nrAudio){nrAudio=new Audio();nrAudio.preload="auto";const up=()=>document.querySelectorAll("[data-nr]").forEach(nrBtn);nrAudio.onplay=()=>{up();nrFollow()};nrAudio.onpause=up;nrAudio.onended=()=>{nrCur=-1;nrLastU=-1;up();const el=$("#nrPtr");if(el)el.hidden=true;praise()};
-    nrAudio.onerror=()=>{if(nrCur>=0)flash("تعذّر تشغيل صوت الدرس. تأكد من اتصال الشاشة بالإنترنت.","err");nrCur=-1;up()}}
-  if(nrCur!==k){nrAudio.src=NR_SRC+"n"+(k+1)+".mp3";nrCur=k;nrLastU=-1}nrAudio.play().catch(()=>{flash("تعذّر تشغيل صوت الدرس. تأكد من اتصال الشاشة بالإنترنت.","err")})}
+    nrAudio.onerror=()=>{if(nrCur>=0&&nrSrcI<NR_SRCS.length-1){nrSrcI++;const t=nrAudio.currentTime||0;nrAudio.src=NR_SRCS[nrSrcI]+"n"+(nrCur+1)+".mp3";nrAudio.play().catch(()=>{});return}if(nrCur>=0)flash("تعذّر تشغيل صوت الدرس. تأكد من اتصال الشاشة بالإنترنت.","err");nrCur=-1;up()}}
+  if(nrCur!==k){nrAudio.src=NR_SRCS[nrSrcI]+"n"+(k+1)+".mp3";nrCur=k;nrLastU=-1}nrAudio.play().catch(()=>{flash("تعذّر تشغيل صوت الدرس. تأكد من اتصال الشاشة بالإنترنت.","err")})}
 function nrWire(root,goPage){root.querySelectorAll("[data-nr]").forEach(b=>{nrBtn(b);b.onclick=e=>{e.stopPropagation();nrPlay(+b.dataset.nr)}});
   root.querySelectorAll("[data-nrgo]").forEach(b=>b.onclick=()=>goPage(+b.dataset.nrgo))}
 function renderEbook(body){
