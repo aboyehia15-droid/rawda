@@ -17,7 +17,7 @@ jobs:
       - name: download and analyse
         run: |
           mkdir -p /tmp/nr
-          for i in $(seq 1 17); do curl -sSL --retry 3 -o /tmp/nr/n$i.mp3 https://archive.org/download/alnawrania1-17/n$i.mp3; done
+          for i in $(seq 1 17); do for t in 1 2 3 4 5 6; do curl -sSL --http1.1 --retry 4 --retry-all-errors --retry-delay 4 -A "Mozilla/5.0" -o /tmp/nr/n$i.mp3 https://archive.org/download/alnawrania1-17/n$i.mp3 && break; echo "retry $i $t"; sleep $((t*10)); done; done
           ls -la /tmp/nr
           python3 tools/noorania_sync.py /tmp/nr noorania/sync.json
       - name: commit

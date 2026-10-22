@@ -4,6 +4,8 @@ src, out = sys.argv[1], sys.argv[2]
 res = {}
 for i in range(1, 18):
     f = os.path.join(src, f"n{i}.mp3")
+    if not os.path.exists(f) or os.path.getsize(f) < 10000:
+        print("missing", i); continue
     dur = float(re.search(r"Duration: (\d+):(\d+):([\d.]+)", subprocess.run(["ffmpeg", "-i", f], capture_output=True, text=True).stderr).groups()[2]) if False else None
     best = None
     for db, d in [(-30, 0.18), (-35, 0.25), (-28, 0.15)]:
