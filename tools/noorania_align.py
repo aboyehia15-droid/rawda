@@ -32,34 +32,52 @@ def align(U, segs):
         S = segs[skip0:]
         n = len(S)
         tot = sum(b - a for a, b in S); c = tot / sum(W)
-        G = 8
+        G = max(8, math.ceil(3 * n / K))
         INF = 1e18
         # dp[i][j]: first i units used first j segments
         dp = [[INF] * (n + 1) for _ in range(K + 1)]; bk = [[0] * (n + 1) for _ in range(K + 1)]
         dp[0][0] = 0
         for i in range(1, K + 1):
             exp = c * W[i - 1]
-            lo = max(i, 1); hi = n - (K - i) if True else n
+            lo = 1; hi = n
             for j in range(lo, hi + 1):
                 bestv, bestg = INF, 0
                 d = 0.0
                 for g in range(1, G + 1):
-                    if j - g < i - 1: break
+                    if j - g < 0: break
                     a, b = S[j - g]
                     d += b - a
                     pv = dp[i - 1][j - g]
                     if pv >= INF: continue
                     v = pv + ((d - exp) / max(exp, .25)) ** 2 + .15 * (g - 1)
                     if v < bestv: bestv, bestg = v, g
+                # one segment shared by several units (read without a pause)
+                if j >= 1:
+                    a, b = S[j - 1]; d = b - a
+                    for m in range(2, 5):
+                        if i - m < 0: break
+                        pv = dp[i - m][j - 1]
+                        if pv >= INF: continue
+                        ws = W[i - m:i]; tw = sum(ws)
+                        v = pv + sum(((d * w / tw) - c * w) / max(c * w, .25) for w in ws) ** 2 / m + .8 * (m - 1)
+                        if v < bestv: bestv, bestg = v, -m
                 dp[i][j] = bestv; bk[i][j] = bestg
         # allow skipping trailing segments
-        for j in range(K, n + 1):
+        for j in range(1, n + 1):
             v = dp[K][j] + .6 * (n - j) + .6 * skip0
             if best is None or v < best[0]: best = (v, skip0, j, bk, S)
+    if best is None or best[0] >= 1e17: return None
     v, skip0, j, bk, S = best
     res = []; i = K
     while i > 0:
-        g = bk[i][j]; res.append((S[j - g][0], S[j - 1][1])); j -= g; i -= 1
+        g = bk[i][j]
+        if g < 0:
+            m = -g; a, b = S[j - 1]; ws = W[i - m:i]; tw = sum(ws); t = b
+            for w in reversed(ws):
+                d = (b - a) * w / tw; res.append((t - d, t)); t -= d
+            j -= 1; i -= m
+        else:
+            res.append((S[j - g][0], S[j - 1][1])); j -= g; i -= 1
     res.reverse()
     return res, v / K, skip0
 
