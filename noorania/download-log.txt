@@ -1,116 +1,48 @@
-n1 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.606675 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n1.mp3
-n1 try2 curl: (28) Connection timed out after 20002 milliseconds
-302 0 22.062466 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n1.mp3
-n1 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.430430 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n1.mp3
-n2 try1 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.719667 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n2.mp3
-n2 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.528977 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n2.mp3
-n2 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.603392 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n2.mp3
-n3 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.087380 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n3.mp3
-n3 try2 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.497455 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n3.mp3
-n3 try3 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.081532 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n3.mp3
-n4 try1 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.767328 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n4.mp3
-n4 try2 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.662695 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n4.mp3
-n4 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.094142 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n4.mp3
-n5 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 26.933218 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n5.mp3
-n5 try2 curl: (28) Connection timed out after 20000 milliseconds
-302 0 20.205878 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n5.mp3
-n5 try3 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.063848 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n5.mp3
-n6 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.063230 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n6.mp3
-n6 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.894180 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n6.mp3
-n6 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.800728 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n6.mp3
-n7 try1 curl: (28) Connection timed out after 20000 milliseconds
-302 0 20.093290 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n7.mp3
-n7 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.075151 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n7.mp3
-n7 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.051499 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n7.mp3
-n8 try1 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.912776 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n8.mp3
-n8 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.201271 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n8.mp3
-n8 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.943143 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n8.mp3
-n9 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.542875 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n9.mp3
-n9 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 21.253340 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n9.mp3
-n9 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 21.670929 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n9.mp3
-n10 try1 curl: (28) Connection timed out after 20001 milliseconds
-302 0 21.800596 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n10.mp3
-n10 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.366068 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n10.mp3
-n10 try3 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.142517 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n10.mp3
-n11 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.674688 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n11.mp3
-n11 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.293124 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n11.mp3
-n11 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 24.063006 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n11.mp3
-n12 try1 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.062836 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n12.mp3
-n12 try2 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.084305 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n12.mp3
-n12 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.063305 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n12.mp3
-n13 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.103537 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n13.mp3
-n13 try2 curl: (28) Connection timed out after 20002 milliseconds
-302 0 21.241614 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n13.mp3
-n13 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.945597 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n13.mp3
-n14 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 21.404520 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n14.mp3
-n14 try2 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.049005 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n14.mp3
-n14 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.114326 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n14.mp3
-n15 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.072667 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n15.mp3
-n15 try2 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.056181 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n15.mp3
-n15 try3 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.060104 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n15.mp3
-n16 try1 curl: (28) Connection timed out after 20001 milliseconds
-302 0 20.086092 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n16.mp3
-n16 try2 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.058942 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n16.mp3
-n16 try3 curl: (28) Connection timed out after 20002 milliseconds
-302 0 20.392740 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n16.mp3
-n17 try1 curl: (28) Connection timed out after 20002 milliseconds
-302 0 21.562863 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n17.mp3
-n17 try2 200 2878549 1.271605 https://ia801909.us.archive.org/16/items/alnawrania1-17/n17.mp3
-missing 1
-missing 2
-missing 3
-missing 4
-missing 5
-missing 6
-missing 7
-missing 8
-missing 9
-missing 10
-missing 11
-missing 12
-missing 13
-missing 14
-missing 15
-missing 16
+n1 200 327996 0.219187 https://ia801909.us.archive.org/16/items/alnawrania1-17/n1.mp3
+n2 200 1502468 0.311735 https://ia801909.us.archive.org/16/items/alnawrania1-17/n2.mp3
+n3 200 644676 0.287725 https://ia801909.us.archive.org/16/items/alnawrania1-17/n3.mp3
+n4 200 1062756 0.237165 https://ia801909.us.archive.org/16/items/alnawrania1-17/n4.mp3
+n5 200 1166652 0.355512 https://ia801909.us.archive.org/16/items/alnawrania1-17/n5.mp3
+n6 200 1468668 0.309346 https://ia801909.us.archive.org/16/items/alnawrania1-17/n6.mp3
+n7 200 436364 0.482591 https://ia801909.us.archive.org/16/items/alnawrania1-17/n7.mp3
+n8 200 3119668 0.267940 https://ia801909.us.archive.org/16/items/alnawrania1-17/n8.mp3
+n9 200 3887292 0.273906 https://ia801909.us.archive.org/16/items/alnawrania1-17/n9.mp3
+n10 200 1519108 0.259271 https://ia801909.us.archive.org/16/items/alnawrania1-17/n10.mp3
+n11 200 4249665 0.266020 https://ia801909.us.archive.org/16/items/alnawrania1-17/n11.mp3
+n12 200 961162 0.215431 https://ia801909.us.archive.org/16/items/alnawrania1-17/n12.mp3
+n13 200 2291003 0.317030 https://ia801909.us.archive.org/16/items/alnawrania1-17/n13.mp3
+n14 200 877256 0.231364 https://ia801909.us.archive.org/16/items/alnawrania1-17/n14.mp3
+n15 200 1130331 0.245215 https://ia801909.us.archive.org/16/items/alnawrania1-17/n15.mp3
+n16 200 1276616 0.228458 https://ia801909.us.archive.org/16/items/alnawrania1-17/n16.mp3
+n17 200 2878549 0.252445 https://ia801909.us.archive.org/16/items/alnawrania1-17/n17.mp3
+1 [(-30, 34), (-35, 34), (-28, 34)]
+2 [(-30, 133), (-35, 133), (-28, 133)]
+3 [(-30, 22), (-35, 20), (-28, 26)]
+4 [(-30, 98), (-35, 99), (-28, 101)]
+5 [(-30, 88), (-35, 89), (-28, 87)]
+6 [(-30, 153), (-35, 152), (-28, 154)]
+7 [(-30, 24), (-35, 25), (-28, 30)]
+8 [(-30, 159), (-35, 161), (-28, 185)]
+9 [(-30, 285), (-35, 272), (-28, 340)]
+10 [(-30, 130), (-35, 90), (-28, 182)]
+11 [(-30, 297), (-35, 295), (-28, 309)]
+12 [(-30, 114), (-35, 95), (-28, 130)]
+13 [(-30, 177), (-35, 165), (-28, 194)]
+14 [(-30, 63), (-35, 51), (-28, 65)]
+15 [(-30, 66), (-35, 65), (-28, 73)]
+16 [(-30, 60), (-35, 53), (-28, 67)]
 17 [(-30, 157), (-35, 156), (-28, 165)]
+headings -> 17 lessons; units: [31, 125, 15, 83, 85, 52, 36, 140, 101, 48, 35, 62, 13, 6, 4, 4, 15]
+lesson 1: units 31 segs 34 (db -30) cost 0.06 intro-skip 0 first 1.0s dur 80.94
+lesson 2: units 125 segs 133 (db -35) cost 0.12 intro-skip 0 first 1.1s dur 374.56
+lesson 3: units 15 segs 20 (db -35) cost 0.42 intro-skip 0 first 0.4s dur 160.11
+lesson 4: units 83 segs 99 (db -35) cost 0.11 intro-skip 0 first 0.7s dur 264.63
+lesson 5: units 85 segs 89 (db -35) cost 0.07 intro-skip 0 first 0.0s dur 290.6
+lesson 6: units 52 segs 152 (db -35) cost 0.30 intro-skip 0 first 0.0s dur 366.11
+Traceback (most recent call last):
+  File "/home/runner/work/rawda/rawda/tools/noorania_align.py", line 72, in <module>
+    r = align(units[k], a["segs"])
+  File "/home/runner/work/rawda/rawda/tools/noorania_align.py", line 59, in align
+    v, skip0, j, bk, S = best
+    ^^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
