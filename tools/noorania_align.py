@@ -183,6 +183,14 @@ for k in range(17):
     M[str(k + 1)] = [[round(t0, 2), round(t1, 2), u["pg"]] + u["box"] for (t0, t1), u in zip(tm, units[k])]
     print(f"   header {tm[0][0]:.1f}-{tm[0][1]:.1f}s; flags {'yes' if words else 'no'}")
     print(f"lesson {k+1}: units {len(units[k])} segs {len(a['segs'])} (db {a['db']}) cost {sc:.2f} intro-skip {skip0} first {tm[0][0]:.1f}s dur {a['dur']}")
+# lesson 7: the recording reads rows 1-2, skips rows 3-4, then reads row 5 (إِ هِ وُ هُ ءُ)
+# (unit index -> indices of the -35 dB utterances); boxes not read are left out
+L7 = {0: [0, 1, 2, 3], 1: [4], 2: [5], 3: [6], 4: [7], 5: [8], 6: [9], 7: [10],
+      8: [11], 9: [12], 10: [13], 11: [14], 12: [15], 13: [16], 14: [17],
+      30: [18], 31: [19], 32: [20], 33: [21], 34: [22]}
+seg7 = [x for x in sync["7"]["alts"] if x["db"] == -35][0]["segs"]
+M["7"] = [[round(seg7[v[0]][0], 2), round(seg7[v[-1]][1], 2), units[6][ui]["pg"]] + units[6][ui]["box"] for ui, v in sorted(L7.items())]
+print("lesson 7 set by hand:", [(round(u[0], 1), u[2]) for u in M["7"]])
 import time
 M["_v"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
 json.dump(M, open(out, "w"), separators=(",", ":"))
