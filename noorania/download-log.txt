@@ -1,0 +1,116 @@
+n1 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.606675 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n1.mp3
+n1 try2 curl: (28) Connection timed out after 20002 milliseconds
+302 0 22.062466 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n1.mp3
+n1 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.430430 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n1.mp3
+n2 try1 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.719667 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n2.mp3
+n2 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.528977 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n2.mp3
+n2 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.603392 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n2.mp3
+n3 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.087380 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n3.mp3
+n3 try2 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.497455 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n3.mp3
+n3 try3 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.081532 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n3.mp3
+n4 try1 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.767328 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n4.mp3
+n4 try2 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.662695 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n4.mp3
+n4 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.094142 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n4.mp3
+n5 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 26.933218 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n5.mp3
+n5 try2 curl: (28) Connection timed out after 20000 milliseconds
+302 0 20.205878 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n5.mp3
+n5 try3 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.063848 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n5.mp3
+n6 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.063230 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n6.mp3
+n6 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.894180 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n6.mp3
+n6 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.800728 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n6.mp3
+n7 try1 curl: (28) Connection timed out after 20000 milliseconds
+302 0 20.093290 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n7.mp3
+n7 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.075151 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n7.mp3
+n7 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.051499 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n7.mp3
+n8 try1 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.912776 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n8.mp3
+n8 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.201271 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n8.mp3
+n8 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.943143 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n8.mp3
+n9 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.542875 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n9.mp3
+n9 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 21.253340 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n9.mp3
+n9 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 21.670929 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n9.mp3
+n10 try1 curl: (28) Connection timed out after 20001 milliseconds
+302 0 21.800596 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n10.mp3
+n10 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.366068 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n10.mp3
+n10 try3 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.142517 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n10.mp3
+n11 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.674688 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n11.mp3
+n11 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.293124 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n11.mp3
+n11 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 24.063006 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n11.mp3
+n12 try1 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.062836 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n12.mp3
+n12 try2 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.084305 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n12.mp3
+n12 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.063305 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n12.mp3
+n13 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.103537 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n13.mp3
+n13 try2 curl: (28) Connection timed out after 20002 milliseconds
+302 0 21.241614 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n13.mp3
+n13 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.945597 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n13.mp3
+n14 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 21.404520 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n14.mp3
+n14 try2 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.049005 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n14.mp3
+n14 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.114326 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n14.mp3
+n15 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.072667 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n15.mp3
+n15 try2 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.056181 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n15.mp3
+n15 try3 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.060104 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n15.mp3
+n16 try1 curl: (28) Connection timed out after 20001 milliseconds
+302 0 20.086092 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n16.mp3
+n16 try2 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.058942 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n16.mp3
+n16 try3 curl: (28) Connection timed out after 20002 milliseconds
+302 0 20.392740 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n16.mp3
+n17 try1 curl: (28) Connection timed out after 20002 milliseconds
+302 0 21.562863 https://dn760109.eu.archive.org/0/items/alnawrania1-17/n17.mp3
+n17 try2 200 2878549 1.271605 https://ia801909.us.archive.org/16/items/alnawrania1-17/n17.mp3
+missing 1
+missing 2
+missing 3
+missing 4
+missing 5
+missing 6
+missing 7
+missing 8
+missing 9
+missing 10
+missing 11
+missing 12
+missing 13
+missing 14
+missing 15
+missing 16
+17 [(-30, 157), (-35, 156), (-28, 165)]
