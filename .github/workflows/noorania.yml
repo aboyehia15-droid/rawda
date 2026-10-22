@@ -1,0 +1,26 @@
+name: تحليل صوت القاعدة النورانية
+on:
+  push:
+    paths: [tools/noorania.txt, tools/noorania_sync.py, .github/workflows/noorania.yml]
+  workflow_dispatch:
+concurrency: {group: noorania, cancel-in-progress: true}
+permissions: {contents: write}
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+      - name: headers
+        run: curl -sSIL -H "Origin: https://aboyehia15-droid.github.io" https://archive.org/download/alnawrania1-17/n1.mp3 | grep -i -E '^(HTTP|access-control|content-type|location)' || true
+      - name: download and analyse
+        run: |
+          mkdir -p /tmp/nr
+          for i in $(seq 1 17); do curl -sSL --retry 3 -o /tmp/nr/n$i.mp3 https://archive.org/download/alnawrania1-17/n$i.mp3; done
+          ls -la /tmp/nr
+          python3 tools/noorania_sync.py /tmp/nr noorania/sync.json
+      - name: commit
+        run: |
+          git config user.name "rawda-bot"; git config user.email "actions@users.noreply.github.com"
+          git add noorania/sync.json; git commit -m "Noorania audio timings" || exit 0
+          git pull --rebase -q; git push
