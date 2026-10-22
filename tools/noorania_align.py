@@ -60,7 +60,18 @@ def flags(segs, words):
         out.append((st, " ".join(ws)))
     return out
 
-def align(U, segs, F=None, hcount=None):
+def families(segs, words, fl):
+    """how many letter families (3 boxes each) an utterance reads at once, in quick-review passages"""
+    fam = []
+    for i, (st, t) in enumerate(fl):
+        q = 0
+        recent = any(fl[j][0] == 1 for j in range(max(0, i - 2), i))
+        if st == 0 and not recent and t:
+            q = sum(1 for w in t.split() if len(w) >= 4 and not any(h in w for h in HAR) and not any(w.startswith(norm(n)) and len(w) <= 5 for n in LNAMES))
+        fam.append(q)
+    return fam
+
+def align(U, segs, F=None, hcount=None, FAM=None, wordy=False, TXT=None):
     """each unit takes g consecutive utterances (g>=1), or several units share one utterance.
     cost: number of utterances near the expected count, the group ending on its longest
     utterance (the whole word after spelling), and duration near the expected share."""
@@ -92,19 +103,32 @@ def align(U, segs, F=None, hcount=None):
                     if HEAD[i - 1] and i == 1 and hcount and g != hcount: continue
                     v = pv + (8 if HEAD[i - 1] else (.2 if F else 1)) * ((g - e) / max(e, 1)) ** 2 + (.1 if F else .3) * ((d - c * e) / max(c * e, .3)) ** 2
                     if F and not HEAD[i - 1]:
-                        f0 = F[skip0 + j - g]
-                        v += 2.5 if f0 == 0 else (.3 if f0 is None else 0)
-                        v += 3.0 * sum(1 for q in range(j - g + 1, j) if F[skip0 + q] == 1)
+                        if wordy:
+                            # a word box: spelled letters ... then the whole word; never split between spelled letters
+                            jb = skip0 + j - g
+                            tail = TXT and F[jb] == 1 and TXT[jb] and not any(TXT[jb].split()[0].startswith(norm(n)) and len(TXT[jb].split()[0]) <= 5 for n in LNAMES)
+                            if jb - 1 >= 0 and F[jb - 1] == 1: v += 3.0
+                            nx = skip0 + j
+                            ntail = TXT and nx < len(TXT) and F[nx] == 1 and TXT[nx] and not any(TXT[nx].split()[0].startswith(norm(n)) and len(TXT[nx].split()[0]) <= 5 for n in LNAMES)
+                            if F[skip0 + j - 1] == 1: v += 2.0
+                        else:
+                            if FAM and g == 1 and FAM[skip0 + j - 1]: v += .5 * (FAM[skip0 + j - 1] * 3 - 1)
+                            f0 = F[skip0 + j - g]
+                            v += 2.5 if f0 == 0 else (1.0 if f0 is None else 0)
+                            v += 3.0 * sum(1 for q in range(j - g + 1, j) if F[skip0 + q] == 1)
                     if g > 1 and not HEAD[i - 1] and D[j - 1] < mx - 1e-6: v += .35
                     if v < bestv: bestv, bestg = v, g
                 if j >= 1 and i >= 2:
-                    for m in range(2, 4):
+                    q = FAM[skip0 + j - 1] * 3 if FAM else 0
+                    for m in range(2, 7 if q else 4):
                         if i - m < 0: break
                         if any(HEAD[i - m:i]): break
                         pv = dp[i - m][j - 1]
                         if pv >= INF: continue
                         es = sum(E[i - m:i])
-                        v = pv + ((1 - es) / max(es, 1)) ** 2 * m + ((4.0 if F[skip0 + j - 1] == 1 or (skip0 + j < len(F) and F[skip0 + j] == 1) or (skip0 + j - 2 >= 0 and F[skip0 + j - 2] == 1) else .7) if F else 1.2) * (m - 1)
+                        if q: v = pv + .5 * abs(m - q)
+                        elif F: v = pv + 3.0 * (m - 1) + (1.0 if F[skip0 + j - 1] is None else 0)
+                        else: v = pv + ((1 - es) / max(es, 1)) ** 2 * m + 1.2 * (m - 1)
                         if v < bestv: bestv, bestg = v, -m
                 dp[i][j] = bestv; bk[i][j] = bestg
         for j in range(1, n + 1):
@@ -142,7 +166,15 @@ for k in range(17):
             if small and st.count(1) >= max(3, .15 * len(units[k])):
                 F = st
                 if first is not None and sg[first][0] < 90: hc = max(1, first)
-        r = align(units[k], sg, F, hc) or align(units[k], sg)
+        wordy = (k + 1) in (6, 9, 12)
+        if F and wordy:
+            FAMv = []
+            for i2, (st2, t2) in enumerate(fl):
+                nw = len([w for w in t2.split() if len(w) >= 3]) if st2 == 0 and not (i2 and fl[i2 - 1][0] == 1) else 0
+                FAMv.append(nw / 3 if nw >= 2 else 0)
+        else:
+            FAMv = families(sg, words, fl) if F else None
+        r = align(units[k], sg, F, hc, FAMv, wordy, [f[1] for f in fl] if words else None) or align(units[k], sg)
         if r: scored.append((r[1], a, r))
     # prefer the -35 dB reading (fewest false splits) unless another fits clearly better
     scored.sort(key=lambda x: x[0]); pref = [x for x in scored if x[1]["db"] == -35]
