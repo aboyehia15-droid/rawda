@@ -22,8 +22,10 @@ jobs:
           for u in https://ia801909.us.archive.org/16/items/alnawrania1-17 https://ia601909.us.archive.org/16/items/alnawrania1-17; do
             curl -sSL --connect-timeout 20 --max-time 300 -o n.mp3 $u/n${{ matrix.n }}.mp3 && [ $(stat -c%s n.mp3) -gt 50000 ] && break || true
           done
-          python3 tools/noorania_asr.py n.mp3 out/asr-${{ matrix.n }}.json
+          ls -la n.mp3 > out/err-${{ matrix.n }}.txt 2>&1 || true
+          python3 tools/noorania_asr.py n.mp3 out/asr-${{ matrix.n }}.json 2>> out/err-${{ matrix.n }}.txt || (tail -40 out/err-${{ matrix.n }}.txt; exit 0)
       - uses: actions/upload-artifact@v4
+        if: always()
         with: {name: "asr-${{ matrix.n }}", path: out/}
   merge:
     needs: asr
@@ -34,7 +36,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with: {path: art, merge-multiple: true}
       - run: |
-          mkdir -p noorania/asr; cp art/*.json noorania/asr/ || true
+          mkdir -p noorania/asr; cp art/*.json art/*.txt noorania/asr/ || true
           git config user.name "rawda-bot"; git config user.email "actions@users.noreply.github.com"
           git add noorania/asr; git commit -m "Noorania transcripts" || exit 0
           git pull --rebase -q; git push
