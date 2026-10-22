@@ -1,0 +1,40 @@
+name: تفريغ صوت القاعدة النورانية
+on:
+  push:
+    paths: [tools/noorania-asr.txt]
+  workflow_dispatch:
+concurrency: {group: noorania-asr, cancel-in-progress: true}
+permissions: {contents: write}
+jobs:
+  asr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        n: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q faster-whisper==1.1.1
+      - name: transcribe
+        run: |
+          mkdir -p out
+          for u in https://ia801909.us.archive.org/16/items/alnawrania1-17 https://ia601909.us.archive.org/16/items/alnawrania1-17; do
+            curl -sSL --connect-timeout 20 --max-time 300 -o n.mp3 $u/n${{ matrix.n }}.mp3 && [ $(stat -c%s n.mp3) -gt 50000 ] && break || true
+          done
+          python3 tools/noorania_asr.py n.mp3 out/asr-${{ matrix.n }}.json
+      - uses: actions/upload-artifact@v4
+        with: {name: "asr-${{ matrix.n }}", path: out/}
+  merge:
+    needs: asr
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: {path: art, merge-multiple: true}
+      - run: |
+          mkdir -p noorania/asr; cp art/*.json noorania/asr/ || true
+          git config user.name "rawda-bot"; git config user.email "actions@users.noreply.github.com"
+          git add noorania/asr; git commit -m "Noorania transcripts" || exit 0
+          git pull --rebase -q; git push
