@@ -33,16 +33,37 @@ for pg in range(7, 30):
 print("lessons starting with their heading:", sum(1 for u in units if u and u[0].get("head")))
 print("headings ->", cur + 1, "lessons; units:", [len(u) for u in units])
 
-def align(U, segs):
-    """each unit takes g consecutive utterances (g>=1), or several units share one utterance.
-    cost: number of utterances near the expected count, the group ending on its longest
-    utterance (the whole word after spelling), and duration near the expected share."""
-    # pieces split by a very short pause are one utterance (the children's repeat pause is longer)
+def prep(segs):
+    """pieces split by a very short pause are one utterance (the children's repeat pause is longer)"""
     mg = []
     for a, b in [x for x in segs if x[1] - x[0] >= .22]:
         if mg and a - mg[-1][1] < .8: mg[-1][1] = b
         else: mg.append([a, b])
-    segs = mg
+    return mg
+
+import re, os
+STRIP = re.compile(r"[\u064b-\u065f\u0670\u0640.,،؛:!?]")
+HAR = ("فت", "كسر", "ضم", "سكون", "تنو", "شد")
+LNAMES = ("الف", "ألف", "همز", "با", "تا", "ثا", "جيم", "حا", "خا", "دال", "ذال", "را", "زا", "سين", "شين", "صاد", "ضاد", "طا", "ظا", "عين", "غين", "فا", "قاف", "كاف", "لام", "ميم", "نون", "ها", "واو", "يا")
+def norm(w): return STRIP.sub("", w).replace("أ", "ا").replace("إ", "ا").replace("آ", "ا")
+def flags(segs, words):
+    """text of each utterance from the transcript; st=1 when it introduces a box (letter name, then a vowel mark)"""
+    out = []
+    for a, b in segs:
+        ws = [norm(w[2]) for w in words if a - .35 <= (w[0] + w[1]) / 2 <= b + .35]
+        st = 0 if ws else None; seen_letter = False
+        bare = {"فتحه", "فتحة", "كسره", "كسرة", "ضمه", "ضمة", "فتحتين", "كسرتين", "ضمتين", "سكون", "التنوين", "تنوين", "شده", "شدة", "الحركات"}
+        for w in ws:
+            if any(w.startswith(norm(n)) for n in LNAMES) and len(w) <= 5: seen_letter = True
+            if any(h in w for h in HAR + ("بما", "بمر")) and (w not in bare or seen_letter or len(ws) > 1): st = 1; break
+        if any(t in w for w in ws for t in ("الدرس", "تدريب", "الحروف", "حروف", "السكون", "الشده", "الشدة", "الشدتين", "اللين", "المد")): st = 0
+        out.append((st, " ".join(ws)))
+    return out
+
+def align(U, segs, F=None, hcount=None):
+    """each unit takes g consecutive utterances (g>=1), or several units share one utterance.
+    cost: number of utterances near the expected count, the group ending on its longest
+    utterance (the whole word after spelling), and duration near the expected share."""
     K, N = len(U), len(segs)
     if K == 0 or N == 0: return None
     W = [u["wt"] for u in U]; HEAD = [u.get("head", 0) for u in U]
@@ -68,20 +89,26 @@ def align(U, segs):
                     dd = D[j - g]; d += dd; mx = max(mx, dd)
                     pv = dp[i - 1][j - g]
                     if pv >= INF: continue
-                    v = pv + (8 if HEAD[i - 1] else 1) * ((g - e) / max(e, 1)) ** 2 + .3 * ((d - c * e) / max(c * e, .3)) ** 2
+                    if HEAD[i - 1] and i == 1 and hcount and g != hcount: continue
+                    v = pv + (8 if HEAD[i - 1] else (.2 if F else 1)) * ((g - e) / max(e, 1)) ** 2 + (.1 if F else .3) * ((d - c * e) / max(c * e, .3)) ** 2
+                    if F and not HEAD[i - 1]:
+                        f0 = F[skip0 + j - g]
+                        v += 2.5 if f0 == 0 else (.3 if f0 is None else 0)
+                        v += 3.0 * sum(1 for q in range(j - g + 1, j) if F[skip0 + q] == 1)
                     if g > 1 and not HEAD[i - 1] and D[j - 1] < mx - 1e-6: v += .35
                     if v < bestv: bestv, bestg = v, g
                 if j >= 1 and i >= 2:
                     for m in range(2, 4):
                         if i - m < 0: break
+                        if any(HEAD[i - m:i]): break
                         pv = dp[i - m][j - 1]
                         if pv >= INF: continue
                         es = sum(E[i - m:i])
-                        v = pv + ((1 - es) / max(es, 1)) ** 2 * m + 1.2 * (m - 1)
+                        v = pv + ((1 - es) / max(es, 1)) ** 2 * m + ((4.0 if F[skip0 + j - 1] == 1 or (skip0 + j < len(F) and F[skip0 + j] == 1) or (skip0 + j - 2 >= 0 and F[skip0 + j - 2] == 1) else .7) if F else 1.2) * (m - 1)
                         if v < bestv: bestv, bestg = v, -m
                 dp[i][j] = bestv; bk[i][j] = bestg
         for j in range(1, n + 1):
-            v = dp[K][j] + .4 * (n - j) + .8 * skip0
+            v = dp[K][j] + 2.0 * (n - j) + .8 * skip0
             if best is None or v < best[0]: best = (v, skip0, j, bk, S, W)
     if best is None or best[0] >= 1e17: return None
     v, skip0, j, bk, S, W = best
@@ -102,14 +129,26 @@ M = {}
 for k in range(17):
     alts = sync.get(str(k + 1), {}).get("alts", [])
     if not alts or not units[k]: print(k + 1, "no data"); continue
+    asr = os.path.join(os.path.dirname(out), "asr", f"asr-{k+1}.json")
+    words = [w for sg in json.load(open(asr))["segs"] for w in sg["w"]] if os.path.exists(asr) else []
     scored = []
     for a in alts:
-        r = align(units[k], a["segs"])
+        sg = prep(a["segs"]); F = None; hc = None
+        if words:
+            fl = flags(sg, words); st = [f[0] for f in fl]
+            first = next((i for i, f in enumerate(st) if f == 1), None)
+            print(f'   lesson {k+1} db {a["db"]}: {st.count(1)} box starts heard of {len(st)} utterances')
+            small = sorted(u['wt'] for u in units[k])[len(units[k]) // 2] <= 1.5
+            if small and st.count(1) >= max(3, .15 * len(units[k])):
+                F = st
+                if first is not None and sg[first][0] < 90: hc = max(1, first)
+        r = align(units[k], sg, F, hc) or align(units[k], sg)
         if r: scored.append((r[1], a, r))
     # prefer the -35 dB reading (fewest false splits) unless another fits clearly better
     scored.sort(key=lambda x: x[0]); pref = [x for x in scored if x[1]["db"] == -35]
     pick = scored[0] if not pref or scored[0][0] < .7 * pref[0][0] else pref[0]
     sc, a, (tm, _, skip0) = pick
     M[str(k + 1)] = [[round(t0, 2), round(t1, 2), u["pg"]] + u["box"] for (t0, t1), u in zip(tm, units[k])]
+    print(f"   header {tm[0][0]:.1f}-{tm[0][1]:.1f}s; flags {'yes' if words else 'no'}")
     print(f"lesson {k+1}: units {len(units[k])} segs {len(a['segs'])} (db {a['db']}) cost {sc:.2f} intro-skip {skip0} first {tm[0][0]:.1f}s dur {a['dur']}")
 json.dump(M, open(out, "w"), separators=(",", ":"))
