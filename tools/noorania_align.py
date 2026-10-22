@@ -9,9 +9,6 @@ def split_rows(pg, rows):
     rows = [list(r) for r in rows]
     if pg == 24 and len(rows) > 6 and rows[6][0][0] != 'H':
         x, y, w, h = rows[6][0]; rows[6:7] = [[['H', x, y, w, h / 2]], [[x, y + h / 2, w, h / 2]]]
-    if pg == 26 and len(rows) > 8 and rows[8][0][0] != 'H':
-        x, y, w, h = rows[8][0]; cut = x + w * .5
-        rows[8] = [['H', cut, y, x + w - cut, h], [x, y, cut - x, h]]
     return rows
 LAST_ROWS = {29: 4}
 units = [[] for _ in range(17)]; cur = 0; first = True
@@ -106,11 +103,8 @@ def align(U, segs, F=None, hcount=None, FAM=None, wordy=False, TXT=None):
                         if wordy:
                             # a word box: spelled letters ... then the whole word; never split between spelled letters
                             jb = skip0 + j - g
-                            tail = TXT and F[jb] == 1 and TXT[jb] and not any(TXT[jb].split()[0].startswith(norm(n)) and len(TXT[jb].split()[0]) <= 5 for n in LNAMES)
-                            if jb - 1 >= 0 and F[jb - 1] == 1: v += 3.0
-                            nx = skip0 + j
-                            ntail = TXT and nx < len(TXT) and F[nx] == 1 and TXT[nx] and not any(TXT[nx].split()[0].startswith(norm(n)) and len(TXT[nx].split()[0]) <= 5 for n in LNAMES)
-                            if F[skip0 + j - 1] == 1: v += 2.0
+                            if jb - 1 >= 0 and F[jb - 1] in (1, 2): v += 3.0
+                            if F[skip0 + j - 1] in (1, 2): v += 2.0
                         else:
                             if FAM and g == 1 and FAM[skip0 + j - 1]: v += .5 * (FAM[skip0 + j - 1] * 3 - 1)
                             f0 = F[skip0 + j - g]
@@ -166,7 +160,7 @@ for k in range(17):
             if small and st.count(1) >= max(3, .15 * len(units[k])):
                 F = st
                 if first is not None and sg[first][0] < 90: hc = max(1, first)
-        wordy = (k + 1) in (6, 9, 12)
+        wordy = (k + 1) in (6, 9, 11, 12, 13, 14, 15, 16, 17)
         if F and wordy:
             FAMv = []
             for i2, (st2, t2) in enumerate(fl):
@@ -191,6 +185,70 @@ L7 = {0: [0, 1, 2, 3], 1: [4], 2: [5], 3: [6], 4: [7], 5: [8], 6: [9], 7: [10],
 seg7 = [x for x in sync["7"]["alts"] if x["db"] == -35][0]["segs"]
 M["7"] = [[round(seg7[v[0]][0], 2), round(seg7[v[-1]][1], 2), units[6][ui]["pg"]] + units[6][ui]["box"] for ui, v in sorted(L7.items())]
 print("lesson 7 set by hand:", [(round(u[0], 1), u[2]) for u in M["7"]])
+# lessons read word by word: match every box's word (tools/noorania_words.json) to the transcript.
+# a box ends when the sheikh says its whole word; the next box starts with the next thing he says.
+import difflib
+WFILE = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), "noorania_words.json")
+def nw(t):
+    t = norm(t).replace("ى", "ي").replace("ة", "ه").replace("ؤ", "ء").replace("ئ", "ء").replace("آ", "ا")
+    return re.sub(r"[^ء-ي]", "", t)
+if os.path.exists(WFILE):
+    WORDS = json.load(open(WFILE))
+    TITLE = ("الدرس", "تدريب", "عشر", "الاخير", "التاسع", "الحادي", "الثالث", "الرابع", "الخامس", "السادس", "سبق", "الشده", "الشدتين", "كلمه", "السكون", "السقون", "التنوين", "المد", "الثلاثه", "اللين", "الين", "وحرفي", "واحرف", "على", "مع", "في")
+    for ks, bw in WORDS.items():
+        k = int(ks) - 1; U = units[k]
+        if len(U) - 1 != len(bw): print("word list mismatch", ks, len(U) - 1, len(bw)); continue
+        asr = os.path.join(os.path.dirname(out), "asr", f"asr-{ks}.json")
+        if not os.path.exists(asr): continue
+        toks = [(w[0], w[1], nw(w[2])) for sg in json.load(open(asr))["segs"] for w in sg["w"] if nw(w[2])]
+        B, T = len(bw), len(toks); tw = [nw(x) for x in bw]
+        sim = lambda a, b: difflib.SequenceMatcher(None, a, b).ratio()
+        NEG = -1e9
+        dp = [[0.0] * (T + 1) for _ in range(B + 1)]; bk = [[0] * (T + 1) for _ in range(B + 1)]
+        for i in range(1, B + 1):
+            for j in range(0, T + 1):
+                best, how = dp[i - 1][j], 1                       # box not heard
+                if j and dp[i][j - 1] >= best: best, how = dp[i][j - 1], 2   # token is spelling / other
+                if j:
+                    sc = sim(tw[i - 1], toks[j - 1][2])
+                    if sc >= .7 and dp[i - 1][j - 1] + sc >= best: best, how = dp[i - 1][j - 1] + sc, 3
+                dp[i][j] = best; bk[i][j] = how
+        match = [None] * B; i, j = B, T
+        while i > 0:
+            h = bk[i][j]
+            if h == 3: match[i - 1] = j - 1; i -= 1; j -= 1
+            elif h == 2: j -= 1
+            else: i -= 1
+        # title: tokens at the start that belong to the lesson name
+        tend = 0
+        for q, (a, b, t) in enumerate(toks):
+            if a > 40: break
+            if any(t.startswith(nw(x)) or nw(x) in t for x in TITLE): tend = q
+            elif q > tend + 2: break
+        ends = [toks[m][1] if m is not None else None for m in match]
+        starts = [None] * B
+        for q in range(B):
+            prev = match[q - 1] if q and match[q - 1] is not None else (tend if q == 0 else None)
+            if prev is not None and prev + 1 < T: starts[q] = toks[prev + 1][0]
+        # boxes not heard in the transcript: share the time between their neighbours by word length
+        q = 0
+        while q < B:
+            if ends[q] is not None and starts[q] is not None: q += 1; continue
+            r = q
+            while r < B and (ends[r] is None or starts[r] is None): r += 1
+            t0 = ends[q - 1] if q else toks[tend][1]
+            t1 = starts[r] if r < B and starts[r] is not None else (ends[r] if r < B and ends[r] is not None else toks[-1][1])
+            ln = [max(2, len(tw[x])) for x in range(q, r)]; tot = sum(ln); t = t0
+            for x, L_ in zip(range(q, r), ln):
+                d_ = (t1 - t0) * L_ / tot; starts[x] = t if starts[x] is None else starts[x]; ends[x] = t + d_ if ends[x] is None else ends[x]; t += d_
+            q = r
+        for q in range(1, B):
+            if starts[q] < starts[q - 1]: starts[q] = starts[q - 1] + .05
+        head = U[0]
+        M[ks] = [[round(toks[0][0] if toks else 0, 2), round(max(.5, starts[0] - .1), 2), head["pg"]] + head["box"]] + \
+                [[round(starts[q], 2), round(max(ends[q], starts[q] + .3), 2), U[q + 1]["pg"]] + U[q + 1]["box"] for q in range(B)]
+        heard = sum(1 for m in match if m is not None)
+        print(f"lesson {ks}: matched {heard} of {B} words by text; title ends {starts[0]:.1f}s")
 import time
 M["_v"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
 json.dump(M, open(out, "w"), separators=(",", ":"))
