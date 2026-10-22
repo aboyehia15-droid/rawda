@@ -151,4 +151,6 @@ for k in range(17):
     M[str(k + 1)] = [[round(t0, 2), round(t1, 2), u["pg"]] + u["box"] for (t0, t1), u in zip(tm, units[k])]
     print(f"   header {tm[0][0]:.1f}-{tm[0][1]:.1f}s; flags {'yes' if words else 'no'}")
     print(f"lesson {k+1}: units {len(units[k])} segs {len(a['segs'])} (db {a['db']}) cost {sc:.2f} intro-skip {skip0} first {tm[0][0]:.1f}s dur {a['dur']}")
+import time
+M["_v"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
 json.dump(M, open(out, "w"), separators=(",", ":"))
