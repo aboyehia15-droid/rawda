@@ -36,7 +36,7 @@ def cells(path,dbg=None):
             if r-l<W*.03: continue
             cs=hsv[a:b,l:r,1];cv=hsv[a:b,l:r,2]
             if ((cs>110)&(cv>80)).mean()>.45:
-                if (r-l)/W>.12: row.append(['H',round(l/W,4),round(a/H,4)])
+                if (r-l)/W>.12: row.append(['H',round(l/W,4),round(a/H,4),round((r-l)/W,4),round((b-a)/H,4)])
                 continue
             row.append([round(l/W,4),round(a/H,4),round((r-l)/W,4),round((b-a)/H,4)])
         row=[c for c in row if c[0]=='H' or c[3]>.035]
@@ -48,7 +48,7 @@ def cells(path,dbg=None):
         for i,a,b in pend:
             sub=g[a+4:b-4,int(L*W)+6:int(R*W)-6];sat=hsv[a+4:b-4,int(L*W)+6:int(R*W)-6]
             cf=((sat[...,1]>110)&(sat[...,2]>80)).mean()
-            if cf>=.3: out[i]=[['H',round(L,4),round(a/H,4)]]
+            if cf>=.3: out[i]=[['H',round(L,4),round(a/H,4),round(R-L,4),round((b-a)/H,4)]]
             elif (sub<150).mean()>.02: out[i]=[[round(L,4),round(a/H,4),round(R-L,4),round((b-a)/H,4)]]
     out=[r for r in out if r]
     if dbg is not None:

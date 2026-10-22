@@ -4,23 +4,31 @@ DP: every unit takes one or more consecutive speech segments; a few segments may
 (lesson title / introduction) and at the end; cost = squared deviation from the expected duration."""
 import json, sys, math
 cells = json.load(open(sys.argv[1])); sync = json.load(open(sys.argv[2])); out = sys.argv[3]
-# headings the detector missed: page -> row index before which a heading sits
-EXTRA_H = {"24": 6, "26": 8}
-LAST_ROWS = {"29": 4}
+# headings the detector missed: page -> (row index, how the row splits into heading + text)
+def split_rows(pg, rows):
+    rows = [list(r) for r in rows]
+    if pg == 24 and len(rows) > 6 and rows[6][0][0] != 'H':
+        x, y, w, h = rows[6][0]; rows[6:7] = [[['H', x, y, w, h / 2]], [[x, y + h / 2, w, h / 2]]]
+    if pg == 26 and len(rows) > 8 and rows[8][0][0] != 'H':
+        x, y, w, h = rows[8][0]; cut = x + w * .5
+        rows[8] = [['H', cut, y, x + w - cut, h], [x, y, cut - x, h]]
+    return rows
+LAST_ROWS = {29: 4}
 units = [[] for _ in range(17)]; cur = 0; first = True
 for pg in range(7, 30):
-    rows = cells.get(str(pg), [])
-    if str(pg) in LAST_ROWS: rows = rows[:LAST_ROWS[str(pg)]]
-    for ri, row in enumerate(rows):
-        if EXTRA_H.get(str(pg)) == ri: cur += 1
+    rows = split_rows(pg, cells.get(str(pg), []))
+    if pg in LAST_ROWS: rows = rows[:LAST_ROWS[pg]]
+    for row in rows:
         for c in row:
             if c[0] == 'H':
-                if first: first = False
-                else: cur += 1
+                hu = {"pg": pg, "box": c[1:5], "wt": 3.0, "head": 1}
+                if first: first = False; units[0].insert(0, hu)
+                else: cur += 1; units[min(cur, 16)].append(hu)
                 continue
             x, y, w, h = c
             wt = 1.0 if w < .2 else max(1.0, w / .085)
             units[min(cur, 16)].append({"pg": pg, "box": [x, y, w, h], "wt": wt})
+print("lessons starting with their heading:", sum(1 for u in units if u and u[0].get("head")))
 print("headings ->", cur + 1, "lessons; units:", [len(u) for u in units])
 
 def align(U, segs):
