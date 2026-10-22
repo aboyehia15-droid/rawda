@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
-      - run: pip install -q "faster-whisper==1.1.1" "av==12.3.0"
+      - run: pip install -q "faster-whisper==1.1.1" "av==12.3.0" requests
       - name: transcribe
         run: |
           mkdir -p out
