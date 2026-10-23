@@ -1,0 +1,26 @@
+name: أصوات عربية طبيعية مجانية
+on:
+  push:
+    branches: [main]
+    paths: ['tools/make_edge_pack.py', 'tools/voice-items.json', '.github/workflows/edge-voices.yml']
+  workflow_dispatch:
+concurrency: {group: edge-voices, cancel-in-progress: true}
+permissions: {contents: write}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && pip install -q edge-tts
+      - run: python tools/make_edge_pack.py
+      - name: Commit the packs
+        run: |
+          git config user.name "aboyehia15-droid"
+          git config user.email "aboyehia15-droid@users.noreply.github.com"
+          git add voices/*.json
+          git diff --cached --quiet && exit 0
+          git commit -m "أصوات عربية طبيعية: حامد وزارية (تُستورد تلقائيًا على كل الشاشات)"
+          git pull --rebase -q origin main
+          git push
