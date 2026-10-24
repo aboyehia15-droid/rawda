@@ -142,6 +142,7 @@ body:not([data-mode="lesson"]) .app{grid-template-columns:minmax(0,1fr)}
 @keyframes turnN{from{transform:rotateY(-100deg);opacity:.2}to{transform:none;opacity:1}}
 @keyframes turnP{from{transform:rotateY(100deg);opacity:.2}to{transform:none;opacity:1}}
 .ptlayer{position:absolute;inset:0;z-index:6;cursor:crosshair;touch-action:none}
+.ptzone{position:absolute;border:2px dashed rgba(47,125,225,.35);border-radius:8px;pointer-events:none}
 .ptbox{position:absolute;border:3px solid #2F7DE1;background:rgba(47,125,225,.12);border-radius:8px;pointer-events:none}
 .ptbox.busy{animation:ptpulse 1s infinite}@keyframes ptpulse{50%{background:rgba(47,125,225,.3)}}
 .ptbub{position:absolute;z-index:7;display:grid;gap:6px;max-width:60%;padding:10px 12px;border-radius:14px;background:#fffbe6;border:2px solid #e9c46a;box-shadow:0 8px 20px rgba(0,0,0,.2);line-height:1.6;font-size:1rem;color:#1d2b36}
@@ -1211,20 +1212,31 @@ async function readRegion(blob,box){const bmp=await createImageBitmap(blob);cons
   const w8=await ocrWorker();try{await w8.setParameters({tessedit_pageseg_mode:h*sc<160?"7":"6"})}catch(e){}
   const r=await w8.recognize(c,{},{text:true,blocks:true});let t=ocrClean(r&&r.data).replace(/[|_~^`<>{}\[\]\\]/g," ").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();
   if(!/[؀-ۿ0-9٠-٩]/.test(t))t="";return t}
-function wirePointRead(layer,page,n){if(!layer||!page)return;let st=null,boxEl=null;
+/* exact text of picture books that have a text map (zad/text.json): page -> [[x0,y0,x1,y1,text,readInPage]] */
+let ZAD=null,ZADP=null;
+function zadLoad(){if(ZAD)return Promise.resolve(ZAD);if(ZADP)return ZADP;ZADP=fetch("zad/text.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{}).catch(()=>({})).then(d=>{ZAD=d||{};return ZAD});return ZADP}
+function zadKey(B){const nm=String(B&&B.name||"");if(!/زاد/.test(nm))return null;return ["الأذكار","الأحاديث","العقيدة","أنشطة"].find(k=>nm.includes(k))||null}
+function zadRegs(B,n){const k=zadKey(B);if(!k||!ZAD||!ZAD[k])return null;return ZAD[k][String(n)]||null}
+function zadPageText(regs){return regs.filter(r=>r[5]).map(r=>r[4]).join("، ")}
+function zadHit(regs,x,y){let best=null,ba=9;regs.forEach(r=>{if(x>=r[0]&&x<=r[2]&&y>=r[1]&&y<=r[3]){const a=(r[2]-r[0])*(r[3]-r[1]);if(a<ba){ba=a;best=r}}});
+  if(best)return best;let bd=.12;regs.forEach(r=>{const dx=Math.max(r[0]-x,0,x-r[2]),dy=Math.max(r[1]-y,0,y-r[3]);const d=Math.hypot(dx,dy);if(d<bd){bd=d;best=r}});return best}
+/* touch-to-read: one touch reads what is under the finger, right away */
+function wirePointRead(layer,page,n){if(!layer||!page)return;const B=S.books[S.cur];
   const rel=e=>{const r=layer.getBoundingClientRect();return [Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))]};
-  layer.onpointerdown=e=>{e.preventDefault();layer.setPointerCapture(e.pointerId);st=rel(e);if(boxEl)boxEl.remove();boxEl=document.createElement("div");boxEl.className="ptbox";layer.appendChild(boxEl)};
-  layer.onpointermove=e=>{if(!st)return;const [x,y]=rel(e);const a=Math.min(st[0],x),b=Math.min(st[1],y);Object.assign(boxEl.style,{left:a*100+"%",top:b*100+"%",width:Math.abs(x-st[0])*100+"%",height:Math.abs(y-st[1])*100+"%"})};
-  layer.onpointerup=async e=>{if(!st)return;const [x,y]=rel(e);let box={x:Math.min(st[0],x),y:Math.min(st[1],y),w:Math.abs(x-st[0]),h:Math.abs(y-st[1])};st=null;
-    if(box.w<.03||box.h<.02){box={x:Math.max(0,x-.22),y:Math.max(0,y-.045),w:.44,h:.09}}
-    Object.assign(boxEl.style,{left:box.x*100+"%",top:box.y*100+"%",width:box.w*100+"%",height:box.h*100+"%"});boxEl.classList.add("busy");
-    const bub=document.createElement("div");bub.className="ptbub";bub.style.left=Math.min(70,box.x*100)+"%";bub.style.top=Math.min(85,(box.y+box.h)*100+1)+"%";bub.innerHTML='<span class="spin s"></span> أقرأ…';layer.appendChild(bub);
-    let t="";try{t=await readRegion(page.blob,box)}catch(err){t=""}
-    boxEl.classList.remove("busy");
-    if(!t){bub.innerHTML='لم أجد كلامًا مقروءًا هنا. حدّد السطر بالسحب حوله بدقة. <button class="link" data-x>✕</button>';bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};return}
+  const show=(box,html)=>{layer.querySelectorAll(".ptbox,.ptbub").forEach(x=>x.remove());const b=document.createElement("div");b.className="ptbox";Object.assign(b.style,{left:box[0]*100+"%",top:box[1]*100+"%",width:(box[2]-box[0])*100+"%",height:(box[3]-box[1])*100+"%"});layer.appendChild(b);
+    const bub=document.createElement("div");bub.className="ptbub";bub.style.left=Math.min(62,box[0]*100)+"%";bub.style.top=Math.min(84,box[3]*100+1)+"%";bub.innerHTML=html;bub.onpointerdown=ev=>ev.stopPropagation();layer.appendChild(bub);return [b,bub]};
+  const zones=()=>{const regs=zadRegs(B,n);if(!regs)return;layer.querySelectorAll(".ptzone").forEach(z=>z.remove());regs.forEach(r=>{const z=document.createElement("div");z.className="ptzone";Object.assign(z.style,{left:r[0]*100+"%",top:r[1]*100+"%",width:(r[2]-r[0])*100+"%",height:(r[3]-r[1])*100+"%"});layer.appendChild(z)})};
+  zadLoad().then(zones);
+  layer.onpointerdown=e=>{e.preventDefault()};
+  layer.onpointerup=async e=>{const [x,y]=rel(e);await zadLoad();const regs=zadRegs(B,n);
+    if(regs){const r=zadHit(regs,x,y);if(!r)return;const [,bub]=show(r,`<b class="ptt">${esc(r[4])}</b><span class="row"><button class="btn small green" data-again>🔊 مرة أخرى</button><button class="btn small ghost" data-x>✕</button></span>`);
+      bub.querySelector("[data-again]").onclick=ev=>{ev.stopPropagation();speak(r[4],.8)};bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();layer.querySelectorAll(".ptbox,.ptbub").forEach(q=>q.remove())};speak(r[4],.8);return}
+    // no text map: read the line under the finger from the picture
+    const box={x:Math.max(0,x-.22),y:Math.max(0,y-.045),w:.44,h:.09};const [bx,bub]=show([box.x,box.y,box.x+box.w,box.y+box.h],'<span class="spin s"></span> أقرأ…');bx.classList.add("busy");
+    let t="";try{t=await readRegion(page.blob,box)}catch(err){t=""}bx.classList.remove("busy");const st=speakable(t);
+    if(!st){bub.innerHTML='لم أجد كتابة واضحة هنا. المس الكلمة نفسها. <button class="link" data-x>✕</button>';bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();layer.querySelectorAll(".ptbox,.ptbub").forEach(q=>q.remove())};return}
     bub.innerHTML=`<b class="ptt">${esc(t)}</b><span class="row"><button class="btn small green" data-again>🔊 مرة أخرى</button><button class="btn small ghost" data-x>✕</button></span>`;
-    const st=speakable(t)||t;bub.querySelector("[data-again]").onclick=ev=>{ev.stopPropagation();speak(st,.75)};bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};
-    bub.onpointerdown=ev=>ev.stopPropagation();speak(st,.75)}}
+    bub.querySelector("[data-again]").onclick=ev=>{ev.stopPropagation();speak(st,.75)};bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();layer.querySelectorAll(".ptbox,.ptbub").forEach(q=>q.remove())};speak(st,.75)}}
 /* ================= القاعدة النورانية: صوت كل درس مربوط بصفحاته ================= */
 const NR_SRCS=["https://archive.org/download/alnawrania1-17/","https://ia801909.us.archive.org/16/items/alnawrania1-17/","https://ia601909.us.archive.org/16/items/alnawrania1-17/"];let nrSrcI=0;
 const NR=[["حروف الهجاء المفردة",7],["حروف الهجاء المركبة",8,1],["الحروف المقطعة",10],["الحروف المتحركة",11,1],["الحروف المنونة (التنوين)",12],["تدريبات على الحركات والتنوين",13],["الألف والياء والواو الصغيرة",14],["حروف المد واللين",15,1],["تدريبات على التنوين وأحرف المد واللين",17],["السكون",19],["تدريبات على السكون",20,1],["الشدة",23],["تدريبات على الشدة",24],["تدريبات على الشدة والسكون",26],["تدريبات على الشدتين في كلمة",26],["تدريبات على الشدة والسكون مع المد",27],["تدريبات على ما سبق",27]];
@@ -1287,6 +1299,8 @@ function nrWire(root,goPage){root.querySelectorAll("[data-nr]").forEach(b=>{nrBt
   root.querySelectorAll("[data-nrgo]").forEach(b=>b.onclick=()=>goPage(+b.dataset.nrgo))}
 function renderEbook(body){
   const keepY=window.scrollY;const id=S.cur,B=S.books[id],bk=memBook(id);
+  if(zadKey(B)&&!ZAD){zadLoad().then(()=>{if(S.cur===id&&curTool==="ebook")renderEbook(body)})}
+  if(zadKey(B)&&ZAD&&B&&B.meta){Object.keys(ZAD[zadKey(B)]||{}).forEach(k=>{const zr=ZAD[zadKey(B)][k];B.meta[k]=B.meta[k]||{text:"",read:null};const tx=zadPageText(zr);if(B.meta[k].text!==tx){B.meta[k].text=tx;if(B.meta[k].read&&!B.meta[k].read.edited)B.meta[k].read=null}})}
   const bookLessons=S.lessons.filter(l=>l.bookId===id);
   const lessonTools=`<details id="newLesson"><summary class="btn ghost small" style="list-style:none">＋ درس جديد من صفحات الكتاب</summary>
       <div class="form" style="margin-top:10px">
@@ -1309,7 +1323,7 @@ function renderEbook(body){
     <div class="ebar"><button class="btn" id="ePrev" aria-label="الصفحة السابقة">→</button><select id="eSel" aria-label="رقم الصفحة">${nav.map(k=>`<option value="${k}" ${k===n?"selected":""}>صفحة ${ar(k)} من ${ar(N)}</option>`).join("")}</select><button class="btn" id="eNext" aria-label="الصفحة التالية">←</button>
       <button class="btn green" id="eRead">🔊 قراءة الصفحة</button><label class="check"><input type="checkbox" id="eSpots" ${showSpots?"checked":""}> مواضع اللمس</label><button class="btn ghost small" id="eZoom">🔍 تكبير</button><button class="btn ghost small" id="eFull">⛶ ملء الشاشة</button></div>
     ${isNoorania(B)?`<details class="nrall" ${S.nrOpen?"open":""}><summary>🎧 دروس القاعدة النورانية بالصوت (${ar(NR.length)} درسًا) — اضغط الدرس لتسمعه، أو «الصفحة» لتنتقل إليه</summary><div class="small muted">نسخة توقيت المؤشر: <span id="nrVer">${esc((nrMap&&nrMap._v)||"…")}</span></div>${Object.keys(S.nrFix||{}).length?`<div class="row small" style="margin-top:6px"><span class="muted">لديك تصحيحات توقيت على هذا الجهاز.</span><button class="btn small" id="nrFixSave">📤 حفظ التصحيحات لمشاركتها</button><button class="btn small ghost" id="nrFixClr">مسح تصحيحاتي</button></div>`:""}<div class="nrlist">${NR.map((x,k)=>`<div class="nrrow ${nrOnPage(n).includes(k)?"here":""}"><button class="btn small" data-nr="${k}" data-long="1"></button><button class="btn small ghost" data-nrgo="${x[1]}">صفحة ${ar(x[1])}</button></div>`).join("")}</div></details>`:""}
-    <div class="book3d ${eInk?"inkmode":""} ${eZoom>1?"zoomed":""}" id="bookStage" style="--z:${eZoom}">${isNoorania(B)?`<div class="nrfixbar" id="nrFixBar" hidden></div>`:""}<div class="stagebar"><button class="sbtn" id="sPrevP" aria-label="الصفحة السابقة">→</button><button class="sbtn" id="sNextP" aria-label="الصفحة التالية">←</button>${isNoorania(B)?nrOnPage(n).map(k=>`<button class="sbtn nrb" data-nr="${k}"></button>`).join("")+`<button class="sbtn nrb" id="nrPage" title="تشغيل الصفحة كاملة ثم التوقف">▶ الصفحة كاملة</button><button class="sbtn ${S.nrPtrOff?"":"on"}" id="nrPtrT" title="إظهار المؤشر مع القراءة أو إخفاؤه">${S.nrPtrOff?"🔇 قراءة بدون مؤشر":"🟧 قراءة مع المؤشر"}</button><button class="sbtn" id="nrTap" title="ماذا يحدث عند لمس مربع">${(S.nrTap||"one")==="one"?"👆 لمس المربع: يقرأه فقط":"👆 لمس المربع: يكمل من عنده"}</button><button class="sbtn ${nrFixMode?"on":""}" id="nrFix" title="المس المربع لحظة بدء الشيخ بقراءته لتصحيح التوقيت">⏱️ ${nrFixMode?"إنهاء الضبط":"ضبط التوقيت"}</button>`:""}<button class="sbtn ${ePoint?"on":""}" id="ePoint" title="المس كلمة أو اسحب حول سطر ليُقرأ">👆 ${ePoint?"إنهاء القراءة باللمس":"اقرأ ما ألمسه"}</button><button class="sbtn ${eInk?"on":""}" id="eInk">✏️ ${eInk?"إنهاء الكتابة":"اكتب على الصفحة"}</button>${eInk?penBarHTML("pg"):""}<button class="sbtn" id="eZm" aria-label="تصغير">－</button><button class="sbtn" id="eZp" aria-label="تكبير">＋</button><button class="sbtn" id="eFull2" aria-label="ملء الشاشة">⛶</button></div><div class="leaf ${eDir} ${showSpots?"":"hidespots"}" id="leaf"><img id="leafImg" alt="صفحة ${ar(n)}"><div class="pageink" id="pageInk"></div>${isNoorania(B)?`<div class="nrptr" id="nrPtr" hidden></div>${!ePoint&&!eInk?`<div class="nrhitl ${nrFixMode?"fix":""}" id="nrHit"></div>`:""}`:""}${ePoint?`<div class="ptlayer" id="ptLayer" aria-label="المس أو حدّد بالسحب الجزء الذي تريد قراءته"></div>`:""}${arr(r&&r.spots).map(s=>`<button class="spot" style="left:${+s.x||0}%;top:${+s.y||0}%;width:${Math.max(3,+s.w||6)}%;height:${Math.max(3,+s.h||6)}%" data-say="${esc(s.t)}" aria-label="${esc(s.t)}"></button>`).join("")}</div></div>
+    <div class="book3d ${eInk?"inkmode":""} ${eZoom>1?"zoomed":""}" id="bookStage" style="--z:${eZoom}">${isNoorania(B)?`<div class="nrfixbar" id="nrFixBar" hidden></div>`:""}<div class="stagebar"><button class="sbtn" id="sPrevP" aria-label="الصفحة السابقة">→</button><button class="sbtn" id="sNextP" aria-label="الصفحة التالية">←</button>${isNoorania(B)?nrOnPage(n).map(k=>`<button class="sbtn nrb" data-nr="${k}"></button>`).join("")+`<button class="sbtn nrb" id="nrPage" title="تشغيل الصفحة كاملة ثم التوقف">▶ الصفحة كاملة</button><button class="sbtn ${S.nrPtrOff?"":"on"}" id="nrPtrT" title="إظهار المؤشر مع القراءة أو إخفاؤه">${S.nrPtrOff?"🔇 قراءة بدون مؤشر":"🟧 قراءة مع المؤشر"}</button><button class="sbtn" id="nrTap" title="ماذا يحدث عند لمس مربع">${(S.nrTap||"one")==="one"?"👆 لمس المربع: يقرأه فقط":"👆 لمس المربع: يكمل من عنده"}</button><button class="sbtn ${nrFixMode?"on":""}" id="nrFix" title="المس المربع لحظة بدء الشيخ بقراءته لتصحيح التوقيت">⏱️ ${nrFixMode?"إنهاء الضبط":"ضبط التوقيت"}</button>`:""}<button class="sbtn ${ePoint?"on":""}" id="ePoint" title="المس أي كلمة فتُقرأ مباشرة">👆 ${ePoint?"إنهاء القراءة باللمس":"اقرأ ما ألمسه"}</button><button class="sbtn ${eInk?"on":""}" id="eInk">✏️ ${eInk?"إنهاء الكتابة":"اكتب على الصفحة"}</button>${eInk?penBarHTML("pg"):""}<button class="sbtn" id="eZm" aria-label="تصغير">－</button><button class="sbtn" id="eZp" aria-label="تكبير">＋</button><button class="sbtn" id="eFull2" aria-label="ملء الشاشة">⛶</button></div><div class="leaf ${eDir} ${showSpots?"":"hidespots"}" id="leaf"><img id="leafImg" alt="صفحة ${ar(n)}"><div class="pageink" id="pageInk"></div>${isNoorania(B)?`<div class="nrptr" id="nrPtr" hidden></div>${!ePoint&&!eInk?`<div class="nrhitl ${nrFixMode?"fix":""}" id="nrHit"></div>`:""}`:""}${ePoint?`<div class="ptlayer" id="ptLayer" aria-label="المس أو حدّد بالسحب الجزء الذي تريد قراءته"></div>`:""}${arr(r&&r.spots).map(s=>`<button class="spot" style="left:${+s.x||0}%;top:${+s.y||0}%;width:${Math.max(3,+s.w||6)}%;height:${Math.max(3,+s.h||6)}%" data-say="${esc(s.t)}" aria-label="${esc(s.t)}"></button>`).join("")}</div></div>
     <div class="strip" id="strip">${bk.pages.filter(p=>!lockL||nav.includes(p.n)).map(p=>`<button data-n="${p.n}" aria-current="${p.n===n}" aria-label="صفحة ${p.n}"><img src="${p.thumb}" alt=""><span>${ar(p.n)}</span></button>`).join("")}</div>
     ${ebFree.html}
     <div class="pinfo">
@@ -1342,7 +1356,7 @@ function renderEbook(body){
   $("#eSel").onchange=e=>{const k=+e.target.value;eDir=k>n?"turn-n":"turn-p";ePg[id]=k;S.ePg=Object.assign(S.ePg||{},ePg);save();renderEbook(body)};
   $$("#strip button").forEach(b=>b.onclick=()=>{const k=+b.dataset.n;if(lockL&&!nav.includes(k)){eLessonOnly=false}eDir=k>n?"turn-n":"turn-p";ePg[id]=k;renderEbook(body)});
   const cur=$("#strip [aria-current=true]");if(cur){cur.scrollIntoView({block:"nearest",inline:"center"});if(Math.abs(window.scrollY-keepY)>2)window.scrollTo(0,keepY)}
-  $("#eRead").onclick=async()=>{let t=speakable(r&&r.text||(textOK(m.text)?m.text:""));
+  $("#eRead").onclick=async()=>{await zadLoad();const zr=zadRegs(B,n);if(zr){speak(zadPageText(zr),.85);return}let t=speakable(r&&r.text||(textOK(m.text)?m.text:""));
     if(!t&&p&&p.blob){const btn=$("#eRead");btn.disabled=true;btn.textContent="⏳ أقرأ الصفحة…";
       try{const w=await ocrWorker();await ocrPageMode(w);const rr=await w.recognize(p.blob,{},{text:true,blocks:true});const tx=ocrClean(rr&&rr.data).replace(/[ \t]+/g," ").trim();
         if(tx&&textOK(tx)){B.meta[n]=B.meta[n]||{text:"",read:null};B.meta[n].text=tx;save();t=speakable(tx)}}catch(e){}
@@ -1353,7 +1367,7 @@ function renderEbook(body){
   $("#eZoom").onclick=()=>openViewer(n);
   const fs=()=>{const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe===body){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}body.classList.add("ebfs");const rq=body.requestFullscreen||body.webkitRequestFullscreen;(rq?Promise.resolve(rq.call(body)):Promise.reject()).catch(()=>{body.classList.remove("ebfs");flash("ملء الشاشة غير متاح هنا")})};$("#eFull").onclick=fs;$("#eFull2").onclick=fs;
   $("#sPrevP").onclick=()=>go(-1);$("#sNextP").onclick=()=>go(1);
-  $("#ePoint").onclick=()=>{ePoint=!ePoint;if(ePoint)eInk=false;renderEbook(body);if(ePoint)flash("المس كلمة، أو اسحب إصبعك حول السطر الذي تريد أن يُقرأ","ok")};
+  $("#ePoint").onclick=()=>{ePoint=!ePoint;if(ePoint)eInk=false;renderEbook(body);if(ePoint)flash("المس أي كلمة فتُقرأ مباشرة","ok")};
   if(ePoint)wirePointRead($("#ptLayer"),p,n);
   if(isNoorania(B)){nrLoadMap().then(()=>{nrHits(body);nrFixBar();if(nrFixSel){const h=body.querySelector(`.nrhit[data-k="${nrFixSel.k}"][data-i="${nrFixSel.i}"]`);if(h)h.classList.add("sel")}});const np=$("#nrPage");if(np)np.onclick=e=>{e.stopPropagation();nrPlayPage()};
     const npt=$("#nrPtrT");if(npt)npt.onclick=e=>{e.stopPropagation();S.nrPtrOff=!S.nrPtrOff;save();renderEbook(body);flash(S.nrPtrOff?"القراءة بدون مؤشر":"القراءة مع المؤشر","ok")};const nt=$("#nrTap");if(nt)nt.onclick=e=>{e.stopPropagation();S.nrTap=(S.nrTap||"one")==="one"?"cont":"one";save();renderEbook(body)};
