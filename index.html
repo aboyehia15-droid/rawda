@@ -993,7 +993,7 @@ async function loadFiles0(files,opts){
         const pg=await doc.getPage(i);const v0=pg.getViewport({scale:1});const sc=Math.min(2.6,1500/v0.width);const vp=pg.getViewport({scale:sc});
         const c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
         await pg.render({canvasContext:x,viewport:vp}).promise;
-        let txt="";try{txt=(await pg.getTextContent()).items.map(t=>t.str).join(" ").replace(/\s+/g," ").trim()}catch(e){}
+        let txt="";try{txt=(await pg.getTextContent()).items.map(t=>t.str).join(" ").replace(/\s+/g," ").trim().normalize("NFKC");if(!textOK(txt))txt=""}catch(e){}
         const N=off+i;bk.pages.push({n:N,blob:await toBlob(c),thumb:thumbOf(c),pdfText:txt,fp:N<=3?fpOf(c):""});
         if(!meta[N])meta[N]={text:txt,read:null};
       }
@@ -1060,14 +1060,40 @@ function stopRead(id){readQ=readQ.filter(x=>x!==id);if(reading&&reading.id===id)
 let TESS=null;let lastInput=0;["pointerdown","pointermove","keydown","touchstart","wheel"].forEach(t=>addEventListener(t,()=>{lastInput=Date.now()},{passive:true,capture:true}));
 async function bgYield(){await new Promise(r=>setTimeout(r,30));let n=0;while((Date.now()-lastInput<2500||document.hidden)&&n<2400){await new Promise(r=>setTimeout(r,250));n++}}
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=()=>res();sc.onerror=()=>rej(new Error("tess"));document.head.appendChild(sc)})}
+/* ===== only real writing is read aloud: letters by name, numbers as words, no OCR noise ===== */
+const AR_RE=/[ء-ي]/g, LAT_RE=/[A-Za-z]/g;
+function textOK(t){t=String(t||"").normalize("NFKC");if(!t.trim())return false;if(/[-�]/.test(t))return false;
+  const ch=t.replace(/\s/g,"");if(!ch.length)return false;const ar=(ch.match(AR_RE)||[]).length,lat=(ch.match(LAT_RE)||[]).length,dig=(ch.match(/[0-9٠-٩]/g)||[]).length,hr=(ch.match(/[ً-ْٰ]/g)||[]).length;
+  const good=ar+lat+dig+hr+(ch.match(/[.,،؛:!?؟\-()«»"']/g)||[]).length;if(good/ch.length<.75)return false;
+  return true}
+function numSay(d){const n=parseInt(fromAr(d),10);if(isNaN(n))return "";return d.length>4?d.split("").map(x=>numWords(+fromAr(x))).join(" "):numWords(n)}
+function speakable(t){t=String(t||"").normalize("NFKC").replace(/ـ/g,"");if(!t.trim())return "";
+  const ar=(t.match(AR_RE)||[]).length,lat=(t.match(LAT_RE)||[]).length;
+  if(lat>ar*1.5){return t.split(/\n+/).map(l=>l.replace(/[^A-Za-z0-9 ,.'?!-]/g," ").split(/\s+/).filter(w=>/[A-Za-z]{2,}|^[AaI]$|^\d+$/.test(w)).join(" ")).filter(Boolean).join(". ")}
+  const lines=t.split(/\n+/);const out=[];
+  for(const line of lines){const toks=line.split(/[\s،,;:|/\\_~^*#@=+<>\[\]{}"«»()]+/).filter(Boolean);const said=[];let letters=0;
+    for(let tok of toks){
+      const digs=tok.match(/^[0-9٠-٩]+$/);if(digs){said.push(numSay(tok));continue}
+      if(/[0-9٠-٩]/.test(tok)&&/[ء-ي]/.test(tok)){tok.split(/([0-9٠-٩]+)/).forEach(x=>{if(/^[0-9٠-٩]+$/.test(x))said.push(numSay(x));else if(x.replace(/[^ء-ي]/g,""))said.push(x.replace(/[^ء-يً-ْٰ]/g,""))});continue}
+      const clean=tok.replace(/[^ء-يً-ْٰ]/g,"");const base=clean.replace(/[ً-ْٰ]/g,"");
+      if(!base)continue;
+      if(/(.)\1\1/.test(base))continue;                       // OCR noise like "ممم"
+      if(base.length===1){const c=normLetter(base);if(!c)continue;letters++;
+        if(clean.length>1)said.push(clean);else said.push(LET[c]?LET[c].name:clean);continue}
+      said.push(clean)}
+    if(said.length)out.push(letters>1&&letters===said.length?said.join("، "):said.join(" "))}
+  return out.join("، ")}
+/* the words OCR is sure about, line by line */
+function ocrClean(data){try{const lines=[];(data.blocks||[]).forEach(b=>(b.paragraphs||[]).forEach(p=>(p.lines||[]).forEach(l=>{const ws=(l.words||[]).filter(w=>(w.confidence||0)>=55&&/[ء-ي0-9٠-٩A-Za-z]/.test(w.text||"")).map(w=>w.text);if(ws.length)lines.push(ws.join(" "))})));
+    if(lines.length)return lines.join("\n")}catch(e){}return String(data&&data.text||"")}
 async function ocrWorker(){if(TESS)return TESS;await loadTess();TESS=await Tesseract.createWorker("ara");return TESS}
 async function ocrPageMode(w){try{await w.setParameters({tessedit_pageseg_mode:"3"})}catch(e){}}
 async function ocrRead(id,sig){const bk=memBook(id),B=S.books[id];if(!bk||!B)return;const meta=B.meta;
-  const todo=bk.pages.filter(p=>!((meta[p.n]&&meta[p.n].text)||p.pdfText));const st={state:"reading",done:0,total:Math.max(1,todo.length)};setSt(id,st);
+  bk.pages.forEach(p=>{if(p.pdfText&&!textOK(p.pdfText))p.pdfText="";const mm=meta[p.n];if(mm&&mm.text&&!textOK(mm.text))mm.text=""});const todo=bk.pages.filter(p=>!((meta[p.n]&&meta[p.n].text)||p.pdfText));const st={state:"reading",done:0,total:Math.max(1,todo.length)};setSt(id,st);
   let ok=0;
   if(todo.length){let w=null;try{w=await ocrWorker()}catch(e){setSt(id,{state:"done",msg:"القراءة المحلية تحتاج اتصالًا بالإنترنت أول مرة. ستُعاد عند فتح الكتاب لاحقًا."});return}
     for(const p of todo){await bgYield();if(sig&&sig.aborted){setSt(id,{state:"stopped",msg:"توقفت القراءة."});return}
-      try{await ocrPageMode(w);const r=await w.recognize(p.blob);const t=String(r&&r.data&&r.data.text||"").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();meta[p.n]=meta[p.n]||{text:"",read:null};if(t){meta[p.n].text=t;ok++}}catch(e){}
+      try{await ocrPageMode(w);const r=await w.recognize(p.blob,{},{text:true,blocks:true});const t=ocrClean(r&&r.data).replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();meta[p.n]=meta[p.n]||{text:"",read:null};if(t){meta[p.n].text=t;ok++}}catch(e){}
       st.done++;setSt(id,{...st});save()}}
   if(!S.lessons.some(l=>l.bookId===id&&!l.provisional)){const loc=localLessons(id);if(loc.length)S.lessons=S.lessons.filter(l=>l.bookId!==id).concat(loc)}
   autoShelf(id);save();setSt(id,{state:"done",msg:`قُرئ الكتاب على هذا الجهاز${ok?` (${ar(ok)} صفحة مصوّرة)`:""}. صحّح أي نص من «تصحيح النص» عند الحاجة.`});try{renderSide();if(mode==="library")renderMain()}catch(e){}}
@@ -1183,7 +1209,7 @@ async function readRegion(blob,box){const bmp=await createImageBitmap(blob);cons
   // on this device: Arabic OCR of just this part, on a clean grey-scale copy
   const d=g.getImageData(0,0,c.width,c.height),px=d.data;for(let i=0;i<px.length;i+=4){let v=px[i]*.3+px[i+1]*.59+px[i+2]*.11;v=v<150?Math.max(0,v*.6):Math.min(255,v*1.25);px[i]=px[i+1]=px[i+2]=v}g.putImageData(d,0,0);
   const w8=await ocrWorker();try{await w8.setParameters({tessedit_pageseg_mode:h*sc<160?"7":"6"})}catch(e){}
-  const r=await w8.recognize(c);let t=String(r&&r.data&&r.data.text||"").replace(/[|_~^`<>{}\[\]\\]/g," ").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();
+  const r=await w8.recognize(c,{},{text:true,blocks:true});let t=ocrClean(r&&r.data).replace(/[|_~^`<>{}\[\]\\]/g," ").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();
   if(!/[؀-ۿ0-9٠-٩]/.test(t))t="";return t}
 function wirePointRead(layer,page,n){if(!layer||!page)return;let st=null,boxEl=null;
   const rel=e=>{const r=layer.getBoundingClientRect();return [Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))]};
@@ -1197,8 +1223,8 @@ function wirePointRead(layer,page,n){if(!layer||!page)return;let st=null,boxEl=n
     boxEl.classList.remove("busy");
     if(!t){bub.innerHTML='لم أجد كلامًا مقروءًا هنا. حدّد السطر بالسحب حوله بدقة. <button class="link" data-x>✕</button>';bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};return}
     bub.innerHTML=`<b class="ptt">${esc(t)}</b><span class="row"><button class="btn small green" data-again>🔊 مرة أخرى</button><button class="btn small ghost" data-x>✕</button></span>`;
-    bub.querySelector("[data-again]").onclick=ev=>{ev.stopPropagation();speak(t,.75)};bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};
-    bub.onpointerdown=ev=>ev.stopPropagation();speak(t,.75)}}
+    const st=speakable(t)||t;bub.querySelector("[data-again]").onclick=ev=>{ev.stopPropagation();speak(st,.75)};bub.querySelector("[data-x]").onclick=ev=>{ev.stopPropagation();bub.remove();boxEl&&boxEl.remove()};
+    bub.onpointerdown=ev=>ev.stopPropagation();speak(st,.75)}}
 /* ================= القاعدة النورانية: صوت كل درس مربوط بصفحاته ================= */
 const NR_SRCS=["https://archive.org/download/alnawrania1-17/","https://ia801909.us.archive.org/16/items/alnawrania1-17/","https://ia601909.us.archive.org/16/items/alnawrania1-17/"];let nrSrcI=0;
 const NR=[["حروف الهجاء المفردة",7],["حروف الهجاء المركبة",8,1],["الحروف المقطعة",10],["الحروف المتحركة",11,1],["الحروف المنونة (التنوين)",12],["تدريبات على الحركات والتنوين",13],["الألف والياء والواو الصغيرة",14],["حروف المد واللين",15,1],["تدريبات على التنوين وأحرف المد واللين",17],["السكون",19],["تدريبات على السكون",20,1],["الشدة",23],["تدريبات على الشدة",24],["تدريبات على الشدة والسكون",26],["تدريبات على الشدتين في كلمة",26],["تدريبات على الشدة والسكون مع المد",27],["تدريبات على ما سبق",27]];
@@ -1309,14 +1335,19 @@ function renderEbook(body){
   const go=(d)=>{const k=nav[pos+d];if(!k)return;ePg[id]=k;S.ePg=Object.assign(S.ePg||{},ePg);save();eDir=d>0?"turn-n":"turn-p";if(!lessonReading)stopSpeak();renderEbook(body)};
   const lk=$("#eLock");if(lk)lk.onchange=()=>{eLessonOnly=lk.checked;renderEbook(body)};
   const rl=$("#eReadL");if(rl)rl.onclick=async()=>{stopLessonRead();stopSpeak();const me={stop:false};lessonReading=me;const pgs=lessonPages.length?lessonPages:[n];
-    for(const k of pgs){if(me.stop)break;ePg[id]=k;eDir=k!==ePg[id]?"turn-n":"";renderEbook(body);const mm=B.meta[k]||{};const tt=(mm.read&&mm.read.text)||mm.text;if(tt)await speak(tt);else await sleep(1500);await sleep(400)}
+    for(const k of pgs){if(me.stop)break;ePg[id]=k;eDir=k!==ePg[id]?"turn-n":"";renderEbook(body);const mm=B.meta[k]||{};const tt=speakable((mm.read&&mm.read.text)||mm.text);if(tt)await speak(tt);else await sleep(1500);await sleep(400)}
     if(lessonReading===me){lessonReading=null;if(curTool==="ebook")renderEbook(body)}};
   const rs=$("#eReadStop");if(rs)rs.onclick=()=>{stopLessonRead();stopSpeak();renderEbook(body)};
   $("#ePrev").onclick=()=>go(-1);$("#eNext").onclick=()=>go(1);
   $("#eSel").onchange=e=>{const k=+e.target.value;eDir=k>n?"turn-n":"turn-p";ePg[id]=k;S.ePg=Object.assign(S.ePg||{},ePg);save();renderEbook(body)};
   $$("#strip button").forEach(b=>b.onclick=()=>{const k=+b.dataset.n;if(lockL&&!nav.includes(k)){eLessonOnly=false}eDir=k>n?"turn-n":"turn-p";ePg[id]=k;renderEbook(body)});
   const cur=$("#strip [aria-current=true]");if(cur){cur.scrollIntoView({block:"nearest",inline:"center"});if(Math.abs(window.scrollY-keepY)>2)window.scrollTo(0,keepY)}
-  $("#eRead").onclick=()=>{const t=r&&r.text||m.text;if(!t){flash("لم تُقرأ هذه الصفحة بعد");return}speak(t)};
+  $("#eRead").onclick=async()=>{let t=speakable(r&&r.text||(textOK(m.text)?m.text:""));
+    if(!t&&p&&p.blob){const btn=$("#eRead");btn.disabled=true;btn.textContent="⏳ أقرأ الصفحة…";
+      try{const w=await ocrWorker();await ocrPageMode(w);const rr=await w.recognize(p.blob,{},{text:true,blocks:true});const tx=ocrClean(rr&&rr.data).replace(/[ \t]+/g," ").trim();
+        if(tx&&textOK(tx)){B.meta[n]=B.meta[n]||{text:"",read:null};B.meta[n].text=tx;save();t=speakable(tx)}}catch(e){}
+      btn.disabled=false;btn.textContent="🔊 قراءة الصفحة"}
+    if(!t){flash("لا يوجد نص واضح في هذه الصفحة. استخدم «اقرأ ما ألمسه» على الكلمة","err");return}speak(t)};
   $("#eSpots").onchange=e=>{showSpots=e.target.checked;$("#leaf").classList.toggle("hidespots",!showSpots)};
   $$(".ebook [data-say]").forEach(b=>b.onclick=async()=>{b.classList.add("on");await speak(b.dataset.say,.72);b.classList.remove("on")});
   $("#eZoom").onclick=()=>openViewer(n);
