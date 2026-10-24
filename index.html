@@ -680,6 +680,7 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
   <div class="brand"><span id="brandMark"></span><div><h1>روضة الدروس</h1><div class="small muted" id="brandSchool"></div></div></div>
   <button class="stars" id="stars" title="نجوم الصف">⭐ ٠</button>
   <label class="btn primary" for="file">📚 رفع كتب</label>
+  <button class="btn primary" id="instBtn" hidden title="تثبيت روضة الدروس على هذا الجهاز">📥 تثبيت البرنامج</button>
   <button class="btn green" id="updBtn" title="تحديث البرنامج والكتب والأصوات والتطبيق">🔄 تحديث البرنامج</button>
   <button class="btn ghost" id="setBtn">⚙️ المدرسة والشعار</button>
   <span class="brandleft" id="brandLeft" hidden></span>
@@ -915,6 +916,9 @@ async function loadSharedBrand(){try{const r=await fetch("brand/brand.json",{cac
   if(ch||!B.logo){B.logo=await composeLogos(B.logoR,B.logoL)}save();renderBrand()}catch(e){}}
 function brandBadge(){const B=S.brand;if(!B.logo&&!B.school)return "";return `<div class="badge">${B.logo?`<img src="${B.logo}" alt="">`:""}${B.school?`<span>${esc(B.school)}</span>`:""}</div>`}
 let draftLogo2=null;function showLogoPrev(){$("#sLogoPrev").innerHTML=draftLogo?`<img src="${draftLogo}" alt="الشعار">`:"لا يوجد شعار";const p2=$("#sLogoPrev2");if(p2)p2.innerHTML=draftLogo2?`<img src="${draftLogo2}" alt="الشعار">`:"لا يوجد شعار"}
+let instEvt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();instEvt=e;const b=$("#instBtn");if(b)b.hidden=false});
+window.addEventListener("appinstalled",()=>{instEvt=null;const b=$("#instBtn");if(b)b.hidden=true;flash("✓ ثُبّت البرنامج، ستجد أيقونته على سطح المكتب وفي قائمة ابدأ","ok")});
+$("#instBtn").onclick=async()=>{if(!instEvt){flash("من قائمة المتصفح (⋮) اختر: البث والحفظ والمشاركة ← تثبيت الصفحة كتطبيق","ok");return}instEvt.prompt();try{await instEvt.userChoice}catch(e){}instEvt=null;$("#instBtn").hidden=true};
 $("#updBtn").onclick=async()=>{const b=$("#updBtn");b.disabled=true;b.textContent="⏳ جارٍ التحديث…";
   try{saveNow()}catch(e){}
   if(window.RawdaAndroid&&RawdaAndroid.updateNow){try{RawdaAndroid.updateNow();return}catch(e){}}

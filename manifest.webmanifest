@@ -1,7 +1,7 @@
 {
  "name": "روضة الدروس",
  "short_name": "روضة الدروس",
- "start_url": "./",
+ "start_url": "/rawda/?source=app",
  "display": "standalone",
  "dir": "rtl",
  "lang": "ar",
@@ -21,6 +21,7 @@
    "purpose": "any"
   }
  ],
- "id": "./",
- "scope": "./"
+ "id": "/rawda/?app=rawda-aldurus",
+ "scope": "/rawda/",
+ "description": "برنامج روضة الدروس للأطفال"
 }
