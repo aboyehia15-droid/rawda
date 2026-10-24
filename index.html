@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2a9d8f"><title>روضة الدروس</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0}</style></head><body>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f7a45"><title>روضة الدروس</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png" type="image/png"><link rel="apple-touch-icon" href="icon-192.png"><style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0}</style></head><body>
 <script>
 /* inside the Android app: speak Arabic with the device's own voice, since the app window has no browser voice */
 if(window.RawdaAndroid){(function(){var A=window.RawdaAndroid,cbs={},n=0,V=[];
@@ -293,6 +293,55 @@ fieldset legend{font-weight:800;font-family:var(--display);padding:0 6px}
 .nrb{background:#2a9d8f!important;color:#fff!important}.nrb.on{background:#e76f51!important}
 .nrall{border:2px solid #2a9d8f;border-radius:14px;padding:8px 12px;background:rgba(42,157,143,.06)}.nrall summary{cursor:pointer;font-weight:700}
 .nrlist{display:grid;gap:6px;margin-top:8px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}.nrrow{display:flex;gap:6px;align-items:center}.nrrow.here{background:var(--sun-soft);border-radius:10px;padding:2px}.nrrow [data-nr]{flex:1;text-align:start}.nrrow [data-nr].on{background:#e76f51;color:#fff}
+
+/* ===== 3D, child-friendly look ===== */
+body{background:radial-gradient(circle at 12% 18%,rgba(255,183,3,.10) 0 90px,transparent 91px),radial-gradient(circle at 88% 30%,rgba(42,157,143,.10) 0 120px,transparent 121px),radial-gradient(circle at 70% 85%,rgba(47,125,225,.08) 0 110px,transparent 111px),linear-gradient(180deg,#f4fbf7,#eef5fb) fixed}
+header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 18px rgba(27,94,63,.10);border-bottom:0}
+.btn{box-shadow:0 4px 0 rgba(0,0,0,.14),0 6px 14px rgba(0,0,0,.08);transition:transform .12s,box-shadow .12s;border-radius:14px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(0,0,0,.14),0 10px 18px rgba(0,0,0,.10)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.14)}
+.btn.primary{background:linear-gradient(180deg,#ffd04d,#ffb703);box-shadow:0 4px 0 #d18f00,0 8px 16px rgba(255,183,3,.30)}
+.btn.green{background:linear-gradient(180deg,#3cbfa9,#2a9d8f);box-shadow:0 4px 0 #1e7468,0 8px 16px rgba(42,157,143,.30)}
+.btn.ghost{box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.modenav button{background:#fff;border:2px solid #e3ece8;box-shadow:0 4px 0 #d5e2dc;transition:transform .12s,box-shadow .12s;border-radius:16px;padding:8px 14px}
+.modenav button:hover{transform:translateY(-2px);box-shadow:0 6px 0 #d5e2dc}
+.modenav button span{display:inline-block;font-size:1.25em;filter:drop-shadow(0 2px 1px rgba(0,0,0,.18));transition:transform .2s}
+.modenav button:hover span{transform:scale(1.18) rotate(-6deg)}
+.modenav button[aria-current="true"]{background:linear-gradient(180deg,#ffd04d,#ffb703);border-color:#f2a900;box-shadow:0 4px 0 #c98a00,0 8px 16px rgba(255,183,3,.35)}
+.tool{box-shadow:0 5px 0 #dfe7ec,0 10px 18px rgba(0,0,0,.06);border-radius:20px}
+.tool:hover{transform:translateY(-3px) rotate(-1deg)}
+.tool[aria-selected="true"]{box-shadow:0 5px 0 #c98a00,0 10px 20px rgba(255,183,3,.35)}
+.tool .ic{display:inline-block;filter:drop-shadow(0 3px 2px rgba(0,0,0,.2))}
+.litem{background:#fff;box-shadow:0 3px 0 #e1e9ee;transition:transform .12s}
+.litem:hover{transform:translateX(-3px)}
+.litem[aria-pressed="true"]{box-shadow:0 3px 0 #2a9d8f}
+.bk{background:#fff;box-shadow:0 4px 0 #dfe7ec}
+/* books on the library shelf look like real books */
+.lcard{border:0;background:transparent;box-shadow:none;overflow:visible;perspective:900px}
+.lcov{border-radius:6px 14px 14px 6px;transform:rotateY(-14deg);transform-origin:right center;transition:transform .35s cubic-bezier(.2,.8,.2,1.2),box-shadow .35s;
+  box-shadow:-6px 0 0 #fff,-7px 0 0 #d9e1e6,-11px 0 0 #fff,-12px 0 0 #d9e1e6,0 16px 26px rgba(0,0,0,.22);overflow:hidden}
+.lcov::before{content:"";position:absolute;inset:0 0 0 auto;width:16px;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,.28) 60%,rgba(255,255,255,.25));z-index:2;pointer-events:none}
+.lcov::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.35),transparent 35%);pointer-events:none;z-index:2}
+.lcard:hover .lcov{transform:rotateY(0deg) translateY(-6px) scale(1.03);box-shadow:-6px 0 0 #fff,-7px 0 0 #d9e1e6,-11px 0 0 #fff,-12px 0 0 #d9e1e6,0 24px 34px rgba(0,0,0,.25)}
+.lbody{background:#fff;border-radius:14px;margin-top:12px;box-shadow:0 4px 0 #e3eaee,0 8px 16px rgba(0,0,0,.05)}
+.lshelves button{box-shadow:0 3px 0 #dbe5ea;background:#fff}
+.lshelves button[aria-pressed=true]{box-shadow:0 3px 0 #1e7468}
+/* reading journey and games: chunky tiles */
+.rplet,.rpcard,.rpform,.rpword,.rpstage,.rpcell,.rpopt{box-shadow:0 5px 0 #dce6ec,0 10px 16px rgba(0,0,0,.06);transition:transform .15s,box-shadow .15s}
+.rplet:hover,.rpcard:hover,.rpform:hover,.rpword:hover,.rpstage:hover,.rpcell:hover,.rpopt:hover{transform:translateY(-4px) rotate(-1.5deg);box-shadow:0 8px 0 #ffd04d,0 14px 20px rgba(0,0,0,.10)}
+.rplet b,.rpbig{text-shadow:0 3px 0 rgba(47,125,225,.18)}
+.rpgame,.rpquiz,.gen{box-shadow:0 8px 24px rgba(27,94,63,.08)}
+/* the open book on the e-book page */
+.leaf{box-shadow:0 22px 44px rgba(0,0,0,.24),-5px 0 0 #fff,-6px 0 0 #cdd6dc,-10px 0 0 #fff,-11px 0 0 #cdd6dc,-15px 0 0 #fff,-16px 0 0 #cdd6dc}
+.sbtn{box-shadow:0 3px 0 rgba(0,0,0,.15)}
+/* welcome screen */
+.splash{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;background:radial-gradient(circle,#ffffff 40%,#e9f6ef);cursor:pointer;transition:opacity .45s}
+.splash img{max-width:min(86vw,560px);max-height:86vh;object-fit:contain;filter:drop-shadow(0 18px 30px rgba(27,94,63,.25));animation:splashIn .9s cubic-bezier(.2,.8,.2,1.2)}
+.splash .splashhint{position:absolute;bottom:4vh;font-weight:700;color:#2a7d4f;opacity:.8}
+.splash.out{opacity:0;pointer-events:none}
+@keyframes splashIn{from{transform:scale(.85) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.lcov,.lcard:hover .lcov{transform:none}.splash img{animation:none}}
+
 .stoptalk{position:fixed;bottom:18px;left:18px;z-index:2147483001;padding:14px 22px;border:0;border-radius:999px;background:#e63946;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback{position:fixed;top:14px;right:14px;z-index:2147483000;padding:12px 20px;border:0;border-radius:999px;background:#1d2b36;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback:hover{background:#2a9d8f}
@@ -815,7 +864,7 @@ function aiErr(e){const c=e&&e.code;
 
 /* ================= speech (voice only, no music) ================= */
 let arVoice=null;
-function vScore(v){const n=v.name||"";return (/natural|online|neural|premium|enhanced/i.test(n)?6:0)+(/google/i.test(n)?3:0)+(/hamed|zariyah|shakir|salma|maged|majed|laila|tarik|naayf|hoda|mariam/i.test(n)?2:0)+(/SA/i.test(v.lang)?1:0)}
+function vScore(v){const n=v.name||"";return (/hamed|حامد/i.test(n)?10:0)+(/natural|online|neural|premium|enhanced/i.test(n)?6:0)+(/google/i.test(n)?3:0)+(/hamed|zariyah|shakir|salma|maged|majed|laila|tarik|naayf|hoda|mariam/i.test(n)?2:0)+(/SA/i.test(v.lang)?1:0)}
 function arVoices(){try{return speechSynthesis.getVoices().filter(x=>/^ar/i.test(x.lang)).sort((a,b)=>vScore(b)-vScore(a))}catch(e){return []}}
 const goodVoice=v=>v&&vScore(v)>=3;
 function pickVoice(){const v=arVoices();arVoice=v.find(x=>x.voiceURI===S.voice)||v[0]||null;if(!$("#settings").hidden)renderDiag()}
@@ -3222,7 +3271,10 @@ let fsObs=null;function fsChanged(){const el=document.fullscreenElement||documen
 document.addEventListener("fullscreenchange",fsChanged);document.addEventListener("webkitfullscreenchange",fsChanged);
 
 /* ================= boot ================= */
-load();if(S.mode&&MODES.some(m=>m[0]===S.mode))mode=S.mode;renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
+(()=>{let seen=false;try{seen=sessionStorage.getItem("rawdaSplash")==="1";sessionStorage.setItem("rawdaSplash","1")}catch(e){}
+  if(seen)return;const d=document.createElement("div");d.className="splash";d.innerHTML='<img src="brand/identity.jpg" alt="روضة الدروس" onerror="this.parentNode.remove()"><span class="splashhint">المس للبدء</span>';
+  const go=()=>{d.classList.add("out");setTimeout(()=>d.remove(),450)};d.onclick=go;document.body.appendChild(d);setTimeout(go,2600)})();
+load();if(!S.vHamed){if(!S.voiceMode||S.voiceMode==="auto")S.voiceMode="edge-hamed";S.vHamed=1;save()}if(S.mode&&MODES.some(m=>m[0]===S.mode))mode=S.mode;renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
 aiInit.then(()=>{renderSide()});
 loadSharedBrand();
 try{Object.assign(ePg,S.ePg||{})}catch(e){}
