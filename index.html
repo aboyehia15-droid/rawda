@@ -679,6 +679,7 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
   <div class="brand"><span id="brandMark"></span><div><h1>روضة الدروس</h1><div class="small muted" id="brandSchool"></div></div></div>
   <button class="stars" id="stars" title="نجوم الصف">⭐ ٠</button>
   <label class="btn primary" for="file">📚 رفع كتب</label>
+  <button class="btn green" id="updBtn" title="تحديث البرنامج والكتب والأصوات والتطبيق">🔄 تحديث البرنامج</button>
   <button class="btn ghost" id="setBtn">⚙️ المدرسة والشعار</button>
   <span class="brandleft" id="brandLeft" hidden></span>
   <nav class="modenav" id="modeNav" aria-label="أقسام البرنامج"></nav>
@@ -913,6 +914,14 @@ async function loadSharedBrand(){try{const r=await fetch("brand/brand.json",{cac
   if(ch||!B.logo){B.logo=await composeLogos(B.logoR,B.logoL)}save();renderBrand()}catch(e){}}
 function brandBadge(){const B=S.brand;if(!B.logo&&!B.school)return "";return `<div class="badge">${B.logo?`<img src="${B.logo}" alt="">`:""}${B.school?`<span>${esc(B.school)}</span>`:""}</div>`}
 let draftLogo2=null;function showLogoPrev(){$("#sLogoPrev").innerHTML=draftLogo?`<img src="${draftLogo}" alt="الشعار">`:"لا يوجد شعار";const p2=$("#sLogoPrev2");if(p2)p2.innerHTML=draftLogo2?`<img src="${draftLogo2}" alt="الشعار">`:"لا يوجد شعار"}
+$("#updBtn").onclick=async()=>{const b=$("#updBtn");b.disabled=true;b.textContent="⏳ جارٍ التحديث…";
+  try{saveNow()}catch(e){}
+  if(window.RawdaAndroid&&RawdaAndroid.updateNow){try{RawdaAndroid.updateNow();return}catch(e){}}
+  try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}
+  try{if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.update().catch(()=>{})))}}catch(e){}
+  try{await Promise.all(["manifest.webmanifest","icon-v2-192.png","icon-v2-512.png","brand/brand.json","noorania/map.json"].map(u=>fetch(u,{cache:"reload"}).catch(()=>{})))}catch(e){}
+  if(!window.claude){location.replace(location.pathname+"?v="+Date.now());return}
+  try{nrMap=null;nrMapP=null;nrUC={}}catch(e){}try{syncShared(true)}catch(e){}b.disabled=false;b.textContent="🔄 تحديث البرنامج";flash("✓ تم التحديث","ok")};
 $("#setBtn").onclick=()=>{const B=S.brand;$("#sSchool").value=B.school;$("#sTeacher").value=B.teacher;draftLogo=B.logoR||(!B.logoL?B.logo:"")||"";draftLogo2=B.logoL||"";$("#sLayout").value=B.layout||"sides";showLogoPrev();$("#sRate").value=S.rate||.85;$("#settings").hidden=false;renderDiag()};
 function renderDiag(){const vs=arVoices();
   $("#diag").innerHTML=[`${sample?"✅":"❌"} القراءة الذكية والتحضير: ${sample?"متاحة":esc(aiReason()||"جارٍ الفحص…")}`,

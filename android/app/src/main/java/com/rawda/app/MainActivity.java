@@ -247,7 +247,10 @@ public class MainActivity extends Activity {
         try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; } catch (Exception e) { return 0; }
     }
 
-    void checkForUpdate() {
+    void checkForUpdate() { checkForUpdate(false); }
+
+    /** manual = the teacher pressed «تحديث البرنامج»: install right away, and say so when already up to date */
+    void checkForUpdate(boolean manual) {
         new Thread(() -> {
             try {
                 HttpURLConnection c = (HttpURLConnection) new URL(RELEASES).openConnection();
@@ -259,11 +262,12 @@ public class MainActivity extends Activity {
                 JSONObject rel = new JSONObject(sb.toString());
                 String tag = rel.optString("tag_name", "");
                 int latest = Integer.parseInt(tag.replaceAll("[^0-9]", "").isEmpty() ? "0" : tag.replaceAll("[^0-9]", ""));
-                if (latest <= myVersion()) return;
+                if (latest <= myVersion()) { if (manual) runOnUiThread(() -> Toast.makeText(MainActivity.this, "التطبيق على أحدث نسخة، وتم تحديث محتوى البرنامج", Toast.LENGTH_LONG).show()); return; }
                 String url = null;
                 JSONArray assets = rel.optJSONArray("assets");
                 if (assets != null) for (int i = 0; i < assets.length(); i++) { JSONObject a = assets.getJSONObject(i); if (a.optString("name").endsWith(".apk")) url = a.optString("browser_download_url"); }
                 if (url == null) return;
+                if (manual) { final String mu = url; runOnUiThread(() -> startUpdate(mu)); return; }
                 SharedPreferences sp = getSharedPreferences("rawda", MODE_PRIVATE);
                 if (tag.equals(sp.getString("later_tag", "")) && System.currentTimeMillis() - sp.getLong("later_at", 0) < 24L * 3600 * 1000) return;
                 final String u = url, t = tag;
@@ -276,7 +280,7 @@ public class MainActivity extends Activity {
                             .setNegativeButton("لاحقًا", (d, w) -> sp.edit().putString("later_tag", t).putLong("later_at", System.currentTimeMillis()).apply())
                             .show();
                 });
-            } catch (Exception ignored) { }
+            } catch (Exception e) { if (manual) runOnUiThread(() -> Toast.makeText(MainActivity.this, "تعذّر فحص تحديث التطبيق، تأكد من الإنترنت", Toast.LENGTH_LONG).show()); }
         }).start();
     }
 
@@ -361,6 +365,19 @@ public class MainActivity extends Activity {
             if (!ttsReady) { synchronized (ttsQueue) { ttsQueue.add(q); } return; }
             speakNow(q);
         }
+
+        /** «تحديث البرنامج»: fresh content (no stored copies), then the newest app version if there is one */
+        @JavascriptInterface
+        public void updateNow() {
+            runOnUiThread(() -> {
+                try { web.clearCache(true); } catch (Exception ignored) { }
+                web.loadUrl(HOME + (HOME.contains("?") ? "&" : "?") + "v=" + System.currentTimeMillis());
+                checkForUpdate(true);
+            });
+        }
+
+        @JavascriptInterface
+        public int appVersion() { return myVersion(); }
 
         @JavascriptInterface
         public void stop() { if (tts != null) tts.stop(); synchronized (ttsQueue) { ttsQueue.clear(); } }
