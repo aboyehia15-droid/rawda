@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f7a45"><title>روضة الدروس</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-v3-192.png" type="image/png"><link rel="apple-touch-icon" href="icon-v3-512.png"><style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0}</style></head><body>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f7a45"><title>روضة الدروس</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-v4-192.png" type="image/png"><link rel="apple-touch-icon" href="icon-v4-512.png"><style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0}</style></head><body>
 <script>
 /* inside the Android app: speak Arabic with the device's own voice, since the app window has no browser voice */
 if(window.RawdaAndroid){(function(){var A=window.RawdaAndroid,cbs={},n=0,V=[];
@@ -924,7 +924,7 @@ $("#updBtn").onclick=async()=>{const b=$("#updBtn");b.disabled=true;b.textConten
   if(window.RawdaAndroid&&RawdaAndroid.updateNow){try{RawdaAndroid.updateNow();return}catch(e){}}
   try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}
   try{if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.update().catch(()=>{})))}}catch(e){}
-  try{await Promise.all(["manifest.webmanifest","icon-v3-192.png","icon-v3-512.png","brand/brand.json","noorania/map.json"].map(u=>fetch(u,{cache:"reload"}).catch(()=>{})))}catch(e){}
+  try{await Promise.all(["manifest.webmanifest","icon-v4-192.png","icon-v4-512.png","brand/brand.json","noorania/map.json"].map(u=>fetch(u,{cache:"reload"}).catch(()=>{})))}catch(e){}
   if(!window.claude){location.replace(location.pathname+"?v="+Date.now());return}
   try{nrMap=null;nrMapP=null;nrUC={}}catch(e){}try{syncShared(true)}catch(e){}b.disabled=false;b.textContent="🔄 تحديث البرنامج";flash("✓ تم التحديث","ok")};
 $("#setBtn").onclick=()=>{const B=S.brand;$("#sSchool").value=B.school;$("#sTeacher").value=B.teacher;draftLogo=B.logoR||(!B.logoL?B.logo:"")||"";draftLogo2=B.logoL||"";$("#sLayout").value=B.layout||"sides";showLogoPrev();$("#sRate").value=S.rate||.85;$("#settings").hidden=false;renderDiag()};
