@@ -1062,7 +1062,7 @@ async function bgYield(){await new Promise(r=>setTimeout(r,30));let n=0;while((D
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=()=>res();sc.onerror=()=>rej(new Error("tess"));document.head.appendChild(sc)})}
 /* ===== only real writing is read aloud: letters by name, numbers as words, no OCR noise ===== */
 const AR_RE=/[ء-ي]/g, LAT_RE=/[A-Za-z]/g;
-function textOK(t){t=String(t||"").normalize("NFKC");if(!t.trim())return false;if(/[-�]/.test(t))return false;
+function textOK(t){t=String(t||"").normalize("NFKC");if(!t.trim())return false;if(/[\uE000-\uF8FF\uFFFD]/.test(t))return false;
   const ch=t.replace(/\s/g,"");if(!ch.length)return false;const ar=(ch.match(AR_RE)||[]).length,lat=(ch.match(LAT_RE)||[]).length,dig=(ch.match(/[0-9٠-٩]/g)||[]).length,hr=(ch.match(/[ً-ْٰ]/g)||[]).length;
   const good=ar+lat+dig+hr+(ch.match(/[.,،؛:!?؟\-()«»"']/g)||[]).length;if(good/ch.length<.75)return false;
   return true}
