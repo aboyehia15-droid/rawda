@@ -12,14 +12,14 @@ jobs:
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
-        with: {sparse-checkout: "tools\n.github\nq/h/index.json"}
+        with: {sparse-checkout: "tools\n.github\nq/t"}
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
       - run: python3 tools/make_recitation.py
       - name: commit
         if: always()
         run: |
           git config user.name "aboyehia15-droid"; git config user.email "aboyehia15-droid@users.noreply.github.com"
-          git add tools/recite-log.txt q/t 2>/dev/null || true
+          git add --sparse tools/recite-log.txt q/t || git add tools/recite-log.txt q/t
           git diff --cached --quiet && exit 0
           git commit -m "تلاوة المنشاوي المعلم للأطفال: الفاتحة والأجزاء ٢٨–٣٠"
           git pull --rebase -q origin main; git push
