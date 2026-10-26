@@ -892,14 +892,14 @@ if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pick
 let warnedVoice=false,warnedNoAr=false;
 async function playRec(k){const b=await VDB.get(k);if(!b)return false;stopSpeak();const a=new Audio(URL.createObjectURL(b));curAudio=a;
   await new Promise(r=>{a.onended=a.onerror=r;a.play().catch(r)});return true}
-function useSharedClip(k){const m=S.voiceMode||"auto";if(!(S.sharedVoiceKeys||[]).includes(k))return true;if(m==="device")return !arVoice;if(m==="auto")return !goodVoice(arVoice);return true}
+function useSharedClip(k){if((S.voicePacks||{})["edge-hamed"])return true;const m=S.voiceMode||"auto";if(!(S.sharedVoiceKeys||[]).includes(k))return true;if(m==="device")return !arVoice;if(m==="auto")return !goodVoice(arVoice);return true}
 function defaultPack(){const ids=Object.keys(S.voicePacks||{});const ed=ids.filter(i=>/^edge-/i.test(i));const gem=ids.filter(i=>/^gemini-/i.test(i));return ed.find(i=>/hamed/i.test(i))||ed[0]||gem.find(i=>/kore/i.test(i))||gem[0]||ids[0]||null}
-function packFor(k){const P=S.voicePacks||{};const m=S.voiceMode||"auto";if(m==="device"&&arVoice)return null;let id=P[m]?m:null;if(!id){if(m==="auto"&&goodVoice(arVoice))return null;id=defaultPack()}if(!id)return null;if(packHas(id,k))return id;return Object.keys(P).find(x=>packHas(x,k))||null}
+function packFor(k){if((S.voicePacks||{})["edge-hamed"])return packHas("edge-hamed",k)?"edge-hamed":null;const P=S.voicePacks||{};const m=S.voiceMode||"auto";if(m==="device"&&arVoice)return null;let id=P[m]?m:null;if(!id){if(m==="auto"&&goodVoice(arVoice))return null;id=defaultPack()}if(!id)return null;if(packHas(id,k))return id;return Object.keys(P).find(x=>packHas(x,k))||null}
 let packStrip={};const stripK=t=>recKey(t).replace(/[ً-ْٰـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");
 function packFind(id,t){const k=recKey(t);if(packHas(id,k))return k;const P=(S.voicePacks||{})[id];if(!P)return null;if(!packStrip[id]){const m={};(P.keys||[]).forEach(x=>{const s2=stripK(x);if(!(s2 in m))m[s2]=x});packStrip[id]=m}return packStrip[id][stripK(t)]||null}
 function packSeq(id,t){const out=[];for(const ph of String(t).split(/[،,.؛;:!؟?\n]+/).map(x=>x.trim()).filter(Boolean)){const k=packFind(id,ph);if(k){out.push(k);continue}
     for(const w of ph.split(/\s+/).filter(Boolean)){const kw=packFind(id,w.replace(/[^ء-يً-ْٰ]/g,""));if(!kw)return null;out.push(kw)}}return out.length?out:null}
-function packVoice(){const m=S.voiceMode||"auto";const P=S.voicePacks||{};if(m==="device")return null;if(P[m])return m;if(m==="auto"&&goodVoice(arVoice))return null;return defaultPack()}
+function packVoice(){const P=S.voicePacks||{};return P["edge-hamed"]?"edge-hamed":defaultPack()}
 function speak(t,rate=.85){const k=recKey(t);if(recKeys.has(k)&&useSharedClip(k))return playRec(k).then(()=>{});const pid=packFor(k);if(pid)return playRec(pid+PK+k).then(()=>{});
   {const pv=packVoice();if(pv&&t){const seq=packSeq(pv,t);if(seq){const tok={};speak.tok=tok;return seq.reduce((pr,x)=>pr.then(()=>speak.tok===tok?playRec(pv+PK+x):0),Promise.resolve()).then(()=>{})}}}if(!arVoice&&t)return speakOnline(t,rate);return new Promise(res=>{if(!t||!("speechSynthesis" in window))return res();
   if(!goodVoice(arVoice)&&!warnedVoice){warnedVoice=true;flash(arVoice?"صوت الجهاز العربي ضعيف. لصوت أوضح افتح ⚙️ وطالع «الصوت»، أو سجّل صوتك من أداة الحرف والحركات.":"لا يوجد صوت عربي في هذا الجهاز. افتح ⚙️ لمعرفة الحل، أو سجّل صوتك من أداة الحرف والحركات.","err")}
@@ -2578,12 +2578,13 @@ function renderSettingsView(h){const B=S.brand||{};
     <div class="setc"><h3>📚 المكتبة</h3><p class="small muted">الكتب المشتركة تنزل وحدها من GitHub إلى كل الشاشات.</p><div class="row"><button class="btn" id="stLib">فتح المكتبة</button><button class="btn ghost" id="stBackup">💾 حفظ نسخة احتياطية</button></div></div>
     <div class="setc"><h3>🖥️ العرض</h3><label class="check"><input type="checkbox" id="stSplash" ${S.noSplash?"":"checked"}> شاشة الترحيب بالشعار عند الفتح</label></div>
    </div>
-   <div class="setc wide"><h3>🔊 الصوت</h3><p class="small">${Object.values(S.voicePacks||{}).map(P=>`${esc(P.name)}: ${ar(P.n||0)} مقطعًا على هذه الشاشة`).join(" · ")||"لم تنزل الأصوات المشتركة على هذه الشاشة بعد."}</p><div class="row"><button class="btn green" id="stVoiceNow">⬇️ تنزيل صوت حامد الآن</button></div><div id="stVoices"></div></div></section>`;
+   <div class="setc wide"><h3>🔊 الصوت</h3><p class="small">${Object.values(S.voicePacks||{}).map(P=>`${esc(P.name)}: ${ar(P.n||0)} مقطعًا على هذه الشاشة`).join(" · ")||"لم تنزل الأصوات المشتركة على هذه الشاشة بعد."}</p><div class="row"><button class="btn green" id="stVoiceNow">⬇️ تنزيل صوت حامد الآن</button><button class="btn ghost" id="stTry">▶ تجربة صوت حامد</button></div><details class="vadv"><summary class="small">خيارات متقدمة (تسجيل صوتك بنفسك)</summary><div id="stVoices"></div></details></div></section>`;
   const g=x=>h.querySelector(x);g("#stBrand").onclick=()=>$("#setBtn").click();g("#stUpd").onclick=()=>$("#updBtn").click();const si=g("#stInst");if(si)si.onclick=()=>$("#instBtn").click();
   g("#stNrPtr").onchange=e=>{S.nrPtrOff=!e.target.checked;save()};g("#stNrTap").onchange=e=>{S.nrTap=e.target.checked?"one":"cont";save()};
   g("#stLib").onclick=()=>{mode="library";renderNav();renderMain()};g("#stBackup").onclick=()=>$("#backupBtn").click();g("#stSplash").onchange=e=>{S.noSplash=!e.target.checked;save()};
   g("#stVoiceNow").onclick=async e=>{const b=e.target;b.disabled=true;b.textContent="⏳ جارٍ التنزيل… لا تغلق البرنامج";S.sharedVoices={};try{await syncVoices()}catch(x){}if(S.voicePacks&&S.voicePacks["edge-hamed"])S.voiceMode="edge-hamed";save();renderSettingsView(h);flash("✓ صوت حامد جاهز على هذه الشاشة","ok")};
-  renderVoicesView(g("#stVoices"))}
+  g("#stTry").onclick=()=>speak("أَحْسَنْتَ يَا بَطَل");
+  renderVoicesView(g("#stVoices"));const vp=h.querySelector(".vpick");if(vp)vp.remove()}
 function renderMode(){const h=$("#modeView");if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
@@ -2608,7 +2609,7 @@ const isBookFile=n=>/\.(pdf|png|jpe?g|webp|gif)$/i.test(n);
 async function syncVoices(){
   try{S.sharedVoices=S.sharedVoices||{};const vs=(await ghList("voices")).filter(x=>x.type==="file"&&/\.json$/i.test(x.name));
       {const live=new Set(vs.map(x=>x.path));for(const [pid,P] of Object.entries(S.voicePacks||{})){if(P.path&&!live.has(P.path)){for(const k of (P.keys||[]))await VDB.del(pid+PK+k).catch(()=>{});delete S.voicePacks[pid];delete S.sharedVoices[P.path];if(S.voiceMode===pid)S.voiceMode="auto";packSets={}}}}
-      for(const v of vs){if(S.sharedVoices[v.path]===v.sha)continue;syncMsg=`تجهيز الحزمة الصوتية «${v.name}»…`;if(mode==="library")renderMain();
+      for(const v of vs){if(!/edge-hamed/.test(v.path)){const pid=v.name.replace(/\.json$/i,"");if(S.voicePacks&&S.voicePacks[pid]){for(const k of (S.voicePacks[pid].keys||[]))await VDB.del(pid+PK+k).catch(()=>{});delete S.voicePacks[pid];packSets={};packStrip={}}continue}if(S.sharedVoices[v.path]===v.sha)continue;syncMsg=`تجهيز الحزمة الصوتية «${v.name}»…`;if(mode==="library")renderMain();
         const d=await (await fetch(v.download_url,{cache:"no-store"})).json();if(d&&d.format==="rawda-voice-pack"){const pid=String(d.id||("p"+hashStr(v.path)));S.voicePacks=S.voicePacks||{};const keys=[];for(const [k,it] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(it.b64),c=>c.charCodeAt(0));await VDB.set(pid+PK+k,new Blob([bin],{type:it.type})).catch(()=>{});keys.push(k)}
           S.voicePacks[pid]={name:d.voice||v.name.replace(/\.json$/i,""),label:d.label||"",keys,path:v.path,n:keys.length};packSets={};packStrip={};
           if((S.sharedVoiceKeys||[]).length){for(const k of S.sharedVoiceKeys){await VDB.del(k).catch(()=>{});recKeys.delete(k)}S.sharedVoiceKeys=[]}
@@ -3380,7 +3381,7 @@ document.addEventListener("fullscreenchange",fsChanged);document.addEventListene
   if(seen)return;const d=document.createElement("div");d.className="splash";d.innerHTML='<img src="brand/identity.jpg" alt="روضة الدروس" onerror="this.parentNode.remove()"><span class="splashhint">المس للبدء</span>';
   const go=()=>{d.classList.add("out");setTimeout(()=>d.remove(),450)};d.onclick=go;document.body.appendChild(d);setTimeout(go,2600)})();
 try{nrLoadMap()}catch(e){}zadLoad().then(()=>{try{renderSide();if(mode==="lesson")renderMain()}catch(e){}});
-load();if(!S.vHamed){if(!S.voiceMode||S.voiceMode==="auto")S.voiceMode="edge-hamed";S.vHamed=1;save()}if(S.mode&&MODES.some(m=>m[0]===S.mode))mode=S.mode;renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
+load();S.voiceMode="edge-hamed";if(!S.vHamed){S.vHamed=1;save()}if(S.mode&&MODES.some(m=>m[0]===S.mode))mode=S.mode;renderBrand();renderStars();renderNav();renderSide();renderMain();$("#stars").onclick=()=>{flash(`⭐ نجوم الصف: ${ar(S.stars||0)}`,"ok");speak(`مَعَنَا ${numWords(S.stars||0)} نُجُوم`)};
 aiInit.then(()=>{renderSide()});
 loadSharedBrand();
 try{Object.assign(ePg,S.ePg||{})}catch(e){}

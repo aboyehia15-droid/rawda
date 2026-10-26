@@ -6,10 +6,7 @@ import json, sys, math
 cells = json.load(open(sys.argv[1])); sync = json.load(open(sys.argv[2])); out = sys.argv[3]
 # headings the detector missed: page -> (row index, how the row splits into heading + text)
 def split_rows(pg, rows):
-    rows = [list(r) for r in rows]
-    if pg == 24 and len(rows) > 6 and rows[6][0][0] != 'H':
-        x, y, w, h = rows[6][0]; rows[6:7] = [[['H', x, y, w, h / 2]], [[x, y + h / 2, w, h / 2]]]
-    return rows
+    return [list(r) for r in rows]
 LAST_ROWS = {29: 4}
 units = [[] for _ in range(17)]; cur = 0; first = True
 for pg in range(7, 30):
@@ -192,6 +189,7 @@ WFILE = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), "noorania_wo
 def nw(t):
     t = norm(t).replace("ى", "ي").replace("ة", "ه").replace("ؤ", "ء").replace("ئ", "ء").replace("آ", "ا")
     return re.sub(r"[^ء-ي]", "", t)
+FIRST = {'ا': ('همز', 'هم', 'حمز'), 'ء': ('همز', 'هم', 'حمز'), 'ب': ('با', 'بى'), 'ت': ('تا', 'تى'), 'ث': ('ثا',), 'ج': ('جيم', 'جي'), 'ح': ('حا', 'حى'), 'خ': ('خا', 'خى'), 'د': ('دال', 'دا'), 'ذ': ('ذال', 'ذا'), 'ر': ('را', 'رى'), 'ز': ('زا', 'زى', 'زاي'), 'س': ('سين',), 'ش': ('شين',), 'ص': ('صاد',), 'ض': ('ضاد',), 'ط': ('طا', 'طى'), 'ظ': ('ظا',), 'ع': ('عين',), 'غ': ('غين',), 'ف': ('فا', 'فى'), 'ق': ('قاف', 'قا'), 'ك': ('كاف', 'كا'), 'ل': ('لام', 'لا'), 'م': ('ميم', 'مين'), 'ن': ('نون',), 'ه': ('ها', 'هى'), 'و': ('واو', 'وا'), 'ي': ('يا', 'يى')}
 if os.path.exists(WFILE):
     WORDS = json.load(open(WFILE))
     TITLE = ("الدرس", "تدريب", "عشر", "الاخير", "التاسع", "الحادي", "الثالث", "الرابع", "الخامس", "السادس", "سبق", "الشده", "الشدتين", "كلمه", "السكون", "السقون", "التنوين", "المد", "الثلاثه", "اللين", "الين", "وحرفي", "واحرف", "على", "مع", "في")
@@ -225,11 +223,44 @@ if os.path.exists(WFILE):
             if a > 40: break
             if any(t.startswith(nw(x)) or nw(x) in t for x in TITLE): tend = q
             elif q > tend + 2: break
+        # the sheikh reads the whole word last (after spelling it): take the last reading of it,
+        # also when the transcript split it in two ("أخا ذا" = أَخَذَ), and never cross the next word's spelling
+        for q in range(B):
+            if match[q] is None: continue
+            lim = next((match[r] for r in range(q + 1, B) if match[r] is not None), T)
+            j = match[q] + 1; best = match[q]
+            nxt = tw[q + 1][:1] if q + 1 < B else ""
+            stops = FIRST.get(nxt, ())
+            while j < lim:
+                tj = toks[j][2]
+                if q + 1 < B and (tj.startswith(tuple(stops)) or sim(tw[q + 1], tj) >= .75): break
+                sc1 = sim(tw[q], toks[j][2]); sc2 = sim(tw[q], toks[j][2] + toks[j + 1][2]) if j + 1 < lim else 0
+                if sc2 >= .7 and sc2 > sc1: best = j + 1; j += 2; continue
+                if sc1 >= .6: best = j
+                j += 1
+            match[q] = best
         ends = [toks[m][1] if m is not None else None for m in match]
         starts = [None] * B
         for q in range(B):
             prev = match[q - 1] if q and match[q - 1] is not None else (tend if q == 0 else None)
-            if prev is not None and prev + 1 < T: starts[q] = toks[prev + 1][0]
+            if prev is not None and prev + 1 < T:
+                starts[q] = toks[prev + 1][0]
+                # the box starts where the sheikh begins spelling this word (its first letter's name)
+                st_ = FIRST.get(tw[q][:1], ())
+                hi_ = match[q] if match[q] is not None else min(T - 1, prev + 12)
+                for j in range(prev + 1, hi_ + 1):
+                    if toks[j][2].startswith(tuple(st_)) or sim(tw[q], toks[j][2]) >= .7: starts[q] = toks[j][0]; break
+        # a word the transcript did not catch: it starts where the sheikh names its first letter
+        tix = {round(t[0], 3): j for j, t in enumerate(toks)}
+        for q in range(B):
+            if starts[q] is not None: continue
+            lo_ = tix.get(round(starts[q - 1], 3), tend) + 1 if q and starts[q - 1] is not None else tend + 1
+            hi_ = next((match[r] for r in range(q + 1, B) if match[r] is not None), T - 1)
+            st_ = FIRST.get(tw[q][:1], ())
+            for j in range(lo_ + 1, hi_ + 1):
+                if toks[j][2].startswith(tuple(st_)): starts[q] = toks[j][0]; break
+            if starts[q] is not None and q and ends[q - 1] is None:
+                ends[q - 1] = starts[q] - .05
         # boxes not heard in the transcript: share the time between their neighbours by word length
         q = 0
         while q < B:
