@@ -1,0 +1,25 @@
+name: تلاوة المنشاوي المعلم
+on:
+  push:
+    branches: [main]
+    paths: ['tools/recite.txt']
+  workflow_dispatch:
+concurrency: {group: recite, cancel-in-progress: true}
+permissions: {contents: write}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with: {sparse-checkout: "tools\n.github\nq/h/index.json"}
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+      - run: python3 tools/make_recitation.py
+      - name: commit
+        if: always()
+        run: |
+          git config user.name "aboyehia15-droid"; git config user.email "aboyehia15-droid@users.noreply.github.com"
+          git add tools/recite-log.txt q/t 2>/dev/null || true
+          git diff --cached --quiet && exit 0
+          git commit -m "تلاوة المنشاوي المعلم للأطفال: الفاتحة والأجزاء ٢٨–٣٠"
+          git pull --rebase -q origin main; git push
