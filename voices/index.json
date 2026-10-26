@@ -1,0 +1,20 @@
+[
+ {
+  "name": "edge-hamed.json",
+  "path": "voices/edge-hamed.json",
+  "sha": "d1caa8c2e534c37708bf290390e870d8124dc5cb",
+  "size": 41170795
+ },
+ {
+  "name": "edge-zariyah.json",
+  "path": "voices/edge-zariyah.json",
+  "sha": "760794f223f960c73cc4248e0d42d86d4f0f5efa",
+  "size": 2439309
+ },
+ {
+  "name": "piper-kareem.json",
+  "path": "voices/piper-kareem.json",
+  "sha": "1b53ecb5c8e3e01335c106ca12a9d9ca9d65dad0",
+  "size": 2186331
+ }
+]

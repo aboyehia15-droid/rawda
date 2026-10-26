@@ -249,6 +249,25 @@ if os.path.exists(WFILE):
                 [[round(starts[q], 2), round(max(ends[q], starts[q] + .3), 2), U[q + 1]["pg"]] + U[q + 1]["box"] for q in range(B)]
         heard = sum(1 for m in match if m is not None)
         print(f"lesson {ks}: matched {heard} of {B} words by text; title ends {starts[0]:.1f}s")
+# never start or end a box in the middle of a spoken word
+for ks in ["6", "9", "11", "13", "14", "15", "16", "17"]:
+    U = M.get(ks); asr = os.path.join(os.path.dirname(out), "asr", f"asr-{ks}.json")
+    if not U or not os.path.exists(asr): continue
+    W_ = [w for sg in json.load(open(asr))["segs"] for w in sg["w"] if w[1] - w[0] > .05]
+    moved = 0
+    for i in range(1, len(U)):
+        t = U[i][0]
+        for w0, w1, _ in W_:
+            if w0 + .04 < t < w1 - .04:
+                nt = round(w0 - .04, 2) if (t - w0) < (w1 - t) else round(w1 + .02, 2)
+                if U[i - 1][0] + .2 < nt < (U[i + 1][0] - .2 if i + 1 < len(U) else 1e9): U[i][0] = nt; moved += 1
+                break
+    for i in range(len(U)):
+        nx = U[i + 1][0] if i + 1 < len(U) else None
+        if nx is not None and U[i][1] > nx: U[i][1] = round(nx - .02, 2)
+        for w0, w1, _ in W_:
+            if w0 + .04 < U[i][1] < w1 - .04 and (nx is None or w1 < nx): U[i][1] = round(w1 + .02, 2); break
+    print(f"lesson {ks}: {moved} box starts moved off mid-word")
 import time
 M["_v"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
 json.dump(M, open(out, "w"), separators=(",", ":"))

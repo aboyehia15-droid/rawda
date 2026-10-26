@@ -39,7 +39,8 @@ jobs:
         run: |
           git config user.name "aboyehia15-droid"
           git config user.email "aboyehia15-droid@users.noreply.github.com"
-          git add voices/*.json
+          python3 tools/make_index.py
+          git add voices/*.json books/index.json 2>/dev/null || git add voices/*.json
           git diff --cached --quiet && exit 0
           git commit -m "الحزمة الصوتية العربية (تُستورد تلقائيًا على كل الشاشات)"
           git pull --rebase -q origin main

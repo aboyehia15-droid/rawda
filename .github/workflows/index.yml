@@ -1,0 +1,20 @@
+name: فهرس الكتب والأصوات
+on:
+  push:
+    branches: [main]
+    paths: ['books/**', 'voices/**', 'tools/make_index.py']
+  workflow_dispatch:
+concurrency: {group: index, cancel-in-progress: false}
+permissions: {contents: write}
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/make_index.py
+      - run: |
+          git config user.name "aboyehia15-droid"; git config user.email "aboyehia15-droid@users.noreply.github.com"
+          git add books/index.json voices/index.json
+          git diff --cached --quiet && exit 0
+          git commit -m "فهرس الكتب والأصوات"
+          git pull --rebase -q origin main; git push
