@@ -2072,11 +2072,12 @@ const kFull=(r,s)=>r==="mine"?"q"+s:`q${r}|${s}`, kAy=(r,s,a)=>r==="mine"?`a${s}
 const range=(a,b)=>Array.from({length:b-a+1},(_,k)=>a+k);
 const QBUNDLE=[{id:"b-husary",d:"h",n:"محمود خليل الحصري — المصحف المعلم",t:"الفاتحة + قد سمع وتبارك وعمّ",ss:[1,...range(58,114)]},
  {id:"b-minshawi",d:"m",n:"محمد صديق المنشاوي — مرتّل",t:"الفاتحة + قد سمع وتبارك وعمّ",ss:[1,...range(58,114)]},
- {id:"b-alafasy",d:"a",n:"مشاري راشد العفاسي — مرتّل",t:"الفاتحة + قد سمع وتبارك وعمّ",ss:[1,...range(58,114)]}];
-const bundleOf=r=>QBUNDLE.find(b=>b.id===r);
+ {id:"b-alafasy",d:"a",n:"مشاري راشد العفاسي — مرتّل",t:"الفاتحة + قد سمع وتبارك وعمّ",ss:[1,...range(58,114)]},
+ {id:"b-minshawi-t",d:"t",n:"محمد صديق المنشاوي — المصحف المعلم للأطفال",t:"الفاتحة + قد سمع وتبارك وعمّ",ss:[1,...range(58,114)]}];
+const bundleOf=r=>QBUNDLE.find(b=>b.id===r);const QBOK={};QBUNDLE.forEach(b=>{if(b.d==="t")fetch("q/t/index.json",{cache:"no-cache"}).then(r=>{QBOK[b.id]=r.ok}).catch(()=>{QBOK[b.id]=false})});const qbHas=b=>b.d!=="t"||QBOK[b.id]===true;
 const QBIDX={};function bundleIdx(r){const b=bundleOf(r);if(!b)return Promise.reject();if(QBIDX[r])return QBIDX[r];QBIDX[r]=fetch(`q/${b.d}/index.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).catch(()=>localData().then(D=>D.idx[b.d])).catch(e=>{delete QBIDX[r];throw e});return QBIDX[r]}
 const bundleUrl=(r,s)=>`q/${bundleOf(r).d}/${String(s).padStart(3,"0")}.mp3`;
-function recsFor(s){const L=qlib();return [...QBUNDLE.filter(b=>b.ss.includes(s)).map(b=>b.id),...Object.keys(L).filter(r=>L[r].full&&L[r].full[s]||arr(L[r].ay&&L[r].ay[s]).length)]}
+function recsFor(s){const L=qlib();return [...QBUNDLE.filter(b=>b.ss.includes(s)&&qbHas(b)).map(b=>b.id),...Object.keys(L).filter(r=>L[r].full&&L[r].full[s]||arr(L[r].ay&&L[r].ay[s]).length)]}
 const hasAudio=s=>recsFor(s).length>0;
 function recName(r){const b=bundleOf(r);if(b)return b.n;const L=qlib();return (L[r]&&L[r].n)||"تلاوة"}
 /* read a ZIP file in the browser (stored or deflated entries) */
@@ -2127,7 +2128,7 @@ function recFromSel(v){if(v.startsWith("pk:")){const p=QPACKS.find(x=>"pk:"+x.re
 function juzFilter(v){if(v==="all"||!v)return null;if(v==="amma")return (s,a)=>juzOf(s,a)>=30;if(v==="last3")return (s,a)=>juzOf(s,a)>=28;if(v==="fatiha-amma")return (s,a)=>s===1||juzOf(s,a)>=30;const j=+v;return (s,a)=>juzOf(s,a)===j}
 function sheikhPickerHTML(){const L=qlib();const cur=S.qLastRec&&(bundleOf(S.qLastRec)||L[S.qLastRec])?S.qLastRec:QBUNDLE[0].id;
   const btn=(id,n,t)=>`<button data-sh="${id}" aria-pressed="${cur===id}"><b>${esc(n)}</b><small>${esc(t)}</small></button>`;
-  return `<div class="qsheikh"><b>🎙️ اختر الشيخ:</b>${QBUNDLE.map(b=>btn(b.id,b.n,"جاهز: "+b.t)).join("")}${Object.keys(L).map(r=>btn(r,L[r].n,"تلاوات مرفوعة")).join("")}
+  return `<div class="qsheikh"><b>🎙️ اختر الشيخ:</b>${QBUNDLE.filter(qbHas).map(b=>btn(b.id,b.n,"جاهز: "+b.t)).join("")}${Object.keys(L).map(r=>btn(r,L[r].n,"تلاوات مرفوعة")).join("")}
     <span class="small muted" style="flex-basis:100%">ثم اختر الجزء والسورة: يبدأ صوت الشيخ مباشرة بلا تحميل، ويتحرك المؤشر مع كل آية، في «السورة كاملة» أو «آية آية».</span></div>`}
 let qlUp=null;
 function libPanelHTML(){const L=qlib();const recs=Object.keys(L);
