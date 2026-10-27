@@ -345,6 +345,31 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
 @keyframes splashIn{from{transform:scale(.85) translateY(20px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.lcov,.lcard:hover .lcov{transform:none}.splash img{animation:none}}
 
+.pggame.new{background:linear-gradient(180deg,#e0f7ff,#a5e3ff);box-shadow:0 5px 0 #5bb8de}
+.arwrap{display:grid;gap:8px}.arbar{display:flex;align-items:center;gap:10px;font-size:1.2rem;flex-wrap:wrap}.artg{font-family:"Amiri",serif;font-size:2.4rem;color:#e63946;margin:0 6px}.arpic{font-size:2.6rem;margin:0 6px}.arscore{font-size:1.3rem;background:#fff;padding:4px 14px;border-radius:999px;box-shadow:0 3px 0 #dce6ec}
+.arfield{position:relative;height:min(62vh,520px);border-radius:22px;overflow:hidden;touch-action:manipulation}
+.sea .arfield{background:linear-gradient(180deg,#bfe9ff 0%,#5cc3f2 22%,#1b8fd1 70%,#0b5f99 100%)}.arwave{position:absolute;inset:16% 0 auto;height:30px;background:radial-gradient(circle at 15px -6px,transparent 18px,rgba(255,255,255,.55) 19px) 0 0/30px 30px repeat-x}.arboat{position:absolute;top:2%;right:8%;font-size:3rem}
+.sky .arfield{background:linear-gradient(180deg,#7ec8ff,#c9ecff 60%,#9be29b 100%)}.arsun{position:absolute;top:10px;left:16px;font-size:3.4rem}.arline{position:absolute;top:10px;right:10px;left:90px;height:44px;display:flex;gap:6px;justify-content:flex-start;border-top:2px dashed #fff;padding-top:6px}
+.arkept{font-family:"Amiri",serif;font-size:1.4rem;color:#fff;padding:0 10px;border-radius:10px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);min-width:44px;text-align:center}
+.party .arfield{background:radial-gradient(circle at 20% 30%,#fff3bf,transparent 40%),radial-gradient(circle at 80% 70%,#ffe3e3,transparent 40%),linear-gradient(180deg,#fff9db,#ffe8cc)}
+.night .arfield{background:linear-gradient(180deg,#1b2a4e,#2f4b7c 60%,#5174a8)}.armoon{position:absolute;top:10px;left:16px;font-size:3rem}.arcloud{position:absolute;top:-8px;right:10%;font-size:3.6rem;letter-spacing:-12px;opacity:.9}
+.aritem{position:absolute;left:0;top:0;border:0;background:none;cursor:pointer;display:grid;place-items:center;padding:0;will-change:transform}
+.aritem .ari{font-size:4.2rem;line-height:1}.aritem b{position:absolute;font-family:"Amiri",serif;font-size:2rem;color:#1d2b36;line-height:1.2;white-space:nowrap}
+.aritem.fish b{background:#fff;border-radius:12px;padding:0 8px;top:16px;box-shadow:0 2px 0 rgba(0,0,0,.2)}.aritem.fish.flip .ari{transform:scaleX(-1)}
+.aritem.kite b,.aritem.balloon b{color:#fff;top:10px;border-radius:50%;min-width:56px;min-height:56px;display:grid;place-items:center;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.aritem.kite .ari{font-size:5rem}.aritem.balloon .ari{font-size:5rem;opacity:.25}
+.aritem.rain b{color:#fff;top:18px;text-shadow:0 2px 2px rgba(0,0,0,.4)}.aritem.rain .ari{font-size:5rem}
+.aritem.got{transition:transform .5s,opacity .5s;opacity:0;transform:translateY(-120px) scale(1.5)!important}
+.frogw,.trainw{display:grid;gap:10px;justify-items:center}.frogtop{display:flex;gap:12px;align-items:center}
+.river{position:relative;width:100%;max-width:820px;display:flex;align-items:center;gap:8px;padding:50px 10px 20px;border-radius:22px;background:linear-gradient(180deg,#8fd3fe,#3aa0e0)}
+.bank{font-size:2.6rem;padding:10px;background:#7bc96f;border-radius:16px}.pads{flex:1;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.pad{width:86px;height:70px;border:0;border-radius:50% 50% 46% 54%;background:radial-gradient(circle at 40% 35%,#9be15d,#3fa34d);font-family:"Amiri",serif;font-size:2.2rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.3);cursor:pointer;box-shadow:0 5px 0 #2b7a35}
+.pad.used{background:radial-gradient(circle at 40% 35%,#ffe066,#f4a92b);box-shadow:0 5px 0 #c9861b}.pad.sink{animation:sink .6s}@keyframes sink{50%{transform:translateY(10px) scale(.9);opacity:.5}}
+.frog{position:absolute;left:0;top:0;font-size:3rem;transition:transform .35s cubic-bezier(.3,1.6,.5,1);pointer-events:none}.frog.hop{animation:hop .35s}@keyframes hop{50%{margin-top:-30px}}
+.track{width:100%;max-width:820px;overflow:hidden;padding:10px 0 18px;background:repeating-linear-gradient(90deg,#8d6e63 0 10px,transparent 10px 34px) bottom/100% 8px no-repeat}
+.train{display:flex;flex-direction:row;gap:6px;align-items:flex-end;justify-content:center;transition:transform 1.2s ease-in}.train.go{transform:translateX(-120%)}
+.eng{font-size:4rem}.wag{min-width:70px;height:64px;display:grid;place-items:center;border-radius:12px;background:#ff8787;color:#fff;font-family:"Amiri",serif;font-size:2.4rem;box-shadow:0 6px 0 #c92a2a,inset 0 -10px 0 rgba(0,0,0,.08)}
+.wag:nth-child(3n){background:#4dabf7;box-shadow:0 6px 0 #1971c2}.wag:nth-child(3n+1){background:#69db7c;box-shadow:0 6px 0 #2f9e44}.wag.hole{background:#fff;color:#adb5bd;border:3px dashed #adb5bd;box-shadow:none}.wag.fill{animation:pop .4s}@keyframes pop{50%{transform:scale(1.25)}}
 .pgh{margin:8px 0 2px}.pghub{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 .pgcard{display:grid;place-items:center;gap:4px;padding:14px 8px;border:2px solid var(--line);border-radius:20px;background:#fff;cursor:pointer;font:inherit;box-shadow:0 5px 0 #dce6ec,0 10px 16px rgba(0,0,0,.06);transition:transform .15s}
 .pgcard:hover{transform:translateY(-4px) rotate(-1.5deg)}.pgcard .e{font-size:2.6rem}.pgcard b{font-family:"Amiri",serif;font-size:1.5rem;line-height:1.3}.pgcard.voc b{font-family:inherit;font-size:1.05rem}.pgcard small{font-size:.85rem}
@@ -2614,8 +2639,9 @@ const PG_VOC=[
  ["المواصلات","🚗",[["سَيَّارَة","🚗"],["حَافِلَة","🚌"],["قِطَار","🚆"],["طَائِرَة","✈️"],["سَفِينَة","🚢"],["دَرَّاجَة","🚲"],["شَاحِنَة","🚚"]]]];
 const PG_GROUPS=[...PG_LET.map((ls,i)=>({id:"L"+i,kind:"let",ls,t:ls.map(c=>c==="ا"?"أ":c).join(" "),e:LET[ls[0]].words[0].e})),{id:"LR",kind:"let",ls:LETTERS.map(l=>l[0]),t:"مراجعة الحروف",e:"⭐",review:true},
   ...PG_VOC.map((v,i)=>({id:"V"+i,kind:"voc",t:v[0],e:v[1],ws:v[2].map(([w,e])=>({w,e}))}))];
-const PG_GAMES={let:[["hear","👂","اسمع واختر الحرف"],["first","🖼️","بماذا تبدأ الكلمة؟"],["shape","🔠","أشكال الحرف"],["haraka","✳️","الحركات"],["build","🧩","ركّب الكلمة"]],
-  voc:[["hearpic","👂","اسمع واختر الصورة"],["pickword","📝","اختر الكلمة"],["build","🧩","ركّب الكلمة"],["memory","🃏","لعبة الذاكرة"]]};
+const PG_GAMES={let:[["fish","🎣","صيد الحروف"],["kite","🪁","اجمع طائرات الورق"],["balloon","🎈","فرقع بالون الحركة"],["rain","🌧️","مطر الحروف"],["frog","🐸","الضفدع القافز"],["train","🚂","قطار الكلمات"],["hear","👂","اسمع واختر الحرف"],["first","🖼️","بماذا تبدأ الكلمة؟"],["shape","🔠","أشكال الحرف"],["haraka","✳️","الحركات"],["build","🧩","ركّب الكلمة"]],
+  voc:[["fishword","🎣","صيد الكلمات"],["kiteword","🪁","طائرات الكلمات"],["frog","🐸","الضفدع القافز"],["train","🚂","قطار الكلمات"],["hearpic","👂","اسمع واختر الصورة"],["pickword","📝","اختر الكلمة"],["build","🧩","ركّب الكلمة"],["memory","🃏","لعبة الذاكرة"]]};
+const PG_ARCADE={fish:1,kite:1,balloon:1,rain:1,fishword:1,kiteword:1};
 let PG={g:null,game:null,q:null};
 const pgStars=()=>{S.play=S.play||{};return S.play};
 const L1=c=>c==="ا"?"أ":c;
@@ -2630,9 +2656,73 @@ function pgRounds(G,game){const R=[];const ls=G.ls||[];const pool=G.review?ls:(l
     else if(game==="haraka"){const c=pick();const H=forms(c).har.slice(0,3);const h=H[i%3];R.push({say:h.f,show:"",opts:shuffle(H).map(x=>({t:x.f,ok:x===h}))})}
     else if(game==="hearpic"){const W=G.ws;const w=W[(i*3)%W.length];R.push({say:w.w,show:"",opts:pgOpts(w,W,4).map(x=>({t:x.e,ok:x===w,emoji:true,say:x.w}))})}
     else if(game==="pickword"){const W=G.ws;const w=W[(i*5+1)%W.length];R.push({say:"",show:w.e,opts:pgOpts(w,W,3).map(x=>({t:x.w,ok:x===w,say:x.w}))})}}
+  if(PG_ARCADE[game])return Array(8).fill({arcade:game});
+  if(game==="frog"){const W=shuffle(pgWordsOf(G).filter(w=>graphemes(w.w).length>=2&&graphemes(w.w).length<=6)).slice(0,4);return W.map(w=>({frog:w}))}
+  if(game==="train"){const W=shuffle(pgWordsOf(G).filter(w=>graphemes(w.w).length>=2&&graphemes(w.w).length<=6)).slice(0,6);return W.map(w=>({train:w}))}
   if(game==="build"){const W=shuffle(pgWordsOf(G).filter(w=>graphemes(w.w).length>=2&&graphemes(w.w).length<=6)).slice(0,4);return W.map(w=>({build:w}))}
   if(game==="memory"){return [{memory:shuffle(G.ws).slice(0,4)}]}
   return R}
+
+/* ---------- animated games ---------- */
+function pgTargets(G){if(G.kind==="voc")return G.ws.map(w=>({lab:w.w,say:w.w,pic:w.e,key:w.w}));return (G.review?shuffle(G.ls).slice(0,6):G.ls).map(c=>({lab:L1(c),say:LET[c].name,key:c}))}
+function pgDecoys(G,keys){if(G.kind==="voc"){const all=PG_VOC.flatMap(v=>v[2].map(([w,e])=>w));return shuffle(all.filter(w=>!keys.includes(w))).slice(0,8).map(w=>({lab:w,key:w}))}
+  const pool=LETTERS.map(l=>l[0]).filter(c=>!keys.includes(c));const near=[];keys.forEach(k=>{const g=LOOKALIKE.find(x=>x.includes(k))||"";[...g].forEach(x=>{if(!keys.includes(x)&&LET[x])near.push(x)})});
+  return [...new Set([...near,...shuffle(pool).slice(0,6)])].map(c=>({lab:L1(c),say:LET[c].name,key:c}))}
+function pgArcade(host,A,kind){const G=PG.g,Q=PG.q;const need=Q.R.length;const tok={};PG.tok=tok;
+  const voc=G.kind==="voc";let T=pgTargets(G);let hk=null;
+  if(kind==="balloon"){const c=shuffle(G.ls)[0];const H=forms(c).har.slice(0,3);T=H.map(h=>({lab:h.f,say:h.f,key:h.f}));}
+  const D=kind==="balloon"?[]:pgDecoys(G,T.map(t=>t.key));
+  const theme={fish:"sea",fishword:"sea",kite:"sky",kiteword:"sky",balloon:"party",rain:"night"}[kind];
+  let caught=0,miss=0,cur=null,items=[],last=0,spawnT=0,done=false;
+  const newTarget=()=>{cur=T[Math.floor(Math.random()*T.length)];const F0=A.querySelector("#arF");if(F0)F0.dataset.t=cur.lab;const pr=A.querySelector("#arP");if(pr)pr.innerHTML=prompt();if(cur.say)speak(voc?cur.say:(kind==="balloon"?cur.say:cur.say))};
+  const verb={fish:"اصطد السمكة التي عليها",fishword:"اصطد السمكة التي عليها كلمة",kite:"اجمع طائرة الورق التي عليها",kiteword:"اجمع طائرة الورق التي عليها كلمة",balloon:"فرقع البالون الذي عليه",rain:"التقط القطرة التي عليها"}[kind];
+  const prompt=()=>`${verb} ${voc?`<span class="arpic">${cur.pic}</span>`:`<b class="artg">${esc(cur.lab)}</b>`} <button class="btn small green" id="arH">🔊</button>`;
+  A.innerHTML=`<div class="arwrap ${theme}"><div class="arbar"><span id="arP"></span><span class="grow"></span><span class="arscore">${kind.startsWith("kite")?"🪁":kind==="balloon"?"🎈":kind==="rain"?"💧":"🐟"} <b id="arS">٠</b> / ${ar(need)}</span></div><div class="arfield" id="arF">${theme==="sea"?'<div class="arwave"></div><div class="arboat">🚣</div>':theme==="sky"?'<div class="arsun">☀️</div><div class="arline" id="arL"></div>':theme==="night"?'<div class="armoon">🌙</div><div class="arcloud">☁️☁️☁️</div>':'<div class="arconf"></div>'}</div></div>`;
+  const F=A.querySelector("#arF");
+  A.addEventListener("click",e=>{if(e.target.id==="arH"&&cur)speak(cur.say)});
+  const W=()=>F.clientWidth,H=()=>F.clientHeight;
+  const spawn=()=>{const isT=Math.random()<.5||!items.some(it=>!it.gone&&it.d.key===cur.key);const d=isT?cur:(D.length?D[Math.floor(Math.random()*D.length)]:T[Math.floor(Math.random()*T.length)]);
+    if(!isT&&d.key===cur.key)return;const el=document.createElement("button");el.className="aritem "+kind.replace("word","");
+    const pic={fish:["🐟","🐠","🐡"],kite:["🪁"],balloon:["🎈"],rain:["💧"]}[kind.replace("word","")];
+    const col=["#ff6b6b","#ffd166","#06d6a0","#4dabf7","#b197fc","#ff922b"][Math.floor(Math.random()*6)];
+    el.innerHTML=`<span class="ari">${pic[Math.floor(Math.random()*pic.length)]}</span><b style="${kind==="balloon"||kind.startsWith("kite")?`background:${col}`:""}">${esc(d.lab)}</b>`;
+    F.appendChild(el);const w=W(),h=H();let it;
+    if(kind.startsWith("fish")){const dir=Math.random()<.5?1:-1;it={x:dir>0?-60:w-30,y:h*.28+Math.random()*h*.5,vx:dir*(85+Math.random()*50),vy:0,wob:Math.random()*6};el.classList.toggle("flip",dir<0)}
+    else if(kind==="rain"){it={x:20+Math.random()*(w-120),y:-90,vx:0,vy:60+Math.random()*40,wob:0}}
+    else{it={x:20+Math.random()*(w-120),y:h+20,vx:(Math.random()-.5)*20,vy:-(45+Math.random()*35),wob:Math.random()*6}}
+    Object.assign(it,{el,d,t:0});items.push(it);
+    el.onclick=ev=>{ev.stopPropagation();if(done||it.gone)return;
+      if(it.d.key===cur.key){it.gone=true;caught++;A.querySelector("#arS").textContent=ar(caught);el.classList.add("got");speak(it.d.say||it.d.lab);burstAt(F,el);
+        if(kind.startsWith("kite")){const L=A.querySelector("#arL");const k=document.createElement("span");k.className="arkept";k.style.background=el.querySelector("b").style.background;k.textContent=it.d.lab;L.appendChild(k)}
+        setTimeout(()=>el.remove(),500);
+        if(caught>=need){done=true;setTimeout(()=>{Q.ok=Math.max(0,need-Math.max(0,miss-1));items.forEach(i=>i.el.remove());Q.i=need;pgDone(host)},900);return}
+        if(caught%2===0)setTimeout(newTarget,700)}
+      else{miss++;el.classList.add("shake");setTimeout(()=>el.classList.remove("shake"),500);speak(it.d.say?(voc?it.d.say:"هٰذَا "+it.d.say):"حَاوِلْ مَرَّةً أُخْرَى")}}};
+  const loop=ts=>{if(PG.tok!==tok||!F.isConnected||done)return;const dt=last?Math.min(.05,(ts-last)/1000):0;last=ts;spawnT-=dt;
+    if(spawnT<=0&&items.filter(i=>!i.gone).length<(voc?5:7)){spawn();spawnT=voc?1.6:1.1}
+    const w=W(),h=H();
+    items.forEach(it=>{if(it.gone)return;it.t+=dt;it.x+=it.vx*dt;it.y+=it.vy*dt+(kind.startsWith("fish")?Math.sin(it.t*2+it.wob)*.4:0);const sx=it.x+(kind.startsWith("fish")?0:Math.sin(it.t*1.5+it.wob)*10);
+      it.el.style.transform=`translate(${sx}px,${it.y}px)`;if(it.x<-160||it.x>w+160||it.y<-140||it.y>h+120){it.gone=true;it.el.remove()}});
+    items=items.filter(i=>!i.gone||i.el.isConnected);requestAnimationFrame(loop)};
+  newTarget();if(F)F.dataset.t=cur.lab;requestAnimationFrame(loop)}
+function pgFrog(host,A,w,next){const Q=PG.q,G=PG.g;const gs=graphemes(w.w);const dec=shuffle(G.kind==="voc"?LETTERS.map(l=>l[0]):LETTERS.map(l=>l[0]).filter(c=>!gs.some(g=>baseOf(g[0])===c))).slice(0,Math.max(2,6-gs.length)).map(c=>c+(["َ","ُ","ِ",""][Math.floor(Math.random()*4)]));
+  const pads=shuffle([...gs.map((x,k)=>({x,k})),...dec.map(x=>({x,k:-1}))]);let got=0;
+  A.innerHTML=`<div class="frogw"><div class="frogtop"><button class="rpemoji" id="fgE">${w.e||"🔊"}</button><div class="rpslot" id="fgS"><span class="muted">…</span></div></div><p class="muted small">ساعد الضفدع يعبر النهر: اقفز على حروف الكلمة بالترتيب</p>
+    <div class="river"><div class="bank">🌿</div><div class="pads">${pads.map((p,i)=>`<button class="pad" data-i="${i}">${esc(p.x)}</button>`).join("")}</div><div class="bank end">🏁</div><div class="frog" id="fgF">🐸</div></div></div>`;
+  const F=A.querySelector("#fgF"),R=A.querySelector(".river");const hop=el=>{const a=R.getBoundingClientRect(),b=el.getBoundingClientRect();F.style.transform=`translate(${b.left-a.left+b.width/2-24}px,${b.top-a.top-30}px)`;F.classList.remove("hop");void F.offsetWidth;F.classList.add("hop")};
+  setTimeout(()=>{const b=A.querySelector(".bank");if(b)hop(b)},50);
+  A.querySelector("#fgE").onclick=()=>speak(w.w);speak(w.w);
+  A.querySelectorAll(".pad").forEach(b=>b.onclick=()=>{const p=pads[+b.dataset.i];if(b.classList.contains("used"))return;
+    if(p.k>=0&&gs[p.k]===gs[got]){got++;b.classList.add("used");hop(b);A.querySelector("#fgS").textContent=gs.slice(0,got).join("");
+      if(got===gs.length){if(!Q.miss)Q.ok++;setTimeout(()=>{hop(A.querySelector(".bank.end"));speak(w.w);A.querySelector("#fgS").innerHTML=`<b class="okw">${esc(w.w)}</b> ✅`},350);next()}}
+    else{Q.miss=true;b.classList.add("sink");setTimeout(()=>b.classList.remove("sink"),600);speak("حَاوِلْ مَرَّةً أُخْرَى")}})}
+function pgTrain(host,A,w,next){const Q=PG.q;const gs=graphemes(w.w);const hole=Math.floor(Math.random()*gs.length);const right=gs[hole];
+  const base=baseOf(right[0]);const opts=shuffle([right,...shuffle(LETTERS.map(l=>l[0]).filter(c=>c!==base)).slice(0,2).map(c=>c+right.slice(1))]);
+  A.innerHTML=`<div class="trainw"><div class="tpic"><button class="rpemoji" id="trE">${w.e||"🔊"}</button></div><div class="track"><div class="train" id="trT"><span class="eng">🚂</span>${gs.map((g,k)=>`<span class="wag ${k===hole?"hole":""}">${k===hole?"؟":esc(g)}</span>`).join("")}</div></div>
+    <p class="rpq">أكمل القطار بالحرف الناقص</p><div class="pgopts">${opts.map((o,k)=>`<button class="pgopt" data-k="${k}">${esc(o)}</button>`).join("")}</div></div>`;
+  A.querySelector("#trE").onclick=()=>speak(w.w);speak(w.w);
+  A.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const o=opts[+b.dataset.k];if(o===right){b.classList.add("ok");const h=A.querySelector(".wag.hole");h.textContent=right;h.classList.remove("hole");h.classList.add("fill");if(!Q.miss)Q.ok++;speak(w.w);setTimeout(()=>A.querySelector("#trT").classList.add("go"),500);next()}
+    else{Q.miss=true;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500);speak("حَاوِلْ مَرَّةً أُخْرَى")}})}
 function renderPlayView(host){
   if(!PG.g){const St=pgStars();
     host.innerHTML=`<section class="rpv"><div class="rphead"><div><h2>🎲 ألعاب الحروف والكلمات</h2><p class="muted small">ألعاب قصيرة متدرّجة: مجموعات الحروف أولًا، ثم كلمات مصوّرة. كل لعبة ٦ أسئلة، واجمع ثلاث نجوم في كل مجموعة.</p></div></div>
@@ -2642,7 +2732,7 @@ function renderPlayView(host){
   const G=PG.g;if(!PG.game){const St=pgStars();
     host.innerHTML=`<section class="rpv"><div class="row rpbar"><button class="btn ghost" id="pgBack">→ كل المجموعات</button><b class="rpbig">${G.e}</b><b>${esc(G.t)}</b></div>
       ${G.kind==="let"?`<div class="rpforms">${(G.review?[]:G.ls).map(c=>`<button class="rpform" data-say="${esc(LET[c].name)}"><b>${L1(c)}</b><small>${esc(LET[c].name)}</small></button>`).join("")}</div>`:`<div class="rpwords">${G.ws.map(w=>`<button class="rpword" data-say="${esc(w.w)}"><span class="e">${w.e}</span><b>${esc(w.w)}</b></button>`).join("")}</div>`}
-      <div class="pggames">${PG_GAMES[G.kind].map(([k,e,t])=>{const st=St[G.id+"|"+k]||0;return `<button class="pggame" data-gm="${k}"><span class="e">${e}</span><b>${t}</b><i>${"⭐".repeat(st)}${"☆".repeat(3-st)}</i></button>`}).join("")}</div></section>`;
+      <div class="pggames">${PG_GAMES[G.kind].map(([k,e,t])=>{const st=St[G.id+"|"+k]||0;return `<button class="pggame ${PG_ARCADE[k]||k==="frog"||k==="train"?"new":""}" data-gm="${k}"><span class="e">${e}</span><b>${t}</b><i>${"⭐".repeat(st)}${"☆".repeat(3-st)}</i></button>`}).join("")}</div></section>`;
     host.querySelector("#pgBack").onclick=()=>{PG.g=null;renderPlayView(host)};
     host.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
     host.querySelectorAll("[data-gm]").forEach(b=>b.onclick=()=>{PG.game=b.dataset.gm;PG.q={R:pgRounds(G,PG.game),i:0,ok:0,miss:false};renderPlayView(host)});return}
@@ -2651,11 +2741,14 @@ function pgCard(g){const St=pgStars();const n=PG_GAMES[g.kind].length;const got=
   return `<button class="pgcard ${g.kind}" data-pg="${g.id}"><span class="e">${g.e}</span><b>${esc(g.t)}</b><small>${"⭐".repeat(Math.round(got/n))}${"☆".repeat(3-Math.round(got/n))}</small></button>`}
 function pgDone(host){const Q=PG.q,G=PG.g;const tot=Q.R.length;const st=Q.ok>=tot?3:Q.ok>=Math.ceil(tot*.66)?2:Q.ok>0?1:0;const key=G.id+"|"+PG.game;const St=pgStars();if(st>(St[key]||0)){St[key]=st;save()}
   if(st)praise();host.querySelector("#pgArea").innerHTML=`<div class="rpquiz pgend"><b class="pgstars">${"⭐".repeat(st)}${"☆".repeat(3-st)}</b><b>${st===3?"ممتاز يا بطل!":st===2?"أحسنت!":"حاول مرة أخرى"} ${ar(Q.ok)} من ${ar(tot)}</b><div class="row"><button class="btn" id="pgAgain">🔁 العب مرة أخرى</button><button class="btn primary" id="pgOther">لعبة أخرى</button></div></div>`;
-  host.querySelector("#pgAgain").onclick=()=>{PG.q={R:pgRounds(G,PG.game),i:0,ok:0,miss:false};renderPlayView(host)};host.querySelector("#pgOther").onclick=()=>{PG.game=null;renderPlayView(host)}}
+  PG.tok=null;host.querySelector("#pgAgain").onclick=()=>{PG.q={R:pgRounds(G,PG.game),i:0,ok:0,miss:false};renderPlayView(host)};host.querySelector("#pgOther").onclick=()=>{PG.game=null;renderPlayView(host)}}
 function pgPlay(host){const G=PG.g,Q=PG.q;const name=(PG_GAMES[G.kind].find(x=>x[0]===PG.game)||[])[2]||"";
-  host.innerHTML=`<section class="rpv"><div class="row rpbar"><button class="btn ghost" id="pgBack">→ ${esc(G.t)}</button><b>${esc(name)}</b><span class="grow"></span><span class="pgprog">${Q.R.map((_,k)=>`<i class="${k<Q.i?"done":k===Q.i?"now":""}"></i>`).join("")}</span></div><div id="pgArea" class="rpgame"></div></section>`;
-  host.querySelector("#pgBack").onclick=()=>{stopSpeak();PG.game=null;renderPlayView(host)};
+  host.innerHTML=`<section class="rpv"><div class="row rpbar"><button class="btn ghost" id="pgBack">→ ${esc(G.t)}</button><b>${esc(name)}</b><span class="grow"></span><span class="pgprog" ${PG_ARCADE[PG.game]?"hidden":""}>${Q.R.map((_,k)=>`<i class="${k<Q.i?"done":k===Q.i?"now":""}"></i>`).join("")}</span></div><div id="pgArea" class="rpgame"></div></section>`;
+  host.querySelector("#pgBack").onclick=()=>{stopSpeak();PG.tok=null;PG.game=null;renderPlayView(host)};
   const A=host.querySelector("#pgArea");if(Q.i>=Q.R.length)return pgDone(host);const r=Q.R[Q.i];
+  if(r.arcade)return pgArcade(host,A,r.arcade);
+  if(r.frog)return pgFrog(host,A,r.frog,()=>{Q.i++;Q.miss=false;setTimeout(()=>pgPlay(host),900)});
+  if(r.train)return pgTrain(host,A,r.train,()=>{Q.i++;Q.miss=false;setTimeout(()=>pgPlay(host),1400)});
   const next=()=>{Q.i++;Q.miss=false;setTimeout(()=>pgPlay(host),650)};
   if(r.memory){const ws=r.memory;const cards=shuffle([...ws.map((w,k)=>({k,t:w.e,emoji:true,say:w.w})),...ws.map((w,k)=>({k,t:w.w,say:w.w}))]);let open=[],found=0,tries=0;
     A.innerHTML=`<p class="rpq">اقلب بطاقتين: صورة وكلمتها</p><div class="pgmem">${cards.map((c,i)=>`<button class="pgm" data-i="${i}"><span>${esc(c.t)}</span></button>`).join("")}</div>`;
