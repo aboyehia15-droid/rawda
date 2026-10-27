@@ -1221,11 +1221,12 @@ function bookStatusHTML(id){const B=S.books[id],st=(B&&B.st)||{};
   return ""}
 let openBook=null;const openNodes={add(){},delete(){},has(){return false}};
 function foldBooks(id){$$("#tree .bnode").forEach(n=>{const on=!!id&&n.querySelector(".bk").dataset.id===id;n.dataset.open=String(on);const l=n.querySelector(".blessons");if(l)l.hidden=!on})}
+const keepL=l=>l.user||(l.manual&&l.letter==null&&l.number==null&&l.shape==null&&l.nr==null&&l.mapk==null);
 function nrEnsure(){for(const id of Object.keys(S.books)){const B=S.books[id];if(!isNoorania(B))continue;
-  const have=S.lessons.filter(l=>l.bookId===id&&l.nr!=null);if(have.length===NR.length&&have.every(l=>l.nrv===2))continue;
+  const have=S.lessons.filter(l=>l.bookId===id&&l.nr!=null);const stray=S.lessons.some(l=>l.bookId===id&&l.nr==null&&!keepL(l));if(!stray&&have.length===NR.length&&have.every(l=>l.nrv===2))continue;
   const ls=NR.map((x,k)=>{const [a,b]=nrRange(k);const pages=[];for(let i=a;i<=b;i++)pages.push(i);return {id:"nr"+k+"-"+id.slice(-6),bookId:id,book:B.name,nr:k,nrv:2,title:`الدرس ${NR_ORD[k]}: ${x[0]}`,emoji:"🔊",domain:"القاعدة النورانية",pages,goal:x[0],summary:"",keywords:[]}});
   S.lessons.filter(l=>l.bookId===id&&!l.manual).forEach(l=>selected.delete(l.id));
-  S.lessons=S.lessons.filter(l=>l.bookId!==id||(l.manual&&l.nr==null)).concat(ls);save()}}
+  S.lessons=S.lessons.filter(l=>l.bookId!==id||keepL(l)).concat(ls);save()}}
 function renderSide(){try{nrEnsure()}catch(e){}try{mapEnsure()}catch(e){}
   const ids=Object.keys(S.books).sort((a,b)=>S.books[a].num-S.books[b].num);
   const node=(id,name,sub,cov)=>{const open=openBook===id;const L=lessonsOf(id);const st=bookStatusHTML(id);const busy=(S.books[id]&&S.books[id].st&&/reading|queued/.test(S.books[id].st.state))||(loading&&loading.id===id);
@@ -1275,10 +1276,10 @@ function zadKey(B){const nm=String(B&&B.name||"").replace(/[أإآ]/g,"ا");if(/
   if(/الحروف الممتعه|الحروف الممتعة/.test(nm))return "الحروف الممتعة";if(/دنيا الحروف/.test(nm))return "دنيا الحروف";if(/دنيا الارقام/.test(nm))return "دنيا الارقام";
   if(/الارقام\s*44|الرياضيات الممتعه|الرياضيات الممتعة/.test(nm))return "الارقام 44";return null}
 function mapEnsure(){if(!ZAD||!ZAD._lessons)return;for(const id of Object.keys(S.books)){const B=S.books[id];const k=zadKey(B);if(!k||!ZAD._lessons[k])continue;
-  if(!B.shelfManual){const sh=/الحروف/.test(k)?"ar":/الارقام/.test(k)?"math":"islam";if(B.shelf!==sh){B.shelf=sh;save()}}const want=ZAD._lessons[k];const have=S.lessons.filter(l=>l.bookId===id&&l.mapk===k);if(have.length===want.length)continue;
+  if(!B.shelfManual){const sh=/الحروف/.test(k)?"ar":/الارقام/.test(k)?"math":"islam";if(B.shelf!==sh){B.shelf=sh;save()}}const want=ZAD._lessons[k];const have=S.lessons.filter(l=>l.bookId===id&&l.mapk===k);const stray=S.lessons.some(l=>l.bookId===id&&l.mapk!==k&&!keepL(l));if(!stray&&have.length===want.length)continue;
   const ls=want.map((x,i)=>({id:"mp"+i+"-"+id.slice(-8),bookId:id,book:B.name,mapk:k,title:x[0],emoji:x[1],pages:x[2],letter:typeof x[3]==="string"?normLetter(x[3]):undefined,number:typeof x[3]==="number"?x[3]:undefined,domain:"",goal:x[0],summary:"",keywords:[]}));
   S.lessons.filter(l=>l.bookId===id&&!(l.manual&&l.mapk==null)).forEach(l=>selected.delete(l.id));
-  S.lessons=S.lessons.filter(l=>l.bookId!==id||(l.manual&&l.mapk==null)).concat(ls);save()}}
+  S.lessons=S.lessons.filter(l=>l.bookId!==id||keepL(l)).concat(ls);save()}}
 function zadRegs(B,n){const k=zadKey(B);if(!k||!ZAD||!ZAD[k])return null;return ZAD[k][String(n)]||null}
 function zadPageText(regs){return regs.filter(r=>r[5]).map(r=>r[4]).join("، ")}
 function zadHit(regs,x,y){let best=null,ba=9;regs.forEach(r=>{if(x>=r[0]&&x<=r[2]&&y>=r[1]&&y<=r[3]){const a=(r[2]-r[0])*(r[3]-r[1]);if(a<ba){ba=a;best=r}}});
@@ -1456,7 +1457,7 @@ function renderEbook(body){
   $("#nlAdd").onclick=()=>{const t=$("[name=nlt]:checked").value;let a=+$("#nlFrom").value||n,z=+$("#nlTo").value||a;if(z<a)[a,z]=[z,a];a=Math.max(1,a);z=Math.min(N,z);const pages=[];for(let k=a;k<=z;k++)pages.push(k);
     let l;if(t==="letter"){if(!nlLetter){flash("اختر الحرف","err");return}l=letterLessonObj(nlLetter,id,B.name,pages)}
     else{const title=$("#nlTitle").value.trim();if(!title){flash("اكتب عنوان الدرس","err");return}l={id:"M"+Date.now().toString(36),manual:true,bookId:id,book:B.name,title,emoji:"📘",domain:"",pages,goal:"",summary:"",keywords:[]}}
-    S.lessons.push(l);save();selected.clear();selected.add(l.id);renderSide();onSelChange();flash("أُضيف الدرس","ok")};
+    l.user=true;S.lessons.push(l);save();selected.clear();selected.add(l.id);renderSide();onSelChange();flash("أُضيف الدرس","ok")};
   $$(".ebook [data-kit]").forEach(b=>b.onclick=()=>addKitLessons(b.dataset.book,b.dataset.kit));
   $("#bRe").onclick=()=>{Object.values(B.meta).forEach(x=>x.read=null);enqueueRead(id);renderMain()};
   $("#bDel").onclick=()=>delBook(id);
