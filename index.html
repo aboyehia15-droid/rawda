@@ -345,6 +345,20 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
 @keyframes splashIn{from{transform:scale(.85) translateY(20px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.lcov,.lcard:hover .lcov{transform:none}.splash img{animation:none}}
 
+.pgh{margin:8px 0 2px}.pghub{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.pgcard{display:grid;place-items:center;gap:4px;padding:14px 8px;border:2px solid var(--line);border-radius:20px;background:#fff;cursor:pointer;font:inherit;box-shadow:0 5px 0 #dce6ec,0 10px 16px rgba(0,0,0,.06);transition:transform .15s}
+.pgcard:hover{transform:translateY(-4px) rotate(-1.5deg)}.pgcard .e{font-size:2.6rem}.pgcard b{font-family:"Amiri",serif;font-size:1.5rem;line-height:1.3}.pgcard.voc b{font-family:inherit;font-size:1.05rem}.pgcard small{font-size:.85rem}
+.pggames{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.pggame{display:grid;place-items:center;gap:4px;padding:16px;border:0;border-radius:20px;background:linear-gradient(180deg,#fff7d6,#ffe59a);cursor:pointer;font:inherit;box-shadow:0 5px 0 #e0b84a;transition:transform .15s}.pggame:hover{transform:translateY(-3px)}.pggame .e{font-size:2.2rem}.pggame i{font-style:normal}
+.pgprog{display:flex;gap:4px}.pgprog i{width:16px;height:16px;border-radius:50%;background:#e3eaee}.pgprog i.done{background:var(--leaf)}.pgprog i.now{background:var(--sun)}
+.pgshow{font-size:5rem;text-align:center;line-height:1.2}.pgshow.big{font-family:"Amiri",serif;font-size:5.5rem;color:var(--sky)}
+.pgopts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.pgopt{min-width:110px;min-height:110px;padding:8px 16px;border:2px solid var(--line);border-radius:22px;background:#fff;font-family:"Amiri",serif;font-size:3rem;cursor:pointer;box-shadow:0 5px 0 #dce6ec}.pgopt.emo{font-size:3.6rem;font-family:inherit}
+.pgopt.ok{background:var(--leaf-soft);border-color:var(--leaf)}
+.pgmem{display:grid;gap:12px;grid-template-columns:repeat(4,minmax(0,1fr));max-width:640px;margin:auto;width:100%}
+.pgm{aspect-ratio:1;border:0;border-radius:18px;background:linear-gradient(160deg,#3cbfa9,#2a9d8f);cursor:pointer;box-shadow:0 5px 0 #1e7468;font:inherit}
+.pgm span{visibility:hidden;font-family:"Amiri",serif;font-size:1.7rem;color:#1d2b36}.pgm.up{background:#fff;box-shadow:0 5px 0 #dce6ec}.pgm.up span{visibility:visible}.pgm.emo span{font-size:3rem;font-family:inherit}.pgm.ok{background:var(--leaf-soft)}
+.pgend{gap:12px}.pgstars{font-size:3rem}
 .stoptalk{position:fixed;bottom:18px;left:18px;z-index:2147483001;padding:14px 22px;border:0;border-radius:999px;background:#e63946;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback{position:fixed;top:14px;right:14px;z-index:2147483000;padding:12px 20px;border:0;border-radius:999px;background:#1d2b36;color:#fff;font:inherit;font-size:1.15rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 .fsback:hover{background:#2a9d8f}
@@ -2441,7 +2455,7 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
   $("#vcImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text());if(d.format!=="rawda-voice-pack")throw 0;let n=0;for(const [k,v] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(v.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:v.type}));recKeys.add(k);n++}flash(`استُورد ${ar(n)} مقطعًا صوتيًا`,"ok");re()}catch(err){flash("هذا الملف ليس حزمة صوتية من روضة الدروس","err")}}}
 /* ================= top navigation ================= */
 let mode="library";
-const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
+const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
 function renderNav(){document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;nrStop();stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})})}
 
 /* ================= رحلة القراءة: ألعاب الحروف + القراءة المتدرجة ================= */
@@ -2586,7 +2600,79 @@ function renderSettingsView(h){const B=S.brand||{};
   g("#stVoiceNow").onclick=async e=>{const b=e.target;b.disabled=true;b.textContent="⏳ جارٍ التنزيل… لا تغلق البرنامج";S.sharedVoices={};try{await syncVoices()}catch(x){}if(S.voicePacks&&S.voicePacks["edge-hamed"])S.voiceMode="edge-hamed";save();renderSettingsView(h);flash("✓ صوت حامد جاهز على هذه الشاشة","ok")};
   g("#stTry").onclick=()=>speak("أَحْسَنْتَ يَا بَطَل");
   renderVoicesView(g("#stVoices"));const vp=h.querySelector(".vpick");if(vp)vp.remove()}
-function renderMode(){const h=$("#modeView");if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+
+/* ================= ألعاب الحروف والكلمات (محتوى أصلي) ================= */
+const PG_LET=[["ا","ب"],["ت","ث"],["ج","ح","خ"],["م","ن"],["ك","ل"],["ه","و","ي"],["د","ذ","ر","ز"],["س","ش"],["ع","غ"],["ف","ق"],["ص","ض","ط","ظ"]];
+const PG_VOC=[
+ ["حيوانات المزرعة","🐄",[["بَقَرَة","🐄"],["خَرُوف","🐑"],["حِصَان","🐴"],["دَجَاجَة","🐔"],["دِيك","🐓"],["بَطَّة","🦆"],["مَاعِز","🐐"],["جَمَل","🐫"]]],
+ ["حيوانات وحشرات","🦁",[["أَسَد","🦁"],["فِيل","🐘"],["زَرَافَة","🦒"],["قِرْد","🐒"],["نَمِر","🐅"],["نَحْلَة","🐝"],["نَمْلَة","🐜"],["فَرَاشَة","🦋"],["سُلَحْفَاة","🐢"],["أَرْنَب","🐰"]]],
+ ["الطعام","🍎",[["خُبْز","🍞"],["حَلِيب","🥛"],["تُفَّاحَة","🍎"],["مَوْز","🍌"],["بَيْض","🥚"],["جُبْن","🧀"],["عِنَب","🍇"],["جَزَر","🥕"],["عَسَل","🍯"],["سَمَك","🐟"]]],
+ ["الطبيعة","🌳",[["شَمْس","☀️"],["قَمَر","🌙"],["نَجْمَة","⭐"],["شَجَرَة","🌳"],["زَهْرَة","🌸"],["بَحْر","🌊"],["جَبَل","⛰️"],["مَطَر","🌧️"],["غَيْمَة","☁️"],["نَار","🔥"]]],
+ ["أعضاء الجسم","✋",[["عَيْن","👁️"],["أُذُن","👂"],["أَنْف","👃"],["فَم","👄"],["يَد","✋"],["قَدَم","🦶"],["سِنّ","🦷"],["لِسَان","👅"],["قَلْب","❤️"]]],
+ ["أدوات المدرسة","🎒",[["قَلَم","✏️"],["كِتَاب","📖"],["دَفْتَر","📓"],["مِسْطَرَة","📏"],["مِقَصّ","✂️"],["حَقِيبَة","🎒"],["أَلْوَان","🖍️"]]],
+ ["أشياء في غرفتي","🛏️",[["سَرِير","🛏️"],["كُرْسِيّ","🪑"],["مِصْبَاح","💡"],["سَاعَة","⏰"],["بَاب","🚪"],["نَافِذَة","🪟"],["مِرْآة","🪞"],["دُمْيَة","🧸"]]],
+ ["المواصلات","🚗",[["سَيَّارَة","🚗"],["حَافِلَة","🚌"],["قِطَار","🚆"],["طَائِرَة","✈️"],["سَفِينَة","🚢"],["دَرَّاجَة","🚲"],["شَاحِنَة","🚚"]]]];
+const PG_GROUPS=[...PG_LET.map((ls,i)=>({id:"L"+i,kind:"let",ls,t:ls.map(c=>c==="ا"?"أ":c).join(" "),e:LET[ls[0]].words[0].e})),{id:"LR",kind:"let",ls:LETTERS.map(l=>l[0]),t:"مراجعة الحروف",e:"⭐",review:true},
+  ...PG_VOC.map((v,i)=>({id:"V"+i,kind:"voc",t:v[0],e:v[1],ws:v[2].map(([w,e])=>({w,e}))}))];
+const PG_GAMES={let:[["hear","👂","اسمع واختر الحرف"],["first","🖼️","بماذا تبدأ الكلمة؟"],["shape","🔠","أشكال الحرف"],["haraka","✳️","الحركات"],["build","🧩","ركّب الكلمة"]],
+  voc:[["hearpic","👂","اسمع واختر الصورة"],["pickword","📝","اختر الكلمة"],["build","🧩","ركّب الكلمة"],["memory","🃏","لعبة الذاكرة"]]};
+let PG={g:null,game:null,q:null};
+const pgStars=()=>{S.play=S.play||{};return S.play};
+const L1=c=>c==="ا"?"أ":c;
+function pgOpts(right,pool,n){return shuffle([right,...shuffle(pool.filter(x=>x!==right)).slice(0,n-1)])}
+function pgWordsOf(G){if(G.kind==="voc")return G.ws;return G.ls.flatMap(c=>LET[c].words.map(w=>({...w,c})))}
+function pgRounds(G,game){const R=[];const ls=G.ls||[];const pool=G.review?ls:(ls.length<3?[...ls,...shuffle(LETTERS.map(l=>l[0]).filter(c=>!ls.includes(c))).slice(0,3-ls.length)]:ls);
+  const pick=()=>G.review?shuffle(ls)[0]:ls[R.length%ls.length];
+  for(let i=0;i<6;i++){
+    if(game==="hear"){const c=pick();R.push({say:LET[c].name,show:"",opts:pgOpts(c,pool,Math.min(4,Math.max(3,pool.length))).map(x=>({t:L1(x),ok:x===c}))})}
+    else if(game==="first"){const c=pick();const w=shuffle(LET[c].words)[0];R.push({say:w.w,show:w.e,cap:w.w,opts:pgOpts(c,pool,Math.min(4,Math.max(3,pool.length))).map(x=>({t:L1(x),ok:x===c}))})}
+    else if(game==="shape"){const c=pick();const f=shuffle(forms(c).pos)[0];R.push({say:"أَيُّ حَرْفٍ هٰذَا؟",show:f.f,cap:f.n,big:true,opts:pgOpts(c,pool,Math.min(4,Math.max(3,pool.length))).map(x=>({t:L1(x),ok:x===c,say:LET[x].name}))})}
+    else if(game==="haraka"){const c=pick();const H=forms(c).har.slice(0,3);const h=H[i%3];R.push({say:h.f,show:"",opts:shuffle(H).map(x=>({t:x.f,ok:x===h}))})}
+    else if(game==="hearpic"){const W=G.ws;const w=W[(i*3)%W.length];R.push({say:w.w,show:"",opts:pgOpts(w,W,4).map(x=>({t:x.e,ok:x===w,emoji:true,say:x.w}))})}
+    else if(game==="pickword"){const W=G.ws;const w=W[(i*5+1)%W.length];R.push({say:"",show:w.e,opts:pgOpts(w,W,3).map(x=>({t:x.w,ok:x===w,say:x.w}))})}}
+  if(game==="build"){const W=shuffle(pgWordsOf(G).filter(w=>graphemes(w.w).length>=2&&graphemes(w.w).length<=6)).slice(0,4);return W.map(w=>({build:w}))}
+  if(game==="memory"){return [{memory:shuffle(G.ws).slice(0,4)}]}
+  return R}
+function renderPlayView(host){
+  if(!PG.g){const St=pgStars();
+    host.innerHTML=`<section class="rpv"><div class="rphead"><div><h2>🎲 ألعاب الحروف والكلمات</h2><p class="muted small">ألعاب قصيرة متدرّجة: مجموعات الحروف أولًا، ثم كلمات مصوّرة. كل لعبة ٦ أسئلة، واجمع ثلاث نجوم في كل مجموعة.</p></div></div>
+      <h3 class="pgh">🔤 مجموعات الحروف</h3><div class="pghub">${PG_GROUPS.filter(g=>g.kind==="let").map(pgCard).join("")}</div>
+      <h3 class="pgh">🖼️ كلمات مصوّرة</h3><div class="pghub">${PG_GROUPS.filter(g=>g.kind==="voc").map(pgCard).join("")}</div></section>`;
+    host.querySelectorAll("[data-pg]").forEach(b=>b.onclick=()=>{PG.g=PG_GROUPS.find(g=>g.id===b.dataset.pg);PG.game=null;PG.q=null;renderPlayView(host)});return}
+  const G=PG.g;if(!PG.game){const St=pgStars();
+    host.innerHTML=`<section class="rpv"><div class="row rpbar"><button class="btn ghost" id="pgBack">→ كل المجموعات</button><b class="rpbig">${G.e}</b><b>${esc(G.t)}</b></div>
+      ${G.kind==="let"?`<div class="rpforms">${(G.review?[]:G.ls).map(c=>`<button class="rpform" data-say="${esc(LET[c].name)}"><b>${L1(c)}</b><small>${esc(LET[c].name)}</small></button>`).join("")}</div>`:`<div class="rpwords">${G.ws.map(w=>`<button class="rpword" data-say="${esc(w.w)}"><span class="e">${w.e}</span><b>${esc(w.w)}</b></button>`).join("")}</div>`}
+      <div class="pggames">${PG_GAMES[G.kind].map(([k,e,t])=>{const st=St[G.id+"|"+k]||0;return `<button class="pggame" data-gm="${k}"><span class="e">${e}</span><b>${t}</b><i>${"⭐".repeat(st)}${"☆".repeat(3-st)}</i></button>`}).join("")}</div></section>`;
+    host.querySelector("#pgBack").onclick=()=>{PG.g=null;renderPlayView(host)};
+    host.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+    host.querySelectorAll("[data-gm]").forEach(b=>b.onclick=()=>{PG.game=b.dataset.gm;PG.q={R:pgRounds(G,PG.game),i:0,ok:0,miss:false};renderPlayView(host)});return}
+  pgPlay(host)}
+function pgCard(g){const St=pgStars();const n=PG_GAMES[g.kind].length;const got=PG_GAMES[g.kind].reduce((a,[k])=>a+(St[g.id+"|"+k]||0),0);
+  return `<button class="pgcard ${g.kind}" data-pg="${g.id}"><span class="e">${g.e}</span><b>${esc(g.t)}</b><small>${"⭐".repeat(Math.round(got/n))}${"☆".repeat(3-Math.round(got/n))}</small></button>`}
+function pgDone(host){const Q=PG.q,G=PG.g;const tot=Q.R.length;const st=Q.ok>=tot?3:Q.ok>=Math.ceil(tot*.66)?2:Q.ok>0?1:0;const key=G.id+"|"+PG.game;const St=pgStars();if(st>(St[key]||0)){St[key]=st;save()}
+  if(st)praise();host.querySelector("#pgArea").innerHTML=`<div class="rpquiz pgend"><b class="pgstars">${"⭐".repeat(st)}${"☆".repeat(3-st)}</b><b>${st===3?"ممتاز يا بطل!":st===2?"أحسنت!":"حاول مرة أخرى"} ${ar(Q.ok)} من ${ar(tot)}</b><div class="row"><button class="btn" id="pgAgain">🔁 العب مرة أخرى</button><button class="btn primary" id="pgOther">لعبة أخرى</button></div></div>`;
+  host.querySelector("#pgAgain").onclick=()=>{PG.q={R:pgRounds(G,PG.game),i:0,ok:0,miss:false};renderPlayView(host)};host.querySelector("#pgOther").onclick=()=>{PG.game=null;renderPlayView(host)}}
+function pgPlay(host){const G=PG.g,Q=PG.q;const name=(PG_GAMES[G.kind].find(x=>x[0]===PG.game)||[])[2]||"";
+  host.innerHTML=`<section class="rpv"><div class="row rpbar"><button class="btn ghost" id="pgBack">→ ${esc(G.t)}</button><b>${esc(name)}</b><span class="grow"></span><span class="pgprog">${Q.R.map((_,k)=>`<i class="${k<Q.i?"done":k===Q.i?"now":""}"></i>`).join("")}</span></div><div id="pgArea" class="rpgame"></div></section>`;
+  host.querySelector("#pgBack").onclick=()=>{stopSpeak();PG.game=null;renderPlayView(host)};
+  const A=host.querySelector("#pgArea");if(Q.i>=Q.R.length)return pgDone(host);const r=Q.R[Q.i];
+  const next=()=>{Q.i++;Q.miss=false;setTimeout(()=>pgPlay(host),650)};
+  if(r.memory){const ws=r.memory;const cards=shuffle([...ws.map((w,k)=>({k,t:w.e,emoji:true,say:w.w})),...ws.map((w,k)=>({k,t:w.w,say:w.w}))]);let open=[],found=0,tries=0;
+    A.innerHTML=`<p class="rpq">اقلب بطاقتين: صورة وكلمتها</p><div class="pgmem">${cards.map((c,i)=>`<button class="pgm" data-i="${i}"><span>${esc(c.t)}</span></button>`).join("")}</div>`;
+    A.querySelectorAll(".pgm").forEach(b=>b.onclick=()=>{const c=cards[+b.dataset.i];if(b.classList.contains("up")||open.length>=2)return;b.classList.add("up");if(c.emoji)b.classList.add("emo");speak(c.say);open.push([b,c]);
+      if(open.length===2){tries++;const [[b1,c1],[b2,c2]]=open;if(c1.k===c2.k&&c1.emoji!==c2.emoji){setTimeout(()=>{b1.classList.add("ok");b2.classList.add("ok");open=[];found++;if(found===ws.length){Q.ok=Math.max(1,6-Math.max(0,tries-ws.length));Q.R=[{}].concat(Array(5).fill({}));Q.i=6;pgDone(host)}},500)}
+        else setTimeout(()=>{b1.classList.remove("up","emo");b2.classList.remove("up","emo");open=[]},1100)}});return}
+  if(r.build){const w=r.build,gs=graphemes(w.w);const tiles=shuffle(gs.map((x,k)=>({x,k})));const got=[];
+    const draw=()=>{A.innerHTML=`<div class="rpbuild"><button class="rpemoji" id="pgE">${w.e}</button><div class="rpslot">${got.length?esc(gs.slice(0,got.length).join("")):"<span class=muted>…</span>"}</div><p class="muted small">المس الحروف بالترتيب لتكوّن الكلمة</p><div class="rptiles">${tiles.map((t,i)=>`<button class="rptile ${got.includes(t.k)?"used":""}" data-t="${i}" ${got.includes(t.k)?"disabled":""}>${esc(t.x)}</button>`).join("")}</div></div>`;
+      A.querySelector("#pgE").onclick=()=>speak(w.w);
+      A.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{const t=tiles[+b.dataset.t];if(gs[t.k]===gs[got.length]){got.push(t.k);if(got.length===gs.length){if(!Q.miss)Q.ok++;speak(w.w);draw();A.querySelector(".rpslot").innerHTML=`<b class="okw">${esc(w.w)}</b> ✅`;next()}else draw()}else{Q.miss=true;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500)}})};
+    draw();speak(w.w);return}
+  A.innerHTML=`${r.show?`<div class="pgshow ${r.big?"big":""}">${esc(r.show)}</div>`:""}${r.cap?`<p class="muted">${esc(r.cap)}</p>`:""}<p class="rpq">${r.say?`<button class="btn green" id="pgHear">🔊 استمع</button>`:""}</p>
+    <div class="pgopts">${r.opts.map((o,k)=>`<button class="pgopt ${o.emoji?"emo":""}" data-k="${k}">${esc(o.t)}</button>`).join("")}</div>`;
+  const hear=()=>{if(r.say)speak(r.say)};const hb=A.querySelector("#pgHear");if(hb)hb.onclick=hear;hear();
+  A.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const o=r.opts[+b.dataset.k];if(o.ok){b.classList.add("ok");if(!Q.miss)Q.ok++;if(o.say)speak(o.say);next()}else{Q.miss=true;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500);if(o.say)speak(o.say);else speak("حَاوِلْ مَرَّةً أُخْرَى")}})}
+
+function renderMode(){const h=$("#modeView");if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
 let libShelf="all",libQ="",libRen=null;
