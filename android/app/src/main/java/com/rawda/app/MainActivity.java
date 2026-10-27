@@ -379,6 +379,15 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public int appVersion() { return myVersion(); }
 
+        /** «خروج»: close the program completely */
+        @JavascriptInterface
+        public void exitApp() {
+            runOnUiThread(() -> {
+                try { if (tts != null) tts.stop(); } catch (Exception ignored) { }
+                if (Build.VERSION.SDK_INT >= 21) finishAndRemoveTask(); else finish();
+            });
+        }
+
         @JavascriptInterface
         public void stop() { if (tts != null) tts.stop(); synchronized (ttsQueue) { ttsQueue.clear(); } }
 

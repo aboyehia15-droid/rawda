@@ -714,6 +714,10 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
 .gowork{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 @media (min-width:901px){.gowork{display:none!important}}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:70;box-shadow:0 6px 20px rgba(0,0,0,.2);max-width:calc(100% - 32px)}
+.exitbtn{background:linear-gradient(#fff,#fdecec);color:#b42318;border:1px solid #f3c1bd}.exitbtn.arm{background:#e5484d;color:#fff;border-color:#e5484d;animation:exitPulse .7s infinite alternate}
+@keyframes exitPulse{to{transform:scale(1.06)}}
+#byeScr{position:fixed;inset:0;z-index:99999;background:rgba(15,40,30,.82);display:flex;align-items:center;justify-content:center}
+.byebox{background:#fff;border-radius:24px;padding:32px 40px;text-align:center;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.35)}.byebox h2{margin:8px 0;color:#1f7a45}
 </style>
 
 <header class="top"><div class="wrap">
@@ -723,6 +727,7 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
   <label class="btn primary" for="file">📚 رفع كتب</label>
   <button class="btn primary" id="instBtn" hidden title="تثبيت روضة الدروس على هذا الجهاز">📥 تثبيت البرنامج</button>
   <button class="btn green" id="updBtn" title="تحديث البرنامج والكتب والأصوات والتطبيق">🔄 تحديث البرنامج</button>
+  <button class="btn exitbtn" id="exitBtn" title="الخروج من البرنامج">🚪 خروج</button>
   <button class="btn ghost" id="setBtn" hidden>⚙️ المدرسة والشعار</button>
   <span class="brandleft" id="brandLeft" hidden></span>
   <nav class="modenav" id="modeNav" aria-label="أقسام البرنامج"></nav>
@@ -969,6 +974,13 @@ let draftLogo2=null;function showLogoPrev(){$("#sLogoPrev").innerHTML=draftLogo?
 let instEvt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();instEvt=e;const b=$("#instBtn");if(b)b.hidden=false;const s2=$("#stInst");if(s2)s2.hidden=false});
 window.addEventListener("appinstalled",()=>{instEvt=null;const b=$("#instBtn");if(b)b.hidden=true;flash("✓ ثُبّت البرنامج، ستجد أيقونته على سطح المكتب وفي قائمة ابدأ","ok")});
 $("#instBtn").onclick=async()=>{if(!instEvt){flash("من قائمة المتصفح (⋮) اختر: البث والحفظ والمشاركة ← تثبيت الصفحة كتطبيق","ok");return}instEvt.prompt();try{await instEvt.userChoice}catch(e){}instEvt=null;$("#instBtn").hidden=true};
+let exitArm=0;$("#exitBtn").onclick=()=>{const b=$("#exitBtn");
+  if(Date.now()-exitArm>3500){exitArm=Date.now();b.classList.add("arm");b.textContent="✋ اضغط مرة أخرى للخروج";setTimeout(()=>{if(Date.now()-exitArm>=3400){b.classList.remove("arm");b.textContent="🚪 خروج"}},3500);return}
+  try{saveNow()}catch(e){}try{nrStop()}catch(e){}try{stopLessonRead()}catch(e){}try{stopSpeak()}catch(e){}try{speechSynthesis.cancel()}catch(e){}
+  try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
+  if(window.RawdaAndroid){if(RawdaAndroid.exitApp){try{RawdaAndroid.exitApp();return}catch(e){}}flash("اضغط «🔄 تحديث البرنامج» مرة واحدة ليتحدّث التطبيق، ثم يعمل زر الخروج","err");b.classList.remove("arm");b.textContent="🚪 خروج";return}
+  try{window.close()}catch(e){}
+  setTimeout(()=>{if(document.getElementById("byeScr"))return;const d=document.createElement("div");d.id="byeScr";d.innerHTML='<div class="byebox"><div style="font-size:64px">👋</div><h2>في أمان الله يا معلم</h2><p>حُفظ عملك كله. يمكنك الآن إغلاق هذه النافذة.</p><button class="btn green" id="byeBack">↩ العودة إلى البرنامج</button></div>';document.body.appendChild(d);d.querySelector("#byeBack").onclick=()=>{d.remove();b.classList.remove("arm");b.textContent="🚪 خروج"}},400)};
 $("#updBtn").onclick=async()=>{const b=$("#updBtn");b.disabled=true;b.textContent="⏳ جارٍ التحديث…";
   try{saveNow()}catch(e){}
   if(window.RawdaAndroid&&RawdaAndroid.updateNow){try{RawdaAndroid.updateNow();return}catch(e){}}
