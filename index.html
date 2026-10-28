@@ -2710,7 +2710,7 @@ function pgArcade(host,A,kind){const G=PG.g,Q=PG.q;const need=Q.R.length;const t
         setTimeout(()=>el.remove(),500);
         if(caught>=need){done=true;setTimeout(()=>{Q.ok=Math.max(0,need-Math.max(0,miss-1));items.forEach(i=>i.el.remove());Q.i=need;pgDone(host)},900);return}
         if(caught%2===0)setTimeout(newTarget,700)}
-      else{miss++;el.classList.add("shake");setTimeout(()=>el.classList.remove("shake"),500);speak(it.d.say?(voc?it.d.say:"هٰذَا "+it.d.say):"حَاوِلْ مَرَّةً أُخْرَى")}}};
+      else{miss++;el.classList.add("shake");setTimeout(()=>el.classList.remove("shake"),500);Promise.resolve(it.d.say||it.d.lab?speak(it.d.say||it.d.lab):0).then(()=>{if(!done)speak("حَاوِلْ مَرَّةً أُخْرَى")})}}};
   const loop=ts=>{if(PG.tok!==tok||!F.isConnected||done)return;const dt=last?Math.min(.05,(ts-last)/1000):0;last=ts;spawnT-=dt;
     if(spawnT<=0&&items.filter(i=>!i.gone).length<(voc?5:7)){spawn();spawnT=voc?1.6:1.1}
     const w=W(),h=H();
