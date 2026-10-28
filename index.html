@@ -737,6 +737,57 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
 #mobList{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));inset-inline-start:14px;z-index:60;border-radius:999px;padding:10px 16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 #mobList[hidden]{display:none}
 #syncBar{position:fixed;top:calc(6px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:80;background:#1f7a45;color:#fff;border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:calc(100% - 24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+select{max-width:100%}
+/* ================= phones: everything fits the screen; the book and the Mushaf fill it ================= */
+@media (max-width:760px){
+  .wrap{padding-inline:8px}
+  .app{gap:10px}
+  .side,.quran,.courses,.videos,.voices,.wb,.boardsec{padding:10px;border-radius:14px}
+  main *{min-width:0}
+  .work,.ebook,.wb,.wbbar,.quran,.boardsec{grid-template-columns:minmax(0,1fr)}
+  .book3d,.mushaf{max-width:100vw}
+  h2{font-size:1.2rem}.worktop h2{font-size:1.1rem}
+  .stoptalk{padding:8px 12px!important;font-size:.85rem!important;border-radius:999px!important;bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+  /* lesson tools: one sideways strip instead of a block of big tiles */
+  .tools{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .tools::-webkit-scrollbar{display:none}
+  .tool{flex:0 0 auto;min-width:72px;padding:5px 8px;font-size:.76rem;border-radius:12px;box-shadow:0 3px 0 #dfe7ec}
+  .tool .ic{font-size:1.3rem}
+  .worktop{gap:6px}.worktop .row .btn{padding:5px 9px;font-size:.8rem}
+  /* book: compact bars, then the page from edge to edge */
+  .ebook{gap:8px}
+  .lessbar{padding:6px 8px;gap:6px;font-size:.85rem}
+  .ebar{flex-wrap:nowrap;overflow-x:auto;gap:6px;scrollbar-width:none;padding-bottom:2px}
+  .ebar::-webkit-scrollbar{display:none}
+  .ebar>*{flex:0 0 auto}.ebar .btn{padding:6px 10px;font-size:.85rem}.ebar select{max-width:150px}
+  .nrall{padding:6px 8px}.nrall summary{font-size:.85rem}.nrlist{grid-template-columns:minmax(0,1fr)}
+  .book3d{width:100vw;margin-inline:calc(50% - 50vw);border-radius:0;padding:4px 0 6px!important;min-height:0;gap:4px}
+  .book3d .stagebar{position:static;width:100%;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:2px 8px;scrollbar-width:none}
+  .book3d .stagebar::-webkit-scrollbar{display:none}
+  .book3d .stagebar>*{flex:0 0 auto}
+  .sbtn{padding:6px 10px;font-size:.85rem}
+  .leaf{box-shadow:none;border-radius:0}
+  .book3d .leaf img,.leaf img{max-width:100vw;max-height:calc((100svh - 56px) * var(--z,1))!important}
+  /* Mushaf: reciters in one sideways strip; the text fills the screen */
+  .qsheikh{flex-wrap:nowrap;overflow-x:auto;padding:8px;gap:6px;scrollbar-width:none}
+  .qsheikh::-webkit-scrollbar{display:none}
+  .qsheikh>*{flex:0 0 auto}.qsheikh>span{display:none}
+  .qsheikh button{padding:6px 12px;max-width:72vw}.qsheikh button b{font-size:.85rem;white-space:normal}
+  .sgrid,.jgrid{grid-template-columns:minmax(0,1fr)}
+  .qrbar{flex-wrap:nowrap;overflow-x:auto;gap:6px;scrollbar-width:none}
+  .qrbar::-webkit-scrollbar{display:none}
+  .qrbar>*,.qrbar .row{flex:0 0 auto;flex-wrap:nowrap}
+  .qplayer{padding:8px}
+  .mushaf{width:100vw;margin-inline:calc(50% - 50vw);border-radius:0;border-width:2px 0;padding:12px 12px;font-size:calc(var(--qs,2.1rem) * .78);line-height:2.15;max-height:calc(100svh - 16px)}
+  /* board: tools in sideways strips, a taller writing area */
+  .wbgrp{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .wbgrp::-webkit-scrollbar{display:none}
+  .wbgrp>*{flex:0 0 auto}.wbgrp,.wbt,.tools,.ebar,.qrbar,.stagebar{position:relative}
+  .wbt{min-width:44px;padding:3px 6px;font-size:1.1rem}.wbt small{font-size:.6rem}
+  .wbstage{aspect-ratio:3/4;max-height:calc(100svh - 140px)}
+  /* games */
+  .arfield{height:min(62svh,520px)!important}
+}
 </style>
 
 <header class="top"><div class="wrap">
@@ -2248,7 +2299,7 @@ const noSh=x=>x.replace(/\u0651/g,"");
 function ayahParts(s,i,t){if(s!==1&&s!==9&&i===0&&QTEXT){const B=noSh(QTEXT[0][0]);for(const k of [QTEXT[0][0].length,QTEXT[0][0].length+1,QTEXT[0][0].length-1]){const c=t.slice(0,k);if(t[k]===" "&&noSh(c)===B)return {basm:c,text:t.slice(k+1)}}}return {basm:"",text:t}}
 const QR={s:0,from:1,to:0,view:"full",cur:0,playing:false,rep:1,repLeft:0,gap:0,size:2.1,src:"",timing:false,tmarks:[],waiting:null};
 function pickRec(s){const rs=recsFor(s);if(!rs.length)return "";if(rs.includes(S.qLastRec))return S.qLastRec;return rs[0]}
-function openReader(s,from,to){Object.assign(QR,{pre:"",introDone:false,basmDone:false,s,from:from||1,to:to||SURAHS[s-1].a,cur:(from||1)-1,playing:false,timing:false,rec:pickRec(s)});qAudioEl.pause();qAudioEl.dataset.s="";renderQuranView($("#modeView"));
+function openReader(s,from,to){mobJump("#mushaf");Object.assign(QR,{pre:"",introDone:false,basmDone:false,s,from:from||1,to:to||SURAHS[s-1].a,cur:(from||1)-1,playing:false,timing:false,rec:pickRec(s)});qAudioEl.pause();qAudioEl.dataset.s="";renderQuranView($("#modeView"));
   if(QR.rec&&S.qAuto!==false)loadQuran().then(()=>{if(QR.s===s&&!QR.playing)gotoAyah(QR.cur,true)}).catch(()=>{})}
 function qKeyA(s,a){return `a${s}:${a}`}
 function readerSrc(){const s=QR.s,L=qlib(),r=QR.rec;if(r&&bundleOf(r))return bundleOf(r).ss.includes(s)?"pack":"";if(!r||!L[r])return "";if(arr(L[r].ay&&L[r].ay[s]).length)return "ayah";if(L[r].full&&L[r].full[s])return "file";return ""}
@@ -2514,7 +2565,7 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
 let mode="library";
 const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
 const isPhone=()=>matchMedia("(max-width:760px)").matches;
-function mobJump(){if(!isPhone())return;setTimeout(()=>{const m=document.querySelector(".wrap.app main");if(m)window.scrollTo({top:m.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})},180)}
+function mobJump(sel){if(!isPhone())return;const go=()=>{const m=(sel&&document.querySelector(sel))||document.querySelector("#bookStage")||document.querySelector(".wrap.app main");if(m)window.scrollTo({top:m.getBoundingClientRect().top+scrollY-4,behavior:"smooth"})};setTimeout(go,350);setTimeout(()=>{if(sel||document.querySelector("#bookStage"))go()},1100)}
 function mobListBtn(){let f=document.getElementById("mobList");if(!f){f=document.createElement("button");f.id="mobList";f.className="btn primary";f.innerHTML="📚 الدروس";f.onclick=()=>{const sd=document.getElementById("side");if(sd)window.scrollTo({top:sd.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})};document.body.appendChild(f)}
   const sd=document.getElementById("side");const m=document.querySelector(".wrap.app main");const show=isPhone()&&mode==="lesson"&&sd&&m&&sd.offsetParent&&scrollY+innerHeight*.3>m.getBoundingClientRect().top+scrollY;f.hidden=!show}
 addEventListener("scroll",()=>{try{mobListBtn()}catch(e){}},{passive:true});
