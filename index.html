@@ -718,16 +718,34 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
 @keyframes exitPulse{to{transform:scale(1.06)}}
 #byeScr{position:fixed;inset:0;z-index:99999;background:rgba(15,40,30,.82);display:flex;align-items:center;justify-content:center}
 .byebox{background:#fff;border-radius:24px;padding:32px 40px;text-align:center;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.35)}.byebox h2{margin:8px 0;color:#1f7a45}
+/* phones: a slim header so the chosen content fills the screen */
+@media (max-width:760px){
+  header.top{position:relative;top:auto}
+  .top .wrap{gap:4px;padding-block:6px}
+  .brand{gap:5px;flex:1 1 0;min-width:0}.brand>div{min-width:0}.brand h1{font-size:.92rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#brandSchool{display:none}
+  .brand .logo,#brandMark img{width:26px!important;height:26px!important}.top .stars{padding:6px 7px!important}
+  .brandleft .logo{height:30px!important;max-width:70px}.brandleft{order:1}
+  .brandcenter img{height:34px}
+  .top .wrap>.btn,.top .wrap>label.btn,.top .stars{padding:6px 9px;font-size:.95rem;border-radius:10px;min-height:36px}
+  .top .wrap>.btn .bl,.top .wrap>label.btn .bl{display:none}
+  .modenav{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:6px;padding:6px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+  .modenav::-webkit-scrollbar{display:none}
+  .modenav button{flex:0 0 auto;padding:5px 10px;font-size:.88rem;border-radius:12px;box-shadow:0 3px 0 #d5e2dc;scroll-snap-align:start;white-space:nowrap}
+  .modenav button[aria-current="true"]{box-shadow:0 3px 0 #c98a00}
+  .side{position:static!important;top:auto!important;max-height:none!important}
+}
+#mobList{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));inset-inline-start:14px;z-index:60;border-radius:999px;padding:10px 16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+#mobList[hidden]{display:none}
 </style>
 
 <header class="top"><div class="wrap">
   <div class="brandcenter" id="brandCenter" hidden></div>
   <div class="brand"><span id="brandMark"></span><div><h1>روضة الدروس</h1><div class="small muted" id="brandSchool"></div></div></div>
   <button class="stars" id="stars" title="نجوم الصف">⭐ ٠</button>
-  <label class="btn primary" for="file">📚 رفع كتب</label>
+  <label class="btn primary" for="file" title="رفع كتب">📚 <span class="bl">رفع كتب</span></label>
   <button class="btn primary" id="instBtn" hidden title="تثبيت روضة الدروس على هذا الجهاز">📥 تثبيت البرنامج</button>
-  <button class="btn green" id="updBtn" title="تحديث البرنامج والكتب والأصوات والتطبيق">🔄 تحديث البرنامج</button>
-  <button class="btn exitbtn" id="exitBtn" title="الخروج من البرنامج">🚪 خروج</button>
+  <button class="btn green" id="updBtn" title="تحديث البرنامج والكتب والأصوات والتطبيق">🔄 <span class="bl">تحديث البرنامج</span></button>
+  <button class="btn exitbtn" id="exitBtn" title="الخروج من البرنامج">🚪 <span class="bl">خروج</span></button>
   <button class="btn ghost" id="setBtn" hidden>⚙️ المدرسة والشعار</button>
   <span class="brandleft" id="brandLeft" hidden></span>
   <nav class="modenav" id="modeNav" aria-label="أقسام البرنامج"></nav>
@@ -975,12 +993,12 @@ let instEvt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefa
 window.addEventListener("appinstalled",()=>{instEvt=null;const b=$("#instBtn");if(b)b.hidden=true;flash("✓ ثُبّت البرنامج، ستجد أيقونته على سطح المكتب وفي قائمة ابدأ","ok")});
 $("#instBtn").onclick=async()=>{if(!instEvt){flash("من قائمة المتصفح (⋮) اختر: البث والحفظ والمشاركة ← تثبيت الصفحة كتطبيق","ok");return}instEvt.prompt();try{await instEvt.userChoice}catch(e){}instEvt=null;$("#instBtn").hidden=true};
 let exitArm=0;$("#exitBtn").onclick=()=>{const b=$("#exitBtn");
-  if(Date.now()-exitArm>3500){exitArm=Date.now();b.classList.add("arm");b.textContent="✋ اضغط مرة أخرى للخروج";setTimeout(()=>{if(Date.now()-exitArm>=3400){b.classList.remove("arm");b.textContent="🚪 خروج"}},3500);return}
+  if(Date.now()-exitArm>3500){exitArm=Date.now();b.classList.add("arm");b.textContent="✋ اضغط مرة أخرى للخروج";setTimeout(()=>{if(Date.now()-exitArm>=3400){b.classList.remove("arm");b.innerHTML='🚪 <span class="bl">خروج</span>'}},3500);return}
   try{saveNow()}catch(e){}try{nrStop()}catch(e){}try{stopLessonRead()}catch(e){}try{stopSpeak()}catch(e){}try{speechSynthesis.cancel()}catch(e){}
   try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
-  if(window.RawdaAndroid){if(RawdaAndroid.exitApp){try{RawdaAndroid.exitApp();return}catch(e){}}flash("اضغط «🔄 تحديث البرنامج» مرة واحدة ليتحدّث التطبيق، ثم يعمل زر الخروج","err");b.classList.remove("arm");b.textContent="🚪 خروج";return}
+  if(window.RawdaAndroid){if(RawdaAndroid.exitApp){try{RawdaAndroid.exitApp();return}catch(e){}}flash("اضغط «🔄 تحديث البرنامج» مرة واحدة ليتحدّث التطبيق، ثم يعمل زر الخروج","err");b.classList.remove("arm");b.innerHTML='🚪 <span class="bl">خروج</span>';return}
   try{window.close()}catch(e){}
-  setTimeout(()=>{if(document.getElementById("byeScr"))return;const d=document.createElement("div");d.id="byeScr";d.innerHTML='<div class="byebox"><div style="font-size:64px">👋</div><h2>في أمان الله يا معلم</h2><p>حُفظ عملك كله. يمكنك الآن إغلاق هذه النافذة.</p><button class="btn green" id="byeBack">↩ العودة إلى البرنامج</button></div>';document.body.appendChild(d);d.querySelector("#byeBack").onclick=()=>{d.remove();b.classList.remove("arm");b.textContent="🚪 خروج"}},400)};
+  setTimeout(()=>{if(document.getElementById("byeScr"))return;const d=document.createElement("div");d.id="byeScr";d.innerHTML='<div class="byebox"><div style="font-size:64px">👋</div><h2>في أمان الله يا معلم</h2><p>حُفظ عملك كله. يمكنك الآن إغلاق هذه النافذة.</p><button class="btn green" id="byeBack">↩ العودة إلى البرنامج</button></div>';document.body.appendChild(d);d.querySelector("#byeBack").onclick=()=>{d.remove();b.classList.remove("arm");b.innerHTML='🚪 <span class="bl">خروج</span>'}},400)};
 $("#updBtn").onclick=async()=>{const b=$("#updBtn");b.disabled=true;b.textContent="⏳ جارٍ التحديث…";
   try{saveNow()}catch(e){}
   if(window.RawdaAndroid&&RawdaAndroid.updateNow){try{RawdaAndroid.updateNow();return}catch(e){}}
@@ -1255,7 +1273,7 @@ function renderSide(){try{nrEnsure()}catch(e){}try{mapEnsure()}catch(e){}
     openBook=id;if(S.cur===id){foldBooks(id);return}
     mode="lesson";renderNav();S.cur=id;[...selected].forEach(x=>{const l=allLessons().find(y=>y.id===x);if(!l||l.bookId!==id)selected.delete(x)});freeMode=false;if(id!==DEMO)curTool="ebook";save();renderSide();onSelChange()});
   $$("#tree [data-del]").forEach(b=>b.onclick=()=>delBook(b.dataset.del));
-  $$("#tree .litem").forEach(b=>b.onclick=ev=>{const id=b.dataset.id;const was=selected.size;if(ev&&(ev.ctrlKey||ev.metaKey||ev.target.closest(".box"))){selected.has(id)?selected.delete(id):selected.add(id)}else{const on=selected.has(id)&&selected.size===1;try{nrStop();stopLessonRead();stopSpeak()}catch(e){}selected.clear();if(!on)selected.add(id);$$("#tree .litem").forEach(x=>x.setAttribute("aria-pressed","false"))}b.setAttribute("aria-pressed",selected.has(id));freeMode=false;
+  $$("#tree .litem").forEach(b=>b.onclick=ev=>{const id=b.dataset.id;const was=selected.size;if(ev&&(ev.ctrlKey||ev.metaKey||ev.target.closest(".box"))){selected.has(id)?selected.delete(id):selected.add(id)}else{const on=selected.has(id)&&selected.size===1;try{nrStop();stopLessonRead();stopSpeak()}catch(e){}selected.clear();if(!on)selected.add(id);$$("#tree .litem").forEach(x=>x.setAttribute("aria-pressed","false"))}b.setAttribute("aria-pressed",selected.has(id));freeMode=false;if(selected.has(id))mobJump();
     const l=allLessons().find(x=>x.id===id);if(selected.has(id)&&l){if(l.bookId!==S.cur&&S.books[l.bookId]){S.cur=l.bookId;openBook=l.bookId}if(arr(l.pages).length&&memBook(l.bookId)){ePg[l.bookId]=l.pages[0];if(selected.size===1){curTool="ebook";eLessonOnly=true}}}
     onSelChange(true)});
   $$("#tree [data-all]").forEach(b=>b.onclick=()=>{lessonsOf(b.dataset.all).forEach(l=>selected.add(l.id));freeMode=false;renderSide();onSelChange()});
@@ -2494,7 +2512,13 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
 /* ================= top navigation ================= */
 let mode="library";
 const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
-function renderNav(){document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;nrStop();stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})})}
+const isPhone=()=>matchMedia("(max-width:760px)").matches;
+function mobJump(){if(!isPhone())return;setTimeout(()=>{const m=document.querySelector(".wrap.app main");if(m)window.scrollTo({top:m.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})},180)}
+function mobListBtn(){let f=document.getElementById("mobList");if(!f){f=document.createElement("button");f.id="mobList";f.className="btn primary";f.innerHTML="📚 الدروس";f.onclick=()=>{const sd=document.getElementById("side");if(sd)window.scrollTo({top:sd.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})};document.body.appendChild(f)}
+  const sd=document.getElementById("side");const m=document.querySelector(".wrap.app main");const show=isPhone()&&mode==="lesson"&&sd&&m&&sd.offsetParent&&scrollY+innerHeight*.3>m.getBoundingClientRect().top+scrollY;f.hidden=!show}
+addEventListener("scroll",()=>{try{mobListBtn()}catch(e){}},{passive:true});
+function renderNav(){document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;nrStop();stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})});
+  if(n.scrollWidth>n.clientWidth+4){const c=n.querySelector("[aria-current=true]");if(c){const r=c.getBoundingClientRect(),q=n.getBoundingClientRect();if(r.left<q.left||r.right>q.right)n.scrollLeft+=(r.left+r.width/2)-(q.left+q.width/2)}}}
 
 /* ================= رحلة القراءة: ألعاب الحروف + القراءة المتدرجة ================= */
 const HK="ًٌٍَُِّْٰ";const stripH=w=>String(w).replace(/[ً-ْٰ]/g,"");
