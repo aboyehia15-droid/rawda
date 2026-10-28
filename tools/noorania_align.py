@@ -299,6 +299,27 @@ for ks in ["6", "9", "11", "13", "14", "15", "16", "17"]:
         for w0, w1, _ in W_:
             if w0 + .04 < U[i][1] < w1 - .04 and (nx is None or w1 < nx): U[i][1] = round(w1 + .02, 2); break
     print(f"lesson {ks}: {moved} box starts moved off mid-word")
+# lesson 4: every letter is read in five utterances (X fatha Xa / X kasra Xi / Xa Xi / X damma Xu / Xa Xi Xu):
+# fatha box = 1st, kasra box = 2nd+3rd, damma box = 4th+5th. From dal on the sheikh reads each letter's three
+# boxes in one breath without spelling: that utterance is shared out over the three boxes.
+U4 = list(units[3])
+if len(U4) == 84:   # the detector missed the last box of row 3 (kaf damma)
+    r3 = [u for u in U4 if u["pg"] == 11 and abs(u["box"][1] - U4[17]["box"][1]) < .01]
+    U4.insert(U4.index(r3[-1]) + 1, {"pg": 11, "box": [round(2 * r3[-1]["box"][0] - r3[-2]["box"][0], 4)] + r3[-1]["box"][1:]})
+seg4 = [x for x in sync["4"]["alts"] if x["db"] == -30][0]["segs"]
+if len(U4) == 85 and len(seg4) == 98:
+    T4 = [(seg4[0][0], seg4[5][1])]
+    i = 6
+    for L in range(16):
+        a, b, c, d, e = seg4[i:i + 5]; i += 5
+        T4 += [(a[0], a[1]), (b[0], c[1]), (d[0], e[1])]
+    for L in range(12):
+        s0, s1 = seg4[i]; i += 1; st = (s1 - s0) / 3
+        T4 += [(s0 + q * st, s0 + (q + 1) * st) for q in range(3)]
+    M["4"] = [[round(t0, 2), round(t1, 2), u["pg"]] + u["box"] for (t0, t1), u in zip(T4, U4)]
+    print("lesson 4 set by its reading pattern:", len(M["4"]), "boxes")
+else:
+    print("lesson 4: unexpected layout", len(U4), len(seg4))
 import time
 M["_v"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
 json.dump(M, open(out, "w"), separators=(",", ":"))
