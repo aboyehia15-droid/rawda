@@ -736,6 +736,7 @@ header.top{background:linear-gradient(180deg,#ffffff,#f7fbf8);box-shadow:0 6px 1
 }
 #mobList{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));inset-inline-start:14px;z-index:60;border-radius:999px;padding:10px 16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 #mobList[hidden]{display:none}
+#syncBar{position:fixed;top:calc(6px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:80;background:#1f7a45;color:#fff;border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:calc(100% - 24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 </style>
 
 <header class="top"><div class="wrap">
@@ -1075,11 +1076,11 @@ async function loadFiles0(files,opts){
       S.cur=bk.id;loading={id:bk.id,i:0,n:doc.numPages};renderSide();
       for(let i=1;i<=doc.numPages;i++){
         if(window.__bgLoad)await bgYield();loading.i=i;if(i===1||i%3===0)renderSide();
-        const pg=await doc.getPage(i);const v0=pg.getViewport({scale:1});const sc=Math.min(2.6,1500/v0.width);const vp=pg.getViewport({scale:sc});
+        const pg=await doc.getPage(i);const v0=pg.getViewport({scale:1});const sc=Math.min(2.6,(isPhone()?1000:1500)/v0.width);const vp=pg.getViewport({scale:sc});
         const c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
         await pg.render({canvasContext:x,viewport:vp}).promise;
         let txt="";try{txt=(await pg.getTextContent()).items.map(t=>t.str).join(" ").replace(/\s+/g," ").trim().normalize("NFKC");if(!textOK(txt))txt=""}catch(e){}
-        const N=off+i;bk.pages.push({n:N,blob:await toBlob(c),thumb:thumbOf(c),pdfText:txt,fp:N<=3?fpOf(c):""});
+        const N=off+i;bk.pages.push({n:N,blob:await toBlob(c,"image/jpeg",isPhone()?.82:.9),thumb:thumbOf(c),pdfText:txt,fp:N<=3?fpOf(c):""});
         if(!meta[N])meta[N]={text:txt,read:null};
       }
       if(!merge)newIds.push(dedupeBook(bk));
@@ -1143,7 +1144,7 @@ async function pumpRead(){if(reading)return;const id=readQ.shift();if(!id)return
 function stopRead(id){readQ=readQ.filter(x=>x!==id);if(reading&&reading.id===id)reading.ctl.abort();else setSt(id,{state:"stopped"})}
 /* reading without Claude: text from the PDF itself, and Arabic OCR (Tesseract) for picture pages */
 let TESS=null;let lastInput=0;["pointerdown","pointermove","keydown","touchstart","wheel"].forEach(t=>addEventListener(t,()=>{lastInput=Date.now()},{passive:true,capture:true}));
-async function bgYield(){await new Promise(r=>setTimeout(r,30));let n=0;while((Date.now()-lastInput<2500||document.hidden)&&n<2400){await new Promise(r=>setTimeout(r,250));n++}}
+async function bgYield(){await new Promise(r=>setTimeout(r,30));let n=0;while(((!isPhone()&&Date.now()-lastInput<2500)||document.hidden)&&n<2400){await new Promise(r=>setTimeout(r,250));n++}}
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=()=>res();sc.onerror=()=>rej(new Error("tess"));document.head.appendChild(sc)})}
 /* ===== only real writing is read aloud: letters by name, numbers as words, no OCR noise ===== */
 const AR_RE=/[ء-ي]/g, LAT_RE=/[A-Za-z]/g;
@@ -2837,19 +2838,21 @@ async function syncShared(manual){if(syncing)return syncing;syncing=(async()=>{w
     const top=await ghList(GH.dir);const jobs=[];
     for(const it of top){if(it.type==="file"&&isBookFile(it.name))jobs.push({key:it.path,name:it.name.replace(/\.[^.]+$/,""),sha:it.sha,files:[it]});
       else if(it.type==="dir"){try{const all=await ghList(it.path);const pick=re=>all.filter(x=>x.type==="file"&&re.test(x.name)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));const pd=pick(/\.pdf$/i),im=pick(/\.(png|jpe?g|webp|gif)$/i);const sub=pd.length?pd:im;if(sub.length)jobs.push({key:it.path,name:it.name,sha:hashStr(sub.map(x=>x.sha).join("|")),files:sub,folder:true,parts:!!pd.length})}catch(e){}}}
-    total=jobs.length;let k=0;
+    jobs.sort((a,b)=>(/نوراني/.test(b.name)?1:0)-(/نوراني/.test(a.name)?1:0));total=jobs.length;let k=0;let failed=0;
     for(const j of jobs){k++;const rec=S.shared[j.key];const have=rec&&S.books[rec.id]&&books.find(b=>b.id===rec.id);if(rec&&rec.sha===j.sha&&have)continue;
-      syncMsg=`تنزيل «${j.name}» (${ar(k)} من ${ar(total)})…`;if(mode==="library")renderMain();
-      const fs=[];for(const f of j.files){const r=await fetch(f.download_url,{cache:"no-store"});if(!r.ok)throw new Error("dl");const b=await r.blob();fs.push(new File([b],j.folder?f.name:(j.name+f.name.slice(f.name.lastIndexOf("."))),{type:b.type||""}))}
+      syncMsg=`تنزيل «${j.name}» (${ar(k)} من ${ar(total)})…`;syncBar(`⏳ تنزيل كتب المكتبة: «${j.name}» (${ar(k)} من ${ar(total)})`);if(mode==="library")renderMain();
+      try{const fs=[];for(const f of j.files){const r=await fetch(f.download_url,{cache:"no-store"});if(!r.ok)throw new Error("dl");const b=await r.blob();fs.push(new File([b],j.folder?f.name:(j.name+f.name.slice(f.name.lastIndexOf("."))),{type:b.type||""}))}
       const beforeIds=new Set(Object.keys(S.books));const isPdf=!j.folder&&/\.pdf$/i.test(j.files[0].name);
       const keepCur=S.cur,keepOpen=openBook;await loadFiles(fs,j.parts?{name:j.name,merge:true}:isPdf?undefined:{name:j.name});S.cur=keepCur;openBook=keepOpen;save();renderSide();
       const id=Object.keys(S.books).find(x=>S.books[x].name===j.name)||Object.keys(S.books).find(x=>!beforeIds.has(x));
-      if(id){S.books[id].gh=j.key;if(!S.books[id].shelfManual)S.books[id].shelf=guessShelf(j.name);S.shared[j.key]={sha:j.sha,id};rec?updated++:added++}}
+      if(id){S.books[id].gh=j.key;if(!S.books[id].shelfManual)S.books[id].shelf=guessShelf(j.name);S.shared[j.key]={sha:j.sha,id};rec?updated++:added++;renderSide()}}catch(e){failed++}}
+    if(failed&&!added&&!updated)throw new Error("dl");
 
     S.lastSync=Date.now();save();syncMsg=added||updated?`✓ أُضيف ${ar(added)} كتاب${updated?` وحُدِّث ${ar(updated)}`:""} من المكتبة المشتركة`:`✓ المكتبة محدَّثة (${ar(total)} كتاب مشترك)`;
     if(added||updated||manual)flash(syncMsg,"ok")}
   catch(e){syncMsg=navigator.onLine===false?"لا يوجد اتصال بالإنترنت؛ تعمل الكتب المحفوظة على هذه الشاشة.":"تعذّرت المزامنة الآن. حاول لاحقًا.";if(manual)flash(syncMsg,"err")}
-  finally{syncing=null;window.__bgLoad=false;if(mode==="library")renderMain()}})();return syncing}
+  finally{syncing=null;window.__bgLoad=false;syncBar("");if(mode==="library")renderMain()}})();return syncing}
+function syncBar(t){let b=document.getElementById("syncBar");if(!t){if(b)b.remove();return}if(!b){b=document.createElement("div");b.id="syncBar";document.body.appendChild(b)}b.textContent=t}
 function sharedPanelHTML(){const n=Object.keys(S.shared||{}).filter(k=>S.shared[k]&&S.books[S.shared[k].id]).length;
   return `<div class="lshare"><div style="display:grid;gap:4px"><b>☁️ المكتبة المشتركة لكل الشاشات</b><span class="small muted">ارفع الكتاب مرة واحدة إلى مجلد <b dir="ltr">books</b> في مستودعك على GitHub، فينزل وحده على كل شاشة فيها البرنامج عند فتحه.${n?` · ${ar(n)} كتاب مشترك على هذه الشاشة`:""}</span>
      <span class="small" id="syncMsg">${syncing?'<span class="spin s"></span> ':""}${esc(syncMsg||(S.lastSync?"آخر مزامنة: "+new Date(S.lastSync).toLocaleString("ar"):""))}</span></div>
