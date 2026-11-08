@@ -320,6 +320,28 @@ if len(U4) == 85 and len(seg4) == 98:
     print("lesson 4 set by its reading pattern:", len(M["4"]), "boxes")
 else:
     print("lesson 4: unexpected layout", len(U4), len(seg4))
+# lesson 2: the detector missed the last box of page 9's first row (ح), so every box after it ran one ahead.
+# Each box of this lesson is read in exactly one utterance: add the box and lay the utterances on the boxes in order.
+L2 = M.get("2", [])
+rows9 = {}
+for b in L2:
+    if b[2] == 9: rows9.setdefault(round(b[4], 2), []).append(b)
+short = [r for r in rows9.values() if len(r) == 5]
+if len(L2) == 126 and len(short) == 2:
+    for r in short:   # the leftmost box of the row was missed
+        a = r[-1]; step = r[-2][3] - a[3]
+        L2.insert(L2.index(a) + 1, [0, 0, 9, round(a[3] - step, 4), a[4], a[5], a[6]])
+    seg2 = [x for x in sync["2"]["alts"] if x["db"] == -30][0]["segs"]
+    k = next(i for i, sg in enumerate(seg2) if abs(sg[0] - L2[55][0]) < .3)
+    rest = seg2[k:]; nb = len(L2) - 55
+    for q in range(nb):
+        b = L2[55 + q]
+        if q < nb - 1:
+            b[0], b[1] = round(rest[q][0], 2), round(rest[q][1], 2)
+        else:
+            b[0], b[1] = round(rest[q][0], 2), round(rest[-1][1], 2)
+    M["2"] = L2
+    print("lesson 2: boxes ح and يجب added on page 9, boxes 55..", len(L2) - 1, "re-timed from", len(rest), "utterances")
 import time
 M["_v"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
 json.dump(M, open(out, "w"), separators=(",", ":"))
