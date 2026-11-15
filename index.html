@@ -873,6 +873,71 @@ body:has(.wwstage) header.top{position:relative;top:auto}.wwwheel svg{width:100%
 .gameback{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:9000;padding:11px 18px;border:3px solid #fff;border-radius:999px;background:#f0a500;color:#1d2b36;font:inherit;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer}
 .gameback[hidden]{display:none}
 @media (max-width:760px){.gameback{font-size:0;width:52px;height:52px;padding:0;display:grid;place-items:center}.gameback::before{content:"↩";font-size:1.6rem}}.gameback:hover{background:#ffbf2e}
+/* ===== ركن الأرقام والحساب ===== */
+.mt{display:grid;gap:14px}.mthead h2{margin:0}
+.mtcats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.mtcat{display:grid;justify-items:center;gap:6px;padding:22px 14px;border:0;border-radius:26px;color:#fff;font:inherit;cursor:pointer;box-shadow:0 8px 0 rgba(0,0,0,.18),0 12px 24px rgba(0,0,0,.12);text-shadow:0 2px 3px rgba(0,0,0,.25);transition:transform .15s}
+.mtcat:hover{transform:translateY(-3px)}.mtcat .big{font-size:3.6rem}.mtcat b{font-size:1.6rem;font-family:var(--display)}.mtcat i{font-style:normal;opacity:.95}.mtcat .cnt{background:rgba(255,255,255,.25);border-radius:999px;padding:2px 12px;font-size:.85rem}
+.mthero{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:24px;color:#fff;flex-wrap:wrap}.mthero .big{font-size:3rem}.mthero h2{margin:0;color:#fff}.mthero p{margin:0;opacity:.95}
+.btn.light{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.5)}
+.mtlv{display:flex;gap:8px;flex-wrap:wrap}.mtlv .chip{padding:8px 16px;border-radius:999px;border:2px solid #d6e2dc;background:#fff;font:inherit;font-weight:700;cursor:pointer}.mtlv .chip.on{background:#1f7a45;color:#fff;border-color:#1f7a45}
+.mtgames{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.mtg{display:grid;justify-items:center;gap:4px;padding:14px 8px;border-radius:20px;border:2px solid #e3ebe7;background:linear-gradient(#fff,#f5faf7);font:inherit;cursor:pointer;box-shadow:0 4px 0 #dbe6e0;text-align:center}
+.mtg:hover{border-color:#1f7a45;transform:translateY(-2px)}.mtg .e{font-size:2.4rem}.mtg b{font-size:1.05rem}.mtg i{font-style:normal;font-size:.78rem;color:#6b7c75}.mtg .st{font-size:.9rem;letter-spacing:2px}
+.mtbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.mtbar b{font-size:1.2rem}
+.mtprog{display:flex;gap:4px;flex:1;justify-content:center}.mtprog i{width:20px;height:8px;border-radius:9px;background:#dfe7e3}.mtprog i.done{background:#3bb36b}.mtprog i.now{background:#f0b400}
+.mtstage{position:relative;min-height:62vh;padding:18px;border-radius:24px;background:radial-gradient(circle at 15% 10%,#fffbe6,#eef7ff 55%,#f0fff1);border:2px solid #e3ebe7;overflow:hidden;display:grid;align-content:start;gap:14px}
+.mt:fullscreen{background:#fff;padding:16px;overflow:auto}.mt:fullscreen .mtstage{min-height:86vh}
+.mtq{text-align:center;font-weight:800;font-size:clamp(1.3rem,3.4vw,2rem);margin:0;font-family:var(--display)}.mtq.big{font-size:clamp(2rem,6vw,3.4rem)}
+.mtbig{font-size:1.5em;color:#e5484d}
+.mthear{justify-self:center;font-size:3.5rem;width:110px;height:110px;border-radius:50%;border:0;background:#ffd54f;box-shadow:0 6px 0 #c9a227;cursor:pointer}
+.mtopts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.mtn{min-width:96px;min-height:96px;padding:8px 14px;border:0;border-radius:24px;background:#fff;box-shadow:0 6px 0 #cfd9d4;font:inherit;font-size:clamp(2.4rem,7vw,3.8rem);font-weight:800;cursor:pointer;color:#1d2b36}
+.mtopts.big .mtn{min-width:120px;min-height:120px}.mtn.ok{background:#bdf0c9;box-shadow:0 6px 0 #7fcf94}.mtn.used{opacity:.35}
+.mtn.card{display:grid;place-items:center;font-size:2.4rem;min-width:90px}.mtn.card small{font-size:.8rem;color:#e5484d;letter-spacing:1px;max-width:90px;word-break:break-all;line-height:1.1}
+.mobjs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:520px;margin:0 auto}.mobjs .mo{font-size:clamp(2.2rem,6vw,3.2rem);animation:mtin .35s both;position:relative}
+.mobjs.sm .mo{font-size:1.3rem}.mobjs.tap .mo{cursor:pointer}.mobjs .mo.cnt::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;background:#1f7a45;color:#fff;border-radius:50%;font-size:.9rem;width:24px;height:24px;display:grid;place-items:center;font-weight:800}
+.mobjs .mo.crossed{opacity:.35}.mobjs .mo.crossed::before{content:"✖";position:absolute;inset:0;display:grid;place-items:center;color:#e5484d;font-size:2.4rem}
+@keyframes mtin{from{transform:scale(0)}}
+.mtballoons{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:10px}
+.mtbal{width:96px;height:118px;border:0;border-radius:50% 50% 46% 46%;color:#fff;font:inherit;font-size:2.6rem;font-weight:800;cursor:pointer;text-shadow:0 2px 3px rgba(0,0,0,.3);position:relative;animation:wwfloat 2.2s ease-in-out infinite alternate}
+.mtbal::after{content:"";position:absolute;bottom:-26px;left:50%;width:2px;height:26px;background:#888}
+.mtbal.c0{background:#ff6b6b}.mtbal.c1{background:#4fa3ff}.mtbal.c2{background:#3bb36b}.mtbal.c3{background:#b06ee0}.mtbal.c4{background:#f0a500}.mtbal.pop{transform:scale(1.5);opacity:0;transition:.35s;pointer-events:none}
+.mtsrc{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.mtsrc .mo{font-size:2.6rem;border:0;background:transparent;cursor:pointer}.mtsrc .mo.used{opacity:.15;pointer-events:none}
+.mtbasket{position:relative;margin:0 auto;width:min(520px,92%);min-height:110px;border-radius:0 0 60px 60px;background:repeating-linear-gradient(45deg,#d9a066 0 10px,#c88a4f 10px 20px);display:grid;place-items:center;padding:16px}
+.mtbasket .lbl{position:absolute;top:-34px;font-size:2.4rem}.mtbasket .in{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:2.2rem}.mtbasket .cnt{position:absolute;left:12px;top:10px;background:#fff;border-radius:12px;padding:2px 12px;font-size:1.6rem}
+.mttrain{display:flex;align-items:flex-end;gap:4px;justify-content:center;min-height:80px;transition:transform 2.5s ease-in}.mttrain .eng{font-size:3.4rem}.mttrain #wag{display:flex;gap:4px}
+.mttrain .wg{min-width:58px;height:58px;border-radius:12px;background:#4fa3ff;color:#fff;display:grid;place-items:center;font-size:2rem;font-weight:800;box-shadow:0 4px 0 #2d6cc4;animation:mtin .3s}
+.mttrain.go{transform:translateX(-120vw)}
+.mtpads{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;position:relative;padding:20px 0;background:linear-gradient(transparent 40%,#bfe6ff 40%);border-radius:20px}
+.mtpads .pad{width:78px;height:78px;border-radius:50%;background:#7bc96f;box-shadow:0 5px 0 #4e9a45;display:grid;place-items:center;font-size:2.2rem;font-weight:800;color:#fff}
+.mtpads .pad.hole{background:#fff;color:#f0a500;border:4px dashed #f0a500;box-shadow:none}.mtpads .pad.ok{background:#3bb36b}.mtpads .frog{font-size:2.6rem}
+.mtsides{display:grid;grid-template-columns:1fr 1fr;gap:16px}.mtside{border:3px solid #e3ebe7;border-radius:22px;background:#fff;padding:16px;cursor:pointer;min-height:180px;display:grid;place-items:center}.mtside.ok{border-color:#3bb36b;background:#e9fbee}
+.mteq{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}.mteq .op{font-size:3rem;font-weight:800;color:#e5484d}.mteq .q{font-size:3rem;font-weight:800;color:#f0a500}.mteq .mobjs{max-width:240px;margin:0}
+.mteq .slot{min-width:80px;height:80px;border-radius:18px;border:4px dashed #9fb5ab;display:grid;place-items:center;font-size:2.6rem;font-weight:800;background:#fff}
+.mteqs{font-size:clamp(1.4rem,4vw,2.2rem);direction:rtl}
+.mtline{position:relative;display:flex;justify-content:space-between;padding:60px 6px 6px;border-bottom:none}
+.mtline::before{content:"";position:absolute;left:6px;right:6px;bottom:34px;height:5px;background:#1d2b36;border-radius:4px}
+.mtline .tick{display:grid;justify-items:center;gap:4px;flex:1}.mtline .tick i{width:4px;height:16px;background:#1d2b36}.mtline .tick b{font-size:clamp(1rem,2.6vw,1.6rem)}
+.mtline{direction:ltr}.mtline .frog{position:absolute;top:4px;font-size:2.6rem;transform:translateX(-50%);transition:left .6s ease}.mtline .frog.hop{animation:mthop .6s}
+@keyframes mthop{50%{top:-26px}}
+.mtsea{position:relative;height:min(52vh,420px);border-radius:22px;background:linear-gradient(#bfe9ff,#3f9fe0);overflow:hidden}
+.mtsea .boat{position:absolute;top:-6px;right:20px;font-size:3rem}
+.mtfish{position:absolute;left:-140px;display:flex;align-items:center;gap:2px;border:0;background:transparent;cursor:pointer;animation:mtswim linear infinite;font:inherit}
+.mtfish span{font-size:3.4rem}.mtfish b{background:#fff;border-radius:14px;padding:2px 12px;font-size:2rem;font-weight:800}.mtfish.r{animation-name:mtswimr}.mtfish.r span{transform:scaleX(-1)}
+.mtfish.caught{animation:none;left:auto!important;right:30px;top:6px!important;transition:.5s}
+@keyframes mtswim{to{left:110%}}@keyframes mtswimr{from{left:110%}to{left:-160px}}
+.mtbalbox{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap}.mtbalbox .plus{font-size:3rem;font-weight:800;color:#e5484d}.mobjs.bal.fly .mo{animation:mtflyin 1.4s both}
+@keyframes mtflyin{from{transform:translateY(-200px);opacity:0}}
+.mtflybox{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;min-height:130px;padding-top:40px}.mtflybox .fb{font-size:3.2rem}.mtflybox .fb.away{animation:mtaway 1.6s forwards}
+@keyframes mtaway{to{transform:translateY(-300px) rotate(-20deg);opacity:0}}
+.mtplate{display:grid;justify-items:center;gap:8px}.mtplate>div{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:18px 28px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 10px #eef2f4,0 6px 14px rgba(0,0,0,.12)}
+.mtplate .monster{font-size:4rem;animation:wwfloat 1s ease-in-out infinite alternate}.mtplate .ck{font-size:2.6rem}.mtplate .ck.eat{animation:mteat .6s forwards}
+@keyframes mteat{to{transform:scale(0) rotate(90deg);opacity:0}}
+.mtmem{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.mtcard{aspect-ratio:1;border:0;border-radius:18px;background:linear-gradient(135deg,#fcd34d,#f59e0b);box-shadow:0 5px 0 #c98a00;font:inherit;font-size:2.4rem;cursor:pointer;display:grid;place-items:center;padding:6px}
+.mtcard .f{display:none}.mtcard.up{background:#fff;box-shadow:0 5px 0 #d6e0db}.mtcard.up .b{display:none}.mtcard.up .f{display:block}.mtcard.ok{background:#d8f5df}
+@media (max-width:760px){.mtstage{padding:10px;border-radius:18px}.mtn{min-width:76px;min-height:76px}.mtopts.big .mtn{min-width:88px;min-height:88px}.mtpads .pad{width:56px;height:56px;font-size:1.6rem}.mtsides{gap:8px}.mtside{padding:8px;min-height:140px}}
 </style>
 
 <header class="top"><div class="wrap">
@@ -2677,7 +2742,7 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
   $("#vcImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text());if(d.format!=="rawda-voice-pack")throw 0;let n=0;for(const [k,v] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(v.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:v.type}));recKeys.add(k);n++}flash(`استُورد ${ar(n)} مقطعًا صوتيًا`,"ok");re()}catch(err){flash("هذا الملف ليس حزمة صوتية من روضة الدروس","err")}}}
 /* ================= top navigation ================= */
 let mode="library";
-const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["wall","🧱","جدار الكلمات"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
+const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["wall","🧱","جدار الكلمات"],["math","🔢","ركن الأرقام والحساب"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
 const isPhone=()=>matchMedia("(max-width:760px)").matches;
 function mobJump(sel){if(!isPhone()&&!(!sel&&isNoorania(S.books[S.cur])))return;const go=()=>{const m=(sel&&document.querySelector(sel))||document.querySelector("#bookStage")||document.querySelector(".wrap.app main");if(m)window.scrollTo({top:m.getBoundingClientRect().top+scrollY-4,behavior:"smooth"})};setTimeout(go,350);setTimeout(()=>{if(sel||document.querySelector("#bookStage"))go()},1100)}
 function mobListBtn(){let f=document.getElementById("mobList");if(!f){f=document.createElement("button");f.id="mobList";f.className="btn primary";f.innerHTML="📚 الدروس";f.onclick=()=>{const sd=document.getElementById("side");if(sd)window.scrollTo({top:sd.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})};document.body.appendChild(f)}
@@ -3054,13 +3119,13 @@ function wwEdit(host,a,tpl){const ed=host.querySelector("#wwEd");tpl=a?a.tpl:tpl
   q("#wwCancel").onclick=()=>{ed.innerHTML=""};ed.scrollIntoView({block:"start",behavior:"smooth"});
   q("#wwSave").onclick=()=>{const tp=q("#wwTpl").value;const items=wwParse(tp,q("#wwItems").value);const min=tp==="tf"||tp==="quiz"||tp==="wheel"||tp==="box"||tp==="cards"||tp==="anagram"||tp==="missing"?1:2;
     if(items.length<min){flash("اكتب سطرًا واحدًا على الأقل بالشكل المطلوب: "+WW_T[tp].h,"err");return}
-    const x={id:a&&a.id?a.id:"w"+Date.now().toString(36),title:q("#wwTitle").value.trim()||WW_T[tp].n,tpl:tp,items};S.ww=(S.ww||[]).filter(y=>y.id!==x.id).concat([x]);save();WW.act=x;renderWordWallView(host)}}
+    const x={id:a&&a.id?a.id:"w"+Date.now().toString(36),title:q("#wwTitle").value.trim()||WW_T[tp].n,tpl:tp,items};if(mode==="math")x.math=1;S.ww=(S.ww||[]).filter(y=>y.id!==x.id).concat([x]);save();WW.act=x;if(mode==="math"){wwPlay(host,x);gbSync();return}renderWordWallView(host)}}
 function wwDone(A,ok,tot,again){praise();A.innerHTML=`<div class="win"><span class="em">🏆</span><h3>أحسنتم يا أبطال!</h3>${tot?stars(ok,tot):""}<div class="row" style="justify-content:center"><button class="btn green" id="wwAgain">🔁 مرة أخرى</button><button class="btn" id="wwOut">🧱 نشاط آخر</button></div></div>`;speak("مَا شَاءَ اللَّهُ! أَحْسَنْتُمْ يَا أَبْطَال");
-  A.querySelector("#wwAgain").onclick=again;A.querySelector("#wwOut").onclick=()=>{WW.act=null;renderWordWallView(WW.host)}}
+  A.querySelector("#wwAgain").onclick=again;A.querySelector("#wwOut").onclick=()=>{if(WW.ret&&mode==="math")return WW.ret();WW.act=null;renderWordWallView(WW.host)}}
 function wwShake(b){b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500)}
 function wwPlay(host,a){const T=WW_T[a.tpl]||{e:"🌐",n:"Wordwall"};
   host.innerHTML=`<section class="ww"><div class="wwbar"><button class="btn ghost" id="wwBack">→ جدار الكلمات</button><b>${T.e} ${esc(a.title)}</b><span class="small muted">${T.n}</span><button class="btn small ghost" id="wwFull" title="ملء الشاشة">⛶</button></div><div class="wwstage" id="wwA"></div></section>`;
-  host.querySelector("#wwBack").onclick=()=>{WW.tok=null;stopSpeak();WW.act=null;renderWordWallView(host)};
+  host.querySelector("#wwBack").onclick=()=>{WW.tok=null;stopSpeak();if(WW.ret&&mode==="math")return WW.ret();WW.act=null;renderWordWallView(host)};
   host.querySelector("#wwFull").onclick=()=>{const el=host.querySelector(".ww");try{document.fullscreenElement?document.exitFullscreen():el.requestFullscreen()}catch(e){}};
   const A=host.querySelector("#wwA");const again=()=>wwPlay(host,a);const tok=WW.tok={};const live=()=>WW.tok===tok;const I=a.items;
   if(a.tpl==="embed"){A.innerHTML=`<iframe class="wwframe" src="${esc(a.embed)}" allowfullscreen allow="autoplay; fullscreen"></iframe><p class="small muted">إذا لم يظهر النشاط فتأكد من اتصال الشاشة بالإنترنت، أو <a href="${esc(a.embed)}" target="_blank" rel="noopener">افتحه في نافذة جديدة</a>.</p>`;return}
@@ -3125,11 +3190,145 @@ function wwPlay(host,a){const T=WW_T[a.tpl]||{e:"🌐",n:"Wordwall"};
     const tick=()=>{if(!live())return;time--;A.querySelector("#tm").textContent=ar(time);if(time<=0){end();return}setTimeout(tick,1000)};up();setTimeout(tick,1000);return}
 }
 
-function gbSync(){let b=document.getElementById("gameBack");const on=(mode==="play"&&PG.g)||(mode==="wall"&&WW.act);
+function gbSync(){let b=document.getElementById("gameBack");const on=(mode==="play"&&PG.g)||(mode==="wall"&&WW.act)||(mode==="math"&&MT.cat);
   if(!on){if(b)b.hidden=true;return}if(!b){b=document.createElement("button");b.id="gameBack";b.className="gameback";b.type="button";document.body.appendChild(b);
-    b.onclick=()=>{try{stopSpeak()}catch(e){}const h=$("#modeView");if(mode==="play"){PG.tok=null;if(PG.game){PG.game=null;PG.q=null}else PG.g=null;renderPlayView(h)}else if(mode==="wall"){WW.tok=null;WW.act=null;renderWordWallView(h)}window.scrollTo({top:0,behavior:"smooth"})}}
-  b.hidden=false;b.innerHTML=mode==="play"?(PG.game?"↩ رجوع إلى الألعاب":"↩ رجوع إلى المجموعات"):"↩ رجوع إلى جدار الكلمات"}
-function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+    b.onclick=()=>{try{stopSpeak()}catch(e){}const h=$("#modeView");if(mode==="play"){PG.tok=null;if(PG.game){PG.game=null;PG.q=null}else PG.g=null;renderPlayView(h)}else if(mode==="wall"){WW.tok=null;WW.act=null;renderWordWallView(h)}else if(mode==="math"){MT.tok=null;WW.tok=null;if(MT.cat==="act"&&WW.act){WW.act=null}else if(MT.game){MT.game=null}else{MT.cat=null;WW.ret=null}renderMathView(h)}window.scrollTo({top:0,behavior:"smooth"})}}
+  b.hidden=false;b.innerHTML=mode==="play"?(PG.game?"↩ رجوع إلى الألعاب":"↩ رجوع إلى المجموعات"):mode==="math"?((MT.game||WW.act)?"↩ رجوع إلى الألعاب":"↩ رجوع إلى ركن الأرقام"):"↩ رجوع إلى جدار الكلمات"}
+/* ================= ركن الأرقام والحساب: number, addition and subtraction games for ages 4–6 ================= */
+const MT={cat:null,game:null,tok:null,lvl:{num:10,add:5,sub:5}};
+const MT_OBJ=["🍎","🍌","⭐","🐟","🐥","🎈","🍓","🚗","🌸","🐞","🍪","🦋","🥕","🐑","⚽"];
+const MT_CATS={
+  num:{e:"🔢",n:"الأرقام",d:"نتعرّف الأرقام ونعدّ",bg:"linear-gradient(135deg,#7dd3fc,#3b82f6)",lv:[[5,"من ١ إلى ٥"],[10,"من ٠ إلى ١٠"],[20,"إلى ٢٠"]],
+    g:[["hear","🔊","اسمع واختر","اسمع الرقم واختره"],["count","🍎","عُدّ واختر","عُدّ الأشياء واختر عددها"],["pop","🎈","فرقع الرقم","فرقع البالونات التي عليها الرقم"],["basket","🧺","املأ السلة","ضع في السلة العدد المطلوب"],["order","🚂","قطار الأرقام","المس الأرقام بالترتيب"],["missing","🐸","الرقم الناقص","ما الرقم الذي سقط من الصف؟"],["more","⚖️","أيهما أكثر؟","اختر المجموعة الأكثر"],["match","🃏","طابق الرقم بالكمية","اقلب رقمًا وكميته"]]},
+  add:{e:"➕",n:"الجمع",d:"نجمع الأشياء ونعرف الناتج",bg:"linear-gradient(135deg,#86efac,#16a34a)",lv:[[5,"الناتج حتى ٥"],[10,"الناتج حتى ١٠"]],
+    g:[["apic","🍎","اجمع بالصور","عُدّ المجموعتين معًا"],["afrog","🐸","الضفدع على خط الأعداد","يقفز الضفدع إلى الأمام"],["afish","🎣","اصطد الناتج","اصطد السمكة التي عليها الناتج"],["amake","🧱","كوّن العدد","اختر عددين مجموعهما الهدف"],["abal","🎈","بالونات الجمع","اربط بالونين بالسلة"],["amatch","🃏","مسألة وناتجها","اقلب المسألة وناتجها"]]},
+  sub:{e:"➖",n:"الطرح",d:"نأخذ من الأشياء ونعرف الباقي",bg:"linear-gradient(135deg,#fdba74,#ea580c)",lv:[[5,"من ٥"],[10,"من ١٠"]],
+    g:[["sfly","🎈","طارت البالونات","كم بالونًا بقي بعد أن طار بعضها؟"],["seat","🍪","الوحش الجائع","أكل الوحش بعض البسكويت، كم بقي؟"],["sfrog","🐸","الضفدع يرجع","يقفز الضفدع إلى الخلف"],["sfish","🎣","اصطد الباقي","اصطد السمكة التي عليها الناتج"],["scross","❌","اشطب واحسب","اشطب العدد المطلوب ثم احسب الباقي"],["smatch","🃏","مسألة وناتجها","اقلب المسألة وناتجها"]]}
+};
+const mR=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const mSayN=n=>numWords(n);
+function mSay(...parts){try{stopSpeak()}catch(e){}return speak(parts.filter(x=>x!==""&&x!=null).join(" "))}
+function mObjs(n,e,cls=""){return `<div class="mobjs ${cls}">${Array(n).fill(0).map((_,i)=>`<span class="mo" style="animation-delay:${i*60}ms">${e}</span>`).join("")}</div>`}
+function mOpts(ans,max,k=3,min=0){const s=new Set([ans]);let g=0;while(s.size<k&&g++<50){const v=Math.max(min,Math.min(max,ans+mR(-3,3)));s.add(v)}for(let v=min;s.size<k&&v<=max;v++)s.add(v);return wwRand([...s])}
+function renderMathView(host){MT.host=host;MT.tok=null;setTimeout(gbSync,0);S.math=S.math||{};
+  if(MT.cat==="act"){if(WW.act&&WW.ret)return wwPlay(host,WW.act);return renderMathActs(host)}if(MT.cat&&MT.game)return mPlay(host);
+  if(MT.cat){const C=MT_CATS[MT.cat];const L=MT.lvl[MT.cat];
+    host.innerHTML=`<section class="mt"><div class="mthero" style="background:${C.bg}"><button class="btn ghost light" id="mtBack">→ ركن الأرقام</button><span class="big">${C.e}</span><div><h2>${C.n}</h2><p>${C.d}</p></div></div>
+      <div class="mtlv">${C.lv.map(([v,t])=>`<button class="chip ${L===v?"on":""}" data-lv="${v}">${t}</button>`).join("")}</div>
+      <div class="mtgames">${C.g.map(([id,e,n,d])=>{const st=S.math[MT.cat+"|"+id+"|"+L]||0;return `<button class="mtg" data-g="${id}"><span class="e">${e}</span><b>${n}</b><i>${d}</i><span class="st">${st?"⭐".repeat(st):"☆☆☆"}</span></button>`}).join("")}</div></section>`;
+    host.querySelector("#mtBack").onclick=()=>{MT.cat=null;renderMathView(host)};
+    host.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>{MT.lvl[MT.cat]=+b.dataset.lv;renderMathView(host)});
+    host.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{MT.game=b.dataset.g;renderMathView(host)});return}
+  host.innerHTML=`<section class="mt"><div class="mthead"><h2>🔢 ركن الأرقام والحساب</h2><p class="muted">ألعاب للأطفال من ٤ إلى ٦ سنوات: نعدّ ونجمع ونطرح باللعب، وحامد ينطق الأرقام.</p></div>
+    <div class="mtcats">${Object.entries(MT_CATS).map(([k,C])=>`<button class="mtcat" data-c="${k}" style="background:${C.bg}"><span class="big">${C.e}</span><b>${C.n}</b><i>${C.d}</i><span class="cnt">${k==="act"?"عجلة وصناديق وبطاقات":ar(C.g.length)+" ألعاب"}</span></button>`).join("")}</div></section>`;
+  host.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{MT.cat=b.dataset.c;renderMathView(host)})}
+function mDone(A,ok,tot){const n=Math.max(1,Math.round(ok/tot*3));const key=MT.cat+"|"+MT.game+"|"+MT.lvl[MT.cat];S.math[key]=Math.max(S.math[key]||0,n);save();praise();
+  A.innerHTML=`<div class="win"><span class="em" style="font-size:4rem">🏆</span><h3>أحسنتم يا أبطال!</h3>${stars(n,3)}<div class="row" style="justify-content:center"><button class="btn green" id="mAgain">🔁 مرة أخرى</button><button class="btn" id="mOut">🎲 لعبة أخرى</button></div></div>`;speak("مَا شَاءَ اللَّهُ! أَحْسَنْتُمْ يَا أَبْطَال");
+  A.querySelector("#mAgain").onclick=()=>mPlay(MT.host);A.querySelector("#mOut").onclick=()=>{MT.game=null;renderMathView(MT.host)}}
+function mPlay(host){const C=MT_CATS[MT.cat],G=C.g.find(x=>x[0]===MT.game);const L=MT.lvl[MT.cat];
+  host.innerHTML=`<section class="mt"><div class="mtbar"><button class="btn ghost" id="mtB">→ ${C.n}</button><b>${G[1]} ${G[2]}</b><span class="mtprog" id="mtP"></span><button class="btn small ghost" id="mtF" title="ملء الشاشة">⛶</button></div><div class="mtstage" id="mtA"></div></section>`;
+  host.querySelector("#mtB").onclick=()=>{MT.tok=null;stopSpeak();MT.game=null;renderMathView(host)};
+  host.querySelector("#mtF").onclick=()=>{const el=host.querySelector(".mt");try{document.fullscreenElement?document.exitFullscreen():el.requestFullscreen()}catch(e){}};
+  host.querySelector(".mt").scrollIntoView({block:"start"});
+  const A=host.querySelector("#mtA"),P=host.querySelector("#mtP");const tok=MT.tok={};const live=()=>MT.tok===tok;const N=8;let k=0,ok=0,miss=false;
+  const prog=()=>{P.innerHTML=Array(N).fill(0).map((_,i)=>`<i class="${i<k?"done":i===k?"now":""}"></i>`).join("")};
+  const next=()=>{if(!live())return;k++;miss=false;if(k>=N)return mDone(A,ok,N);round()};
+  const good=(el,say)=>{if(!miss)ok++;if(el)burstAt(A,el);const p=say?mSay(say):Promise.resolve();setTimeout(next,1500)};
+  const bad=el=>{miss=true;if(el)wwShake(el);speak("حَاوِلْ مَرَّةً أُخْرَى")};
+  const pick=(opts,ans,onOk,big)=>`<div class="mtopts ${big?"big":""}">${opts.map(v=>`<button class="mtn" data-v="${v}">${ar(v)}</button>`).join("")}</div>`;
+  const wire=(ans,say)=>A.querySelectorAll(".mtn").forEach(b=>b.onclick=()=>{if(+b.dataset.v===ans){b.classList.add("ok");good(b,say)}else bad(b)});
+  const lo=L===5&&MT.cat==="num"?1:0;
+  const round=()=>{if(!live())return;prog();const g=MT.game;const e=MT_OBJ[mR(0,MT_OBJ.length-1)];
+    /* ---------- numbers ---------- */
+    if(g==="hear"){const n=mR(lo,L);A.innerHTML=`<button class="mthear" id="h">🔊</button><p class="mtq">اسمع الرقم واختره</p>${pick(mOpts(n,L,L>10?4:3,lo),n,0,1)}`;const s=()=>mSay(mSayN(n));A.querySelector("#h").onclick=s;s();wire(n,mSayN(n));return}
+    if(g==="count"){const n=mR(Math.max(1,lo),Math.min(L,12));A.innerHTML=`<p class="mtq">كم ${e} هنا؟</p>${mObjs(n,e,"tap")}${pick(mOpts(n,Math.min(L,12),3,1),n)}`;mSay("كَمْ عَدَدُهَا؟");
+      let c=0;A.querySelectorAll(".mobjs.tap .mo").forEach(o=>o.onclick=()=>{if(o.classList.contains("cnt"))return;o.classList.add("cnt");c++;o.dataset.n=ar(c);mSay(mSayN(c))});wire(n,mSayN(n));return}
+    if(g==="pop"){const n=mR(lo,L);let need=mR(2,3),got=0;const B=wwRand(Array(need).fill(n).concat(Array(5).fill(0).map(()=>{let v;do v=mR(lo,L);while(v===n);return v})));
+      A.innerHTML=`<p class="mtq">فرقع كل البالونات التي عليها <b class="mtbig">${ar(n)}</b></p><div class="mtballoons">${B.map((v,i)=>`<button class="mtbal c${i%5}" data-v="${v}" style="animation-delay:${i*0.25}s">${ar(v)}</button>`).join("")}</div>`;mSay("أَيْنَ الرَّقْمُ",mSayN(n));
+      A.querySelectorAll(".mtbal").forEach(b=>b.onclick=()=>{if(b.classList.contains("pop"))return;if(+b.dataset.v===n){b.classList.add("pop");burstAt(A,b);if(++got===need)good(null,mSayN(n))}else bad(b)});return}
+    if(g==="basket"){const n=mR(Math.max(1,lo),Math.min(L,10));let inb=0;A.innerHTML=`<p class="mtq">ضع في السلة <b class="mtbig">${ar(n)}</b> ${e}</p><div class="mtsrc">${Array(Math.min(12,n+3)).fill(0).map(()=>`<button class="mo big">${e}</button>`).join("")}</div><div class="mtbasket"><span class="lbl">🧺</span><div class="in" id="inb"></div><b class="cnt" id="cnt">٠</b></div><div class="row" style="justify-content:center"><button class="btn green" id="chk">✔ انتهيت</button><button class="btn ghost" id="clr">↺ أفرغ السلة</button></div>`;
+      mSay("ضَعْ",mSayN(n),"فِي السَّلَّة");const inbx=A.querySelector("#inb"),cnt=A.querySelector("#cnt");
+      A.querySelectorAll(".mtsrc .mo").forEach(o=>o.onclick=()=>{if(o.classList.contains("used"))return;o.classList.add("used");inb++;inbx.insertAdjacentHTML("beforeend",`<span class="mo">${e}</span>`);cnt.textContent=ar(inb);mSay(mSayN(inb))});
+      A.querySelector("#clr").onclick=()=>{inb=0;inbx.innerHTML="";cnt.textContent="٠";A.querySelectorAll(".mtsrc .mo").forEach(o=>o.classList.remove("used"))};
+      A.querySelector("#chk").onclick=e2=>{if(inb===n)good(e2.target,mSayN(n));else{bad(e2.target)}};return}
+    if(g==="order"){const len=Math.min(L>10?8:5+Math.floor(k/3),L-lo+1);const st=mR(lo,Math.max(lo,L-len+1));const seq=Array(len).fill(0).map((_,i)=>st+i);let pos=0;
+      A.innerHTML=`<p class="mtq">المس الأرقام بالترتيب من <b>${ar(st)}</b></p><div class="mttrain"><span class="eng">🚂</span><div id="wag"></div></div><div class="mtopts">${wwRand(seq).map(v=>`<button class="mtn" data-v="${v}">${ar(v)}</button>`).join("")}</div>`;
+      mSay("رَتِّبِ الأَرْقَام");const W=A.querySelector("#wag");A.querySelectorAll(".mtn").forEach(b=>b.onclick=()=>{if(+b.dataset.v===seq[pos]){b.disabled=true;b.classList.add("used");W.insertAdjacentHTML("beforeend",`<span class="wg">${ar(seq[pos])}</span>`);mSay(mSayN(seq[pos]));if(++pos===seq.length){A.querySelector(".mttrain").classList.add("go");good(null)}}else bad(b)});return}
+    if(g==="missing"){const len=5;const st=mR(lo,Math.max(lo,L-len+1));const seq=Array(len).fill(0).map((_,i)=>st+i);const h=mR(1,len-1);const ans=seq[h];
+      A.innerHTML=`<p class="mtq">ما الرقم الناقص؟</p><div class="mtpads">${seq.map((v,i)=>`<span class="pad ${i===h?"hole":""}">${i===h?"؟":ar(v)}</span>`).join("")}<span class="frog">🐸</span></div>${pick(mOpts(ans,L,3,lo),ans,0,1)}`;mSay("مَا الرَّقْمُ النَّاقِص؟");
+      A.querySelectorAll(".mtn").forEach(b=>b.onclick=()=>{if(+b.dataset.v===ans){const p=A.querySelector(".pad.hole");p.textContent=ar(ans);p.classList.remove("hole");p.classList.add("ok");good(b,mSayN(ans))}else bad(b)});return}
+    if(g==="more"){let a=mR(1,Math.min(L,10)),b2;do b2=mR(1,Math.min(L,10));while(b2===a);const e2=MT_OBJ[mR(0,MT_OBJ.length-1)];const big=Math.max(a,b2);
+      A.innerHTML=`<p class="mtq">أي مجموعة أكثر؟</p><div class="mtsides"><button class="mtside" data-v="${a}">${mObjs(a,e)}</button><button class="mtside" data-v="${b2}">${mObjs(b2,e2)}</button></div>`;mSay("أَيُّهُمَا أَكْثَر؟");
+      A.querySelectorAll(".mtside").forEach(b=>b.onclick=()=>{if(+b.dataset.v===big){b.classList.add("ok");good(b,mSayN(big))}else bad(b)});return}
+    if(g==="match"){const ns=wwRand(Array(Math.min(L,10)-Math.max(1,lo)+1).fill(0).map((_,i)=>i+Math.max(1,lo))).slice(0,6);mMemory(A,ns.flatMap(n=>[{i:n,h:`<b class="mtbig">${ar(n)}</b>`,s:mSayN(n)},{i:n,h:mObjs(n,e,"sm"),s:mSayN(n)}]),()=>{k=N-1;ok=N;next()});P.innerHTML="";return}
+    /* ---------- addition ---------- */
+    const sum=()=>{const c=mR(2,L);const a=mR(1,c-1);return [a,c-a,c]},dif=()=>{const a=mR(2,L);const b=mR(1,a-1);return [a,b,a-b]};
+    if(g==="apic"){const [a,b,c]=sum();const e2=e;A.innerHTML=`<div class="mteq">${mObjs(a,e2)}<span class="op">+</span>${mObjs(b,e2)}<span class="op">=</span><span class="q">؟</span></div><p class="mtq">${ar(a)} + ${ar(b)} = ؟</p>${pick(mOpts(c,L,3,1),c,0,1)}`;mSay(mSayN(a),"زَائِد",mSayN(b),"يُسَاوِي؟");wire(c,mSayN(a)+" زَائِد "+mSayN(b)+" يُسَاوِي "+mSayN(c));return}
+    if(g==="afrog"||g==="sfrog"){const add=g==="afrog";const [a,b,c]=add?sum():dif();const max=L;
+      A.innerHTML=`<p class="mtq">${ar(a)} ${add?"+":"−"} ${ar(b)} = ؟</p><div class="mtline">${Array(max+1).fill(0).map((_,i)=>`<span class="tick" data-i="${i}"><i></i><b>${ar(i)}</b></span>`).join("")}<span class="frog" id="fr">🐸</span></div><div class="row" style="justify-content:center"><button class="btn green" id="jump">🐸 اقفز ${ar(b)} ${add?"إلى الأمام":"إلى الخلف"}</button></div>${pick(mOpts(c,max,3,0),c,0,1)}`;
+      const fr=A.querySelector("#fr");const at=i=>{const t=A.querySelector(`.tick[data-i="${i}"]`);const r=t.getBoundingClientRect(),q=A.querySelector(".mtline").getBoundingClientRect();fr.style.left=(r.left-q.left+r.width/2)+"px"};setTimeout(()=>at(a),30);
+      mSay(mSayN(a),add?"زَائِد":"نَاقِص",mSayN(b),"يُسَاوِي؟");let cur=a;A.querySelector("#jump").onclick=ev=>{ev.target.disabled=true;const step=()=>{if(!live())return;if(cur===c)return;cur+=add?1:-1;fr.classList.remove("hop");void fr.offsetWidth;fr.classList.add("hop");at(cur);mSay(mSayN(cur));setTimeout(step,900)};step()};
+      wire(c,mSayN(a)+(add?" زَائِد ":" نَاقِص ")+mSayN(b)+" يُسَاوِي "+mSayN(c));return}
+    if(g==="afish"||g==="sfish"){const add=g==="afish";const [a,b,c]=add?sum():dif();const vals=wwRand(mOpts(c,L,5,add?1:0));
+      A.innerHTML=`<p class="mtq big">${ar(a)} ${add?"+":"−"} ${ar(b)} = ؟</p><div class="mtsea">${vals.map((v,i)=>`<button class="mtfish ${i%2?"r":""}" data-v="${v}" style="top:${12+i*16}%;animation-duration:${7+i}s;animation-delay:-${i*1.3}s"><span>🐟</span><b>${ar(v)}</b></button>`).join("")}<span class="boat">⛵</span></div>`;
+      mSay(mSayN(a),add?"زَائِد":"نَاقِص",mSayN(b),"يُسَاوِي؟");A.querySelectorAll(".mtfish").forEach(f=>f.onclick=()=>{if(+f.dataset.v===c){f.classList.add("caught");good(f,mSayN(c))}else bad(f)});return}
+    if(g==="amake"){const t=mR(3,L);const a=mR(1,t-1);const vals=wwRand([a,t-a].concat(Array(4).fill(0).map(()=>mR(1,t))));let sel=[];
+      A.innerHTML=`<p class="mtq">اختر عددين مجموعهما <b class="mtbig">${ar(t)}</b></p><div class="mteq"><span class="slot" id="s0">؟</span><span class="op">+</span><span class="slot" id="s1">؟</span><span class="op">=</span><b class="mtbig">${ar(t)}</b></div><div class="mtopts">${vals.map((v,i)=>`<button class="mtn card" data-i="${i}" data-v="${v}">${ar(v)}<small>${"●".repeat(v)}</small></button>`).join("")}</div>`;
+      mSay("كَوِّنِ العَدَد",mSayN(t));A.querySelectorAll(".mtn").forEach(b=>b.onclick=()=>{if(b.disabled)return;sel.push(b);b.disabled=true;A.querySelector("#s"+(sel.length-1)).textContent=ar(+b.dataset.v);
+        if(sel.length===2){const s2=+sel[0].dataset.v+ +sel[1].dataset.v;if(s2===t)good(sel[1],mSayN(+sel[0].dataset.v)+" زَائِد "+mSayN(+sel[1].dataset.v)+" يُسَاوِي "+mSayN(t));else{bad(sel[1]);setTimeout(()=>{sel.forEach(x=>x.disabled=false);sel=[];A.querySelector("#s0").textContent="؟";A.querySelector("#s1").textContent="؟"},700)}}});return}
+    if(g==="abal"){const [a,b,c]=sum();A.innerHTML=`<p class="mtq">في السلة بالونات: <b>${ar(a)}</b> 🎈 وجاءت <b>${ar(b)}</b> 🎈 أخرى. كم صارت؟</p><div class="mtbalbox"><div>${mObjs(a,"🎈","bal")}</div><div class="plus">+</div><div class="incoming">${mObjs(b,"🎈","bal fly")}</div></div>${pick(mOpts(c,L,3,1),c,0,1)}`;
+      mSay(mSayN(a),"زَائِد",mSayN(b),"يُسَاوِي؟");wire(c,mSayN(a)+" زَائِد "+mSayN(b)+" يُسَاوِي "+mSayN(c));return}
+    if(g==="amatch"||g==="smatch"){const add=g==="amatch";const used=new Set(),items=[];let tries=0;while(items.length<5&&tries++<80){const [a,b,c]=add?sum():dif();if(used.has(c))continue;used.add(c);items.push({i:c,h:`<b class="mteqs">${ar(a)} ${add?"+":"−"} ${ar(b)}</b>`,s:mSayN(a)+(add?" زَائِد ":" نَاقِص ")+mSayN(b)},{i:c,h:`<b class="mtbig">${ar(c)}</b>`,s:mSayN(c)})}
+      mMemory(A,items,()=>{k=N-1;ok=N;next()});P.innerHTML="";return}
+    /* ---------- subtraction ---------- */
+    if(g==="sfly"){const [a,b,c]=dif();A.innerHTML=`<p class="mtq">معنا <b>${ar(a)}</b> بالونات، طار منها <b>${ar(b)}</b>. كم بقي؟</p><div class="mtflybox">${Array(a).fill(0).map((_,i)=>`<span class="fb ${i<b?"away":""}" style="animation-delay:${1.2+i*.25}s">🎈</span>`).join("")}</div>${pick(mOpts(c,L,3,0),c,0,1)}`;
+      mSay(mSayN(a),"نَاقِص",mSayN(b),"كَمْ بَقِيَ؟");wire(c,mSayN(a)+" نَاقِص "+mSayN(b)+" يُسَاوِي "+mSayN(c));return}
+    if(g==="seat"){const [a,b,c]=dif();A.innerHTML=`<p class="mtq">في الطبق <b>${ar(a)}</b> 🍪 أكل الوحش <b>${ar(b)}</b>. كم بقي؟</p><div class="mtplate"><span class="monster" id="mon">👾</span><div>${Array(a).fill(0).map((_,i)=>`<span class="ck ${i<b?"eat":""}" style="animation-delay:${1+i*.45}s">🍪</span>`).join("")}</div></div>${pick(mOpts(c,L,3,0),c,0,1)}`;
+      mSay(mSayN(a),"نَاقِص",mSayN(b),"كَمْ بَقِيَ؟");wire(c,mSayN(a)+" نَاقِص "+mSayN(b)+" يُسَاوِي "+mSayN(c));return}
+    if(g==="scross"){const [a,b,c]=dif();let x=0;A.innerHTML=`<p class="mtq">اشطب <b class="mtbig">${ar(b)}</b> ثم احسب الباقي: ${ar(a)} − ${ar(b)} = ؟</p><div class="mobjs tap">${Array(a).fill(0).map(()=>`<span class="mo x">${e}</span>`).join("")}</div><div id="ask" hidden>${pick(mOpts(c,L,3,0),c,0,1)}</div>`;
+      mSay("اشْطُبْ",mSayN(b));A.querySelectorAll(".mo.x").forEach(o=>o.onclick=()=>{if(o.classList.contains("crossed")||x>=b)return;o.classList.add("crossed");x++;mSay(mSayN(x));if(x===b){A.querySelector("#ask").hidden=false;setTimeout(()=>mSay("كَمْ بَقِيَ؟"),700)}});
+      wire(c,mSayN(a)+" نَاقِص "+mSayN(b)+" يُسَاوِي "+mSayN(c));return}
+  };round()}
+function mMemory(A,cards,done){const C=wwRand(cards);let open=[],found=0;const pairs=cards.length/2;
+  A.innerHTML=`<p class="mtq">اقلب بطاقتين متطابقتين</p><div class="mtmem">${C.map((c,i)=>`<button class="mtcard" data-i="${i}"><span class="b">❓</span><span class="f">${c.h}</span></button>`).join("")}</div>`;
+  A.querySelectorAll(".mtcard").forEach(b=>b.onclick=()=>{if(open.length>=2||b.classList.contains("up"))return;const c=C[+b.dataset.i];b.classList.add("up");mSay(c.s);open.push([b,c]);
+    if(open.length===2){const [x,y]=open;if(x[1].i===y[1].i){setTimeout(()=>{x[0].classList.add("ok");y[0].classList.add("ok");burstAt(A,y[0]);open=[];if(++found===pairs)setTimeout(done,900)},600)}else setTimeout(()=>{x[0].classList.remove("up");y[0].classList.remove("up");open=[]},1200)}})}
+/* number activities built on the word-wall templates (wheel, boxes, cards…), plus the teacher's own */
+MT_CATS.act={e:"🎡",n:"عجلة وأنشطة الأرقام",d:"عجلة الأرقام والصناديق والبطاقات… وأضف أنشطتك",bg:"linear-gradient(135deg,#f0abfc,#9333ea)",g:[]};
+function mtActs(){const r=(a,b)=>Array(b-a+1).fill(0).map((_,i)=>a+i);const sums=t=>{const o=[];for(let a=1;a<t;a++)o.push([ar(a)+" + "+ar(t-a)]);return o};
+  const addQ=(n,L)=>Array(n).fill(0).map(()=>{const c=mR(2,L),a=mR(1,c-1);return [ar(a)+" + "+ar(c-a)+" = ؟",ar(c)].concat(mOpts(c,L,4,1).filter(v=>v!==c).slice(0,2).map(ar))});
+  const subQ=(n,L)=>Array(n).fill(0).map(()=>{const a=mR(2,L),b=mR(1,a-1);return [ar(a)+" − "+ar(b)+" = ؟",ar(a-b)].concat(mOpts(a-b,L,4,0).filter(v=>v!==a-b).slice(0,2).map(ar))});
+  if(MT.acts)return MT.acts;return MT.acts=[
+  {id:"m-w10",ready:1,math:1,title:"عجلة الأرقام من ١ إلى ١٠",tpl:"wheel",items:r(1,10).map(n=>[ar(n)])},
+  {id:"m-w20",ready:1,math:1,title:"عجلة الأرقام من ١١ إلى ٢٠",tpl:"wheel",items:r(11,20).map(n=>[ar(n)])},
+  {id:"m-wa",ready:1,math:1,title:"عجلة مسائل الجمع",tpl:"wheel",items:wwRand([].concat(sums(5),sums(6))).slice(0,10)},
+  {id:"m-ws",ready:1,math:1,title:"عجلة مسائل الطرح",tpl:"wheel",items:r(2,10).map(a=>{const b=mR(1,a-1);return [ar(a)+" − "+ar(b)]})},
+  {id:"m-b10",ready:1,math:1,title:"صناديق الأرقام",tpl:"box",items:wwRand(r(0,10)).map(n=>[ar(n)])},
+  {id:"m-ba",ready:1,math:1,title:"صناديق مسائل الجمع",tpl:"box",items:addQ(10,10).map(q=>[q[0]])},
+  {id:"m-c10",ready:1,math:1,title:"بطاقات الأرقام",tpl:"cards",items:r(0,20).map(n=>[ar(n)])},
+  {id:"m-cdots",ready:1,math:1,title:"بطاقات: كم نقطة؟",tpl:"cards",items:r(1,10).map(n=>["●".repeat(n)])},
+  {id:"m-mm",ready:1,math:1,title:"طابق الرقم بالنقاط",tpl:"match",items:wwRand(r(1,9)).slice(0,6).map(n=>[ar(n),"●".repeat(n)])},
+  {id:"m-my",ready:1,math:1,title:"اكتشف الزوج: الرقم وكميته",tpl:"memory",items:wwRand(r(1,9)).slice(0,6).map(n=>[ar(n),"🍎".repeat(n)])},
+  {id:"m-qa",ready:1,math:1,title:"اختبار الجمع",tpl:"quiz",items:addQ(8,10)},
+  {id:"m-qs",ready:1,math:1,title:"اختبار الطرح",tpl:"quiz",items:subQ(8,10)},
+  {id:"m-tf",ready:1,math:1,title:"صح أم خطأ في الجمع",tpl:"tf",items:Array(8).fill(0).map(()=>{const c=mR(2,10),a=mR(1,c-1),w=Math.random()<.5;return [ar(a)+" + "+ar(c-a)+" = "+ar(w?c:Math.max(1,c+(Math.random()<.5?1:-1))),w?"صح":"خطأ"]})},
+  {id:"m-wh5",ready:1,math:1,title:"اضرب كل ما يساوي ٥",tpl:"whack",items:[].concat(sums(5).map(x=>[x[0],"صح"]),[["٥","صح"]],[[ar(2)+" + "+ar(2),"خطأ"],[ar(3)+" + "+ar(3),"خطأ"],[ar(1)+" + "+ar(2),"خطأ"],[ar(4)+" + "+ar(2),"خطأ"],["٧","خطأ"]])},
+  {id:"m-sort",ready:1,math:1,title:"صنّف: أكبر من ٥ / أصغر من ٥",tpl:"sort",items:[1,2,3,4,6,7,8,9].map(n=>[ar(n),n>5?"أكبر من ٥":"أصغر من ٥"])}]}
+function renderMathActs(host){const mine=(S.ww||[]).filter(a=>a.math);const R=mtActs();const C=MT_CATS.act;
+  const card=(a,own)=>`<div class="wwmine"><button class="wwcard ${own?"own":""}" data-ma="${esc(a.id)}"><span class="e">${own?"⭐":WW_T[a.tpl].e}</span><b>${esc(a.title)}</b><i>${WW_T[a.tpl].n}</i></button><div class="row">${own?`<button class="btn small ghost" data-me="${esc(a.id)}">✏️</button><button class="btn small ghost" data-md="${esc(a.id)}">🗑️</button>`:`<button class="btn small ghost" data-mc="${esc(a.id)}">📋 نسخة للتعديل</button>`}</div></div>`;
+  host.innerHTML=`<section class="mt ww"><div class="mthero" style="background:${C.bg}"><button class="btn ghost light" id="mtBack">→ ركن الأرقام</button><span class="big">${C.e}</span><div><h2>${C.n}</h2><p>${C.d}</p></div></div>
+    <div class="row"><b>➕ نشاط أرقام جديد:</b>${["wheel","box","cards","quiz","match","memory","tf","whack","sort"].map(t=>`<button class="btn small" data-mn="${t}">${WW_T[t].e} ${WW_T[t].n}</button>`).join("")}</div><div id="wwEd"></div>
+    ${Object.keys(WW_T).filter(t=>mine.some(a=>a.tpl===t)||R.some(a=>a.tpl===t)).map(t=>`<h3 class="wwh">${WW_T[t].e} ${WW_T[t].n}</h3><div class="wwgrid">${mine.filter(a=>a.tpl===t).map(a=>card(a,1)).join("")}${R.filter(a=>a.tpl===t).map(a=>card(a,0)).join("")}</div>`).join("")}</section>`;
+  const q=s=>host.querySelector(s),qa=s=>host.querySelectorAll(s);
+  WW.ret=()=>{WW.act=null;WW.tok=null;MT.cat="act";renderMathView(host)};WW.host=host;WW.math=1;
+  q("#mtBack").onclick=()=>{WW.ret=null;WW.math=0;MT.cat=null;renderMathView(host)};
+  qa("[data-mn]").forEach(b=>b.onclick=()=>wwEdit(host,null,b.dataset.mn));
+  qa("[data-ma]").forEach(b=>b.onclick=()=>{WW.act=mine.concat(R).find(a=>a.id===b.dataset.ma);wwPlay(host,WW.act);gbSync()});
+  qa("[data-me]").forEach(b=>b.onclick=()=>wwEdit(host,mine.find(a=>a.id===b.dataset.me)));
+  qa("[data-mc]").forEach(b=>b.onclick=()=>{const a=R.find(x=>x.id===b.dataset.mc);wwEdit(host,{id:null,title:a.title+" (نسختي)",tpl:a.tpl,items:a.items.map(p=>p.slice())})});
+  qa("[data-md]").forEach(b=>b.onclick=()=>{if(!confirm("حذف هذا النشاط؟"))return;S.ww=(S.ww||[]).filter(a=>a.id!==b.dataset.md);save();renderMathActs(host)})}
+
+function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,math:renderMathView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
 let libShelf="all",libQ="",libRen=null;
