@@ -938,6 +938,13 @@ body:has(.wwstage) header.top{position:relative;top:auto}.wwwheel svg{width:100%
 .mtcard{aspect-ratio:1;border:0;border-radius:18px;background:linear-gradient(135deg,#fcd34d,#f59e0b);box-shadow:0 5px 0 #c98a00;font:inherit;font-size:2.4rem;cursor:pointer;display:grid;place-items:center;padding:6px}
 .mtcard .f{display:none}.mtcard.up{background:#fff;box-shadow:0 5px 0 #d6e0db}.mtcard.up .b{display:none}.mtcard.up .f{display:block}.mtcard.ok{background:#d8f5df}
 @media (max-width:760px){.mtstage{padding:10px;border-radius:18px}.mtn{min-width:76px;min-height:76px}.mtopts.big .mtn{min-width:88px;min-height:88px}.mtpads .pad{width:56px;height:56px;font-size:1.6rem}.mtsides{gap:8px}.mtside{padding:8px;min-height:140px}}
+.zdlearn{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;padding-top:6px}
+.zdl{display:grid;gap:4px;justify-items:center;text-align:center;padding:12px;border-radius:18px;border:2px solid #e3ebe7;background:#fff;font:inherit;cursor:pointer;box-shadow:0 3px 0 #dbe6e0}
+.zdl .e{font-size:2rem}.zdl b{font-size:1.1rem;line-height:1.7}.zdl i{font-style:normal;color:#1f7a45;font-size:.95rem;line-height:1.7}.zdl.on{border-color:#f0b400;background:#fffbe8}
+.wwline{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0;direction:rtl}.wwline .ws{min-width:80px;min-height:56px;border-radius:14px;border:3px dashed #9fb5ab;background:#fff;display:grid;place-items:center;padding:4px 10px;font-size:clamp(1.2rem,3vw,1.8rem);font-weight:700}
+.wwline .ws.ok{border-style:solid;border-color:#3bb36b}.wwopt.w{font-size:clamp(1.2rem,3vw,1.8rem)}
+.wwextra{font-size:.75em;color:#1f7a45;margin-top:6px;line-height:1.7}
+.wwopts .wwopt{max-width:min(100%,640px);line-height:1.7}
 </style>
 
 <header class="top"><div class="wrap">
@@ -2742,7 +2749,7 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
   $("#vcImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text());if(d.format!=="rawda-voice-pack")throw 0;let n=0;for(const [k,v] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(v.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:v.type}));recKeys.add(k);n++}flash(`استُورد ${ar(n)} مقطعًا صوتيًا`,"ok");re()}catch(err){flash("هذا الملف ليس حزمة صوتية من روضة الدروس","err")}}}
 /* ================= top navigation ================= */
 let mode="library";
-const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["wall","🧱","جدار الكلمات"],["math","🔢","ركن الأرقام والحساب"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
+const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["wall","🧱","جدار الكلمات"],["math","🔢","ركن الأرقام والحساب"],["zad","🌙","أركان زاد الطفل"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
 const isPhone=()=>matchMedia("(max-width:760px)").matches;
 function mobJump(sel){if(!isPhone()&&!(!sel&&isNoorania(S.books[S.cur])))return;const go=()=>{const m=(sel&&document.querySelector(sel))||document.querySelector("#bookStage")||document.querySelector(".wrap.app main");if(m)window.scrollTo({top:m.getBoundingClientRect().top+scrollY-4,behavior:"smooth"})};setTimeout(go,350);setTimeout(()=>{if(sel||document.querySelector("#bookStage"))go()},1100)}
 function mobListBtn(){let f=document.getElementById("mobList");if(!f){f=document.createElement("button");f.id="mobList";f.className="btn primary";f.innerHTML="📚 الدروس";f.onclick=()=>{const sd=document.getElementById("side");if(sd)window.scrollTo({top:sd.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})};document.body.appendChild(f)}
@@ -3046,6 +3053,7 @@ const WW_T={
   sort:{e:"🗂️",n:"صنّف في مجموعات",d:"ضع كل كلمة في مجموعتها",f:"pair",h:"كل سطر: الكلمة | اسم المجموعة"},
   tf:{e:"✅",n:"صح أم خطأ",d:"احكم على كل عبارة",f:"pair",h:"كل سطر: العبارة | صح أو خطأ"},
   whack:{e:"🔨",n:"اضرب الخلد",d:"اضرب الإجابات الصحيحة فقط",f:"pair",h:"كل سطر: الكلمة | صح أو خطأ — والعنوان هو السؤال"},
+  order:{e:"🧩",n:"رتّب الكلمات",d:"رتّب كلمات الجملة بالترتيب",f:"list",h:"كل سطر: جملة قصيرة (ذكر أو حديث أو عبارة)"},
   balloon:{e:"🎈",n:"فرقع البالون",d:"فرقع البالون الذي يطابق الصورة",f:"pair",h:"كل سطر: الكلمة | صورتها الرمزية"}
 };
 const WW={act:null,host:null,tok:null};
@@ -3119,13 +3127,13 @@ function wwEdit(host,a,tpl){const ed=host.querySelector("#wwEd");tpl=a?a.tpl:tpl
   q("#wwCancel").onclick=()=>{ed.innerHTML=""};ed.scrollIntoView({block:"start",behavior:"smooth"});
   q("#wwSave").onclick=()=>{const tp=q("#wwTpl").value;const items=wwParse(tp,q("#wwItems").value);const min=tp==="tf"||tp==="quiz"||tp==="wheel"||tp==="box"||tp==="cards"||tp==="anagram"||tp==="missing"?1:2;
     if(items.length<min){flash("اكتب سطرًا واحدًا على الأقل بالشكل المطلوب: "+WW_T[tp].h,"err");return}
-    const x={id:a&&a.id?a.id:"w"+Date.now().toString(36),title:q("#wwTitle").value.trim()||WW_T[tp].n,tpl:tp,items};if(mode==="math")x.math=1;S.ww=(S.ww||[]).filter(y=>y.id!==x.id).concat([x]);save();WW.act=x;if(mode==="math"){wwPlay(host,x);gbSync();return}renderWordWallView(host)}}
+    const x={id:a&&a.id?a.id:"w"+Date.now().toString(36),title:q("#wwTitle").value.trim()||WW_T[tp].n,tpl:tp,items};if(mode==="math")x.math=1;if(mode==="zad")x.zad=ZDS.c;S.ww=(S.ww||[]).filter(y=>y.id!==x.id).concat([x]);save();WW.act=x;if(mode==="math"||mode==="zad"){wwPlay(host,x);gbSync();return}renderWordWallView(host)}}
 function wwDone(A,ok,tot,again){praise();A.innerHTML=`<div class="win"><span class="em">🏆</span><h3>أحسنتم يا أبطال!</h3>${tot?stars(ok,tot):""}<div class="row" style="justify-content:center"><button class="btn green" id="wwAgain">🔁 مرة أخرى</button><button class="btn" id="wwOut">🧱 نشاط آخر</button></div></div>`;speak("مَا شَاءَ اللَّهُ! أَحْسَنْتُمْ يَا أَبْطَال");
-  A.querySelector("#wwAgain").onclick=again;A.querySelector("#wwOut").onclick=()=>{if(WW.ret&&mode==="math")return WW.ret();WW.act=null;renderWordWallView(WW.host)}}
+  A.querySelector("#wwAgain").onclick=again;A.querySelector("#wwOut").onclick=()=>{if(WW.ret&&(mode==="math"||mode==="zad"))return WW.ret();WW.act=null;renderWordWallView(WW.host)}}
 function wwShake(b){b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500)}
 function wwPlay(host,a){const T=WW_T[a.tpl]||{e:"🌐",n:"Wordwall"};
-  host.innerHTML=`<section class="ww"><div class="wwbar"><button class="btn ghost" id="wwBack">→ جدار الكلمات</button><b>${T.e} ${esc(a.title)}</b><span class="small muted">${T.n}</span><button class="btn small ghost" id="wwFull" title="ملء الشاشة">⛶</button></div><div class="wwstage" id="wwA"></div></section>`;
-  host.querySelector("#wwBack").onclick=()=>{WW.tok=null;stopSpeak();if(WW.ret&&mode==="math")return WW.ret();WW.act=null;renderWordWallView(host)};
+  host.innerHTML=`<section class="ww"><div class="wwbar"><button class="btn ghost" id="wwBack">→ ${WW.ret&&(mode==="math"||mode==="zad")?"الألعاب":"جدار الكلمات"}</button><b>${T.e} ${esc(a.title)}</b><span class="small muted">${T.n}</span><button class="btn small ghost" id="wwFull" title="ملء الشاشة">⛶</button></div><div class="wwstage" id="wwA"></div></section>`;
+  host.querySelector("#wwBack").onclick=()=>{WW.tok=null;stopSpeak();if(WW.ret&&(mode==="math"||mode==="zad"))return WW.ret();WW.act=null;renderWordWallView(host)};
   host.querySelector("#wwFull").onclick=()=>{const el=host.querySelector(".ww");try{document.fullscreenElement?document.exitFullscreen():el.requestFullscreen()}catch(e){}};
   const A=host.querySelector("#wwA");const again=()=>wwPlay(host,a);const tok=WW.tok={};const live=()=>WW.tok===tok;const I=a.items;
   if(a.tpl==="embed"){A.innerHTML=`<iframe class="wwframe" src="${esc(a.embed)}" allowfullscreen allow="autoplay; fullscreen"></iframe><p class="small muted">إذا لم يظهر النشاط فتأكد من اتصال الشاشة بالإنترنت، أو <a href="${esc(a.embed)}" target="_blank" rel="noopener">افتحه في نافذة جديدة</a>.</p>`;return}
@@ -3163,7 +3171,7 @@ function wwPlay(host,a){const T=WW_T[a.tpl]||{e:"🌐",n:"Wordwall"};
       else{a.items=items;save();WW.act=a}wwPlay(host,WW.act);setTimeout(()=>{const i2=host.querySelector("#wAdd");if(i2)i2.focus()},50)};
     A.querySelector("#wAddB").onclick=addW;A.querySelector("#wAdd").onkeydown=e=>{if(e.key==="Enter")addW()};
     A.querySelector("#spin").onclick=()=>{if(!left.length){left=L.map((_,i)=>i)}const pick=left[Math.floor(Math.random()*left.length)];const target=360-((pick+.5)/n*360);rot=rot-(rot%360)+360*6+target;wh.style.transition="transform 4s cubic-bezier(.17,.67,.2,1)";wh.style.transform=`rotate(${rot}deg)`;wh.querySelectorAll(".wl").forEach(t=>{t.style.transition="transform 4s cubic-bezier(.17,.67,.2,1)";t.style.transform=`rotate(${-rot}deg)`});A.querySelector("#res").textContent="…";
-      setTimeout(()=>{if(!live())return;fit();A.querySelector("#res").textContent=L[pick];burst(A,A.clientWidth/2,120);wwSay(L[pick]);if(A.querySelector("#rm").checked)left=left.filter(x=>x!==pick)},4100)};return}
+      setTimeout(()=>{if(!live())return;fit();const extra=(a.items[pick]||[])[1];A.querySelector("#res").innerHTML=esc(L[pick])+(extra?`<div class="wwextra">${esc(extra)}</div>`:"");burst(A,A.clientWidth/2,120);wwSay(extra||L[pick]);if(A.querySelector("#rm").checked)left=left.filter(x=>x!==pick)},4100)};return}
   if(a.tpl==="box"){const L=wwRand(I.map(p=>p[0])).slice(0,24);let opened=0;
     A.innerHTML=`<p class="wwq">اختر صندوقًا</p><div class="wwboxes">${L.map((_,i)=>`<button class="wwbox" data-i="${i}"><span class="n">${ar(i+1)}</span><span class="t"></span></button>`).join("")}</div>`;
     A.querySelectorAll(".wwbox").forEach(b=>b.onclick=()=>{if(b.classList.contains("open"))return;b.classList.add("open");b.querySelector(".t").textContent=L[+b.dataset.i];wwSay(L[+b.dataset.i]);burstAt(A,b);if(++opened===L.length)setTimeout(()=>live()&&wwDone(A,3,3,again),1500)});return}
@@ -3171,6 +3179,11 @@ function wwPlay(host,a){const T=WW_T[a.tpl]||{e:"🌐",n:"Wordwall"};
     A.innerHTML=`<div class="wwdeck"><div class="wwbig" id="cd"><span>🎴</span></div><div class="row" style="justify-content:center"><button class="btn green" id="nx">🎴 اسحب بطاقة</button><button class="btn ghost" id="sh">🔀 خلط</button></div><p class="small muted" id="cnt"></p></div>`;
     const cd=A.querySelector("#cd"),cnt=A.querySelector("#cnt");const draw=()=>{k++;if(k>=L.length){cd.innerHTML="<span>🏁</span>";cnt.textContent="انتهت البطاقات";return}cd.classList.remove("flip");void cd.offsetWidth;cd.classList.add("flip");cd.innerHTML=`<b>${esc(L[k])}</b>`;wwSay(L[k]);cnt.textContent=`${ar(k+1)} من ${ar(L.length)}`};
     A.querySelector("#nx").onclick=draw;A.querySelector("#sh").onclick=()=>{L=wwRand(L);k=-1;cd.innerHTML="<span>🎴</span>";cnt.textContent=""};return}
+  if(a.tpl==="order"){const Q=wwRand(I.map(p=>p[0].trim()).filter(t=>t.split(/\s+/).length>1)).slice(0,6);let k=0,ok=0;
+    const show=()=>{if(!live())return;if(k>=Q.length)return wwDone(A,Math.round(ok/Q.length*3),3,again);const t=Q[k],W=t.split(/\s+/);let pos=0,miss=false;const sh=wwRand(W.map((w,i)=>({w,i})));
+      A.innerHTML=`<div class="wwprog">${Q.map((_,i)=>`<i class="${i<k?"done":i===k?"now":""}"></i>`).join("")}</div><button class="btn small ghost" id="hear">🔊 اسمع</button><div class="wwline">${W.map(()=>`<span class="ws"></span>`).join("")}</div><div class="wwopts">${sh.map((x,j)=>`<button class="wwopt w" data-j="${j}">${esc(x.w)}</button>`).join("")}</div>`;
+      A.querySelector("#hear").onclick=()=>wwSay(t);wwSay(t);const slots=A.querySelectorAll(".ws");
+      A.querySelectorAll(".wwopt").forEach(b=>b.onclick=()=>{const x=sh[+b.dataset.j];if(x.w===W[pos]){slots[pos].textContent=x.w;slots[pos].classList.add("ok");b.disabled=true;b.classList.add("used");pos++;if(pos===W.length){if(!miss)ok++;burstAt(A,slots[pos-1]);wwSay(t);k++;setTimeout(show,Math.max(1600,t.length*70))}}else{miss=true;wwShake(b)}})};show();return}
   if(a.tpl==="anagram"||a.tpl==="missing"){const W=wwRand(I.map(p=>p[0].trim()).filter(w=>w.length>1)).slice(0,8);let k=0,ok=0;
     const gr=w=>w.match(/[ء-ي][ً-ْٰ]*|./g).filter(x=>x.trim());
     const show=()=>{if(!live())return;if(k>=W.length)return wwDone(A,Math.round(ok/W.length*3),3,again);const w=W[k],G=gr(w);let miss=false;
@@ -3190,10 +3203,10 @@ function wwPlay(host,a){const T=WW_T[a.tpl]||{e:"🌐",n:"Wordwall"};
     const tick=()=>{if(!live())return;time--;A.querySelector("#tm").textContent=ar(time);if(time<=0){end();return}setTimeout(tick,1000)};up();setTimeout(tick,1000);return}
 }
 
-function gbSync(){let b=document.getElementById("gameBack");const on=(mode==="play"&&PG.g)||(mode==="wall"&&WW.act)||(mode==="math"&&MT.cat);
+function gbSync(){let b=document.getElementById("gameBack");const on=(mode==="play"&&PG.g)||(mode==="wall"&&WW.act)||(mode==="math"&&MT.cat)||(mode==="zad"&&ZDS.c);
   if(!on){if(b)b.hidden=true;return}if(!b){b=document.createElement("button");b.id="gameBack";b.className="gameback";b.type="button";document.body.appendChild(b);
-    b.onclick=()=>{try{stopSpeak()}catch(e){}const h=$("#modeView");if(mode==="play"){PG.tok=null;if(PG.game){PG.game=null;PG.q=null}else PG.g=null;renderPlayView(h)}else if(mode==="wall"){WW.tok=null;WW.act=null;renderWordWallView(h)}else if(mode==="math"){MT.tok=null;WW.tok=null;if(MT.cat==="act"&&WW.act){WW.act=null}else if(MT.game){MT.game=null}else{MT.cat=null;WW.ret=null}renderMathView(h)}window.scrollTo({top:0,behavior:"smooth"})}}
-  b.hidden=false;b.innerHTML=mode==="play"?(PG.game?"↩ رجوع إلى الألعاب":"↩ رجوع إلى المجموعات"):mode==="math"?((MT.game||WW.act)?"↩ رجوع إلى الألعاب":"↩ رجوع إلى ركن الأرقام"):"↩ رجوع إلى جدار الكلمات"}
+    b.onclick=()=>{try{stopSpeak()}catch(e){}const h=$("#modeView");if(mode==="play"){PG.tok=null;if(PG.game){PG.game=null;PG.q=null}else PG.g=null;renderPlayView(h)}else if(mode==="wall"){WW.tok=null;WW.act=null;renderWordWallView(h)}else if(mode==="zad"){WW.tok=null;if(WW.act)WW.act=null;else{ZDS.c=null;WW.ret=null}renderZadView(h)}else if(mode==="math"){MT.tok=null;WW.tok=null;if(MT.cat==="act"&&WW.act){WW.act=null}else if(MT.game){MT.game=null}else{MT.cat=null;WW.ret=null}renderMathView(h)}window.scrollTo({top:0,behavior:"smooth"})}}
+  b.hidden=false;b.innerHTML=mode==="play"?(PG.game?"↩ رجوع إلى الألعاب":"↩ رجوع إلى المجموعات"):mode==="zad"?(WW.act?"↩ رجوع إلى الألعاب":"↩ رجوع إلى أركان الزاد"):mode==="math"?((MT.game||WW.act)?"↩ رجوع إلى الألعاب":"↩ رجوع إلى ركن الأرقام"):"↩ رجوع إلى جدار الكلمات"}
 /* ================= ركن الأرقام والحساب: number, addition and subtraction games for ages 4–6 ================= */
 const MT={cat:null,game:null,tok:null,lvl:{num:10,add:5,sub:5}};
 const MT_OBJ=["🍎","🍌","⭐","🐟","🐥","🎈","🍓","🚗","🌸","🐞","🍪","🦋","🥕","🐑","⚽"];
@@ -3328,7 +3341,118 @@ function renderMathActs(host){const mine=(S.ww||[]).filter(a=>a.math);const R=mt
   qa("[data-mc]").forEach(b=>b.onclick=()=>{const a=R.find(x=>x.id===b.dataset.mc);wwEdit(host,{id:null,title:a.title+" (نسختي)",tpl:a.tpl,items:a.items.map(p=>p.slice())})});
   qa("[data-md]").forEach(b=>b.onclick=()=>{if(!confirm("حذف هذا النشاط؟"))return;S.ww=(S.ww||[]).filter(a=>a.id!==b.dataset.md);save();renderMathActs(host)})}
 
-function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,math:renderMathView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+/* ================= أركان زاد الطفل المسلم: a corner for each part of the book, with games from its own content ================= */
+const ZD_ADHKAR=[
+  ["قَبْلَ النَّوْمِ","🛏️","بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا"],
+  ["عِنْدَ الِاسْتِيقَاظِ","🌅","الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ"],
+  ["قَبْلَ الْأَكْلِ","🍽️","بِسْمِ اللَّهِ"],
+  ["إِذَا نَسِيتُ الْبَسْمَلَةَ أَوَّلَ الْأَكْلِ","🥄","بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ"],
+  ["بَعْدَ الْأَكْلِ","😋","الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ، مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ"],
+  ["عِنْدَ دُخُولِ الْحَمَّامِ","🚪","بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ"],
+  ["عِنْدَ الْخُرُوجِ مِنَ الْحَمَّامِ","🚿","غُفْرَانَكَ"],
+  ["عِنْدَ دُخُولِ الْمَنْزِلِ","🏠","بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا"],
+  ["عِنْدَ الْخُرُوجِ مِنَ الْمَنْزِلِ","🚶","بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"]];
+const ZD_HADITH=[
+  ["الصِّدْقُ يَهْدِي إِلَى الْبِرِّ","🗣️","بِالصِّدْقِ تَكْتَسِبُ مَحَبَّةَ اللَّهِ، وَيَسْعَدُ بِكَ النَّاسُ",[["قَوْلُ الْحَقِيقَةِ",1],["إِرْجَاعُ مَا وَجَدَهُ",1],["الْكَذِبُ عَلَى الْوَالِدَيْنِ",0]]],
+  ["الْمُسْلِمُ أَخُو الْمُسْلِمِ","🤝","نُحِبُّ إِخْوَانَنَا الْمُسْلِمِينَ وَنُسَاعِدُهُمْ",[["مُشَارَكَةُ الْآخَرِينَ",1],["مُسَاعَدَةُ الْمُسْلِمِ",1],["التَّشَاجُرُ مَعَ الْمُسْلِمِ",0]]],
+  ["كُلُّ مَعْرُوفٍ صَدَقَةٌ","💧","افْعَلِ الْخَيْرَ فِي كُلِّ وَقْتٍ، فَهُوَ صَدَقَةٌ",[["الرَّحْمَةُ بِالْحَيَوَانِ",1],["إِعْطَاءُ الْمَاءِ",1],["مُسَاعَدَةُ الْكَبِيرِ",1]]],
+  ["مَنْ غَشَّنَا فَلَيْسَ مِنَّا","⚖️","الصِّدْقُ مِنَ الْإِيمَانِ، وَالْغِشُّ لَيْسَ مِنْ أَخْلَاقِ الْمُسْلِمِ",[["الصِّدْقُ فِي الْبَيْعِ",1],["إِرْجَاعُ الْحُقُوقِ",1],["الْغِشُّ فِي الِاخْتِبَارِ",0]]],
+  ["الدِّينُ النَّصِيحَةُ","💡","النَّصِيحَةُ لِلَّهِ وَلِرَسُولِهِ وَلِلْمُسْلِمِينَ",[["النَّصِيحَةُ لِلْأَخِ",1],["النَّصِيحَةُ بِالْعِلْمِ",1],["النَّصِيحَةُ بِالْمُحَافَظَةِ عَلَى الْبِيئَةِ",1]]],
+  ["الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ","🕊️","الْمُسْلِمُ لَا يُؤْذِي أَحَدًا",[["السَّلَامُ عَلَى الْمُسْلِمِينَ",1],["الْحَدِيثُ بِالْخَيْرِ",1],["إِيذَاءُ الْآخَرِينَ",0]]],
+  ["الدَّالُّ عَلَى الْخَيْرِ كَفَاعِلِهِ","🕌","أَرْشِدْ أَخَاكَ إِلَى الْخَيْرِ، فَلَكَ مِثْلُ أَجْرِهِ",[["الْإِرْشَادُ إِلَى الْمَسْجِدِ",1],["الدَّعْوَةُ إِلَى تَعَلُّمِ الْقُرْآنِ",1],["الْحَثُّ عَلَى النَّظَافَةِ",1]]],
+  ["لَا يَدْخُلُ الْجَنَّةَ قَاطِعٌ","👨‍👩‍👧","صِلْ رَحِمَكَ، وَاحْرِصْ عَلَى صِلَةِ أَقَارِبِكَ",[["زِيَارَةُ الْأَقَارِبِ",1],["إِهْدَاءُ الْهَدَايَا",1],["تَرْكُ صِلَةِ الرَّحِمِ",0]]],
+  ["الرَّاحِمُونَ يَرْحَمُهُمُ اللَّهُ","🐱","الرَّحْمَةُ بِالْخَلْقِ صِفَةٌ يُحِبُّهَا اللَّهُ",[["إِطْعَامُ الْمُحْتَاجِينَ",1],["الرِّفْقُ بِالْحَيَوَانِ",1],["مُسَاعَدَةُ كِبَارِ السِّنِّ",1]]],
+  ["الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ","🌷","الْكَلِمَةُ الطَّيِّبَةُ تَزْرَعُ السَّعَادَةَ فِي قُلُوبِ النَّاسِ",[["إِلْقَاءُ السَّلَامِ",1],["قَوْلُ كَلِمَةِ شُكْرًا",1],["الْكَلَامُ اللَّطِيفُ",1]]],
+  ["الْحَيَاءُ مِنَ الْإِيمَانِ","🌸","الْحَيَاءُ يُزَيِّنُ الْمُسْلِمَ وَيَجْعَلُهُ قَرِيبًا مِنَ اللَّهِ",[["الْخُلُقُ الْحَسَنُ",1],["الِابْتِعَادُ عَنِ الْمَعَاصِي",1],["غَضُّ الْبَصَرِ",1]]],
+  ["خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ","📖","تَعَلَّمِ الْقُرْآنَ وَعَلِّمْهُ، فَأَنْتَ مِنْ خَيْرِ النَّاسِ",[["قِرَاءَةُ الْقُرْآنِ",1],["الِاسْتِمَاعُ لِلْقُرْآنِ",1],["الِانْشِغَالُ عَنِ الْقُرْآنِ",0]]]];
+const ZD_AQ=[
+  ["مَنْ رَبُّكَ؟","رَبِّيَ اللَّهُ","☝️"],["مَا دِينُكَ؟","دِينِيَ الْإِسْلَامُ","🕌"],["مَنْ نَبِيُّكَ؟","نَبِيِّي مُحَمَّدٌ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ","💚"],
+  ["مَا كِتَابُكَ؟","كِتَابِي هُوَ الْقُرْآنُ الْكَرِيمُ","📖"],["مَنِ الَّذِي خَلَقَنَا وَرَزَقَنَا؟","اللَّهُ الَّذِي خَلَقَنَا وَرَزَقَنَا","🌾"],["لِمَاذَا خَلَقَنَا اللَّهُ؟","خَلَقَنَا اللَّهُ لِعِبَادَتِهِ","🤲"],
+  ["مَا كَلِمَةُ التَّوْحِيدِ؟","لَا إِلَهَ إِلَّا اللَّهُ","✨"],["أَيْنَ اللَّهُ؟","اللَّهُ فِي السَّمَاءِ","☁️"],["مَنِ الَّذِي خَلَقَ اللَّيْلَ وَالنَّهَارَ وَالشَّمْسَ وَالْقَمَرَ؟","اللَّهُ الَّذِي خَلَقَ اللَّيْلَ وَالنَّهَارَ وَالشَّمْسَ وَالْقَمَرَ","🌙"],
+  ["مَا وَاجِبُنَا نَحْوَ اللَّهِ؟","عِبَادَتُهُ وَطَاعَتُهُ وَشُكْرُهُ عَلَى نِعَمِهِ","🙏"],["مَا هِيَ الْعِبَادَةُ؟","كُلُّ مَا يُحِبُّهُ اللَّهُ وَيَرْضَاهُ","💖"],["مَا وَاجِبُنَا نَحْوَ النَّبِيِّ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ؟","حُبُّهُ وَطَاعَتُهُ فِيمَا أَمَرَ","❤️"],
+  ["مَا هُوَ الْقُرْآنُ الْكَرِيمُ؟","كَلَامُ اللَّهِ، أَنْزَلَهُ عَلَى مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ","📗"],["مَا وَاجِبُنَا نَحْوَ الْقُرْآنِ؟","نَتْلُوهُ وَنَحْفَظُهُ وَنَعْمَلُ بِهِ","🧠"]];
+const ZD_CREATED=["الشَّمْسُ ☀️","الْقَمَرُ 🌙","السَّمَاءُ 🌌","الْجِبَالُ ⛰️","الْأَشْجَارُ 🌳","الْمَاءُ 💧","الطُّيُورُ 🐦","الْأَزْهَارُ 🌸","الْحَيَوَانَاتُ 🐫","الْمَطَرُ 🌧️","الْفَوَاكِهُ 🍎","اللَّيْلُ 🌃","النَّهَارُ 🌞"];
+const ZD_ADAB=[
+  ["يَأْكُلُ بِيَمِينِهِ","🍽️",1],["يَأْكُلُ بِيَدِهِ الْيُسْرَى","🍽️",0],["يَقُولُ بِسْمِ اللَّهِ قَبْلَ الْأَكْلِ","🍽️",1],["يَرْمِي الطَّعَامَ","🗑️",0],
+  ["يَشْرَبُ جَالِسًا","🥛",1],["يَحْمَدُ اللَّهَ بَعْدَ الْأَكْلِ","😋",1],["يَدْخُلُ الْحَمَّامَ بِرِجْلِهِ الْيُسْرَى","🚪",1],["يَخْرُجُ مِنَ الْحَمَّامِ بِرِجْلِهِ الْيُمْنَى","🚪",1],
+  ["يُسَاعِدُ أُمَّهُ","👩‍👦",1],["يَضْرِبُ أَخَاهُ","👊",0],["يَرْمِي الْقُمَامَةَ فِي الطَّرِيقِ","🚯",0],["يُهْمِلُ كُتُبَهُ وَأَلْعَابَهُ","📚",0],
+  ["يَقُولُ الصِّدْقَ","🗣️",1],["يُلْقِي السَّلَامَ","👋",1],["يَسْتَأْذِنُ قَبْلَ الدُّخُولِ","🚪",1],["يَرْفَعُ صَوْتَهُ عَلَى وَالِدَيْهِ","😠",0],
+  ["يُغَطِّي فَمَهُ عِنْدَ التَّثَاؤُبِ","🥱",1],["يَحْمَدُ اللَّهَ إِذَا عَطَسَ","🤧",1],["يُحَافِظُ عَلَى نَظَافَةِ الْمَكَانِ","🧹",1],["يَأْخُذُ أَغْرَاضَ غَيْرِهِ بِلَا إِذْنٍ","🎒",0],
+  ["يُشَارِكُ أَصْدِقَاءَهُ الْأَلْعَابَ","🧸",1],["يَسْخَرُ مِنْ زُمَلَائِهِ","😝",0],["يَرْحَمُ الْحَيَوَانَ","🐈",1],["يُقَاطِعُ مَنْ يَتَكَلَّمُ","🙊",0]];
+const ZD_SAY=[["أَخَذْتُ شَيْئًا مِنْ صَدِيقِي","شُكْرًا، جَزَاكَ اللَّهُ خَيْرًا","🎁"],["أُرِيدُ أَنْ أَطْلُبَ شَيْئًا","مِنْ فَضْلِكَ","🙏"],["قَالَ لِي صَدِيقِي: شُكْرًا","عَفْوًا","😊"],["قَابَلْتُ أَصْدِقَائِي","السَّلَامُ عَلَيْكُمْ","👋"],
+  ["عَطَسْتُ","الْحَمْدُ لِلَّهِ","🤧"],["عَطَسَ أَخِي وَحَمِدَ اللَّهَ","يَرْحَمُكَ اللَّهُ","🤧"],["رَأَيْتُ شَيْئًا جَمِيلًا","مَا شَاءَ اللَّهُ","🌈"],["أَخْطَأْتُ فِي حَقِّ صَدِيقِي","آسِفٌ، سَامِحْنِي","🙇"]];
+const ZD_HAND=[["الْأَكْلُ وَالشُّرْبُ","الْيُمْنَى","🍽️"],["دُخُولُ الْحَمَّامِ","الرِّجْلُ الْيُسْرَى","🚪"],["الْخُرُوجُ مِنَ الْحَمَّامِ","الرِّجْلُ الْيُمْنَى","🚪"],["دُخُولُ الْمَسْجِدِ","الرِّجْلُ الْيُمْنَى","🕌"],["لُبْسُ الْحِذَاءِ","الْيُمْنَى أَوَّلًا","👟"],["الْمُصَافَحَةُ","الْيُمْنَى","🤝"]];
+const zdOther=(arr,i,n,f)=>wwRand(arr.filter((_,j)=>j!==i)).slice(0,n).map(f);
+const ZD={
+  adhkar:{e:"📿",n:"ركن الأذكار",d:"أذكار النوم والأكل والخلاء والمنزل",bg:"linear-gradient(135deg,#a7f3d0,#059669)",
+    learn:()=>ZD_ADHKAR.map(([o,e,t])=>({e,t:o,s:t})),
+    acts:()=>[
+      {id:"z-ad-q1",title:"مَاذَا أَقُولُ؟",tpl:"quiz",items:ZD_ADHKAR.map(([o,e,t],i)=>[e+" "+o,t].concat(zdOther(ZD_ADHKAR,i,2,x=>x[2])))},
+      {id:"z-ad-q2",title:"مَتَى أَقُولُ هَذَا الذِّكْرَ؟",tpl:"quiz",items:ZD_ADHKAR.map(([o,e,t],i)=>[t,e+" "+o].concat(zdOther(ZD_ADHKAR,i,2,x=>x[1]+" "+x[0])))},
+      {id:"z-ad-m",title:"صِلِ الْمَوْقِفَ بِذِكْرِهِ",tpl:"match",items:wwRand(ZD_ADHKAR).slice(0,5).map(([o,e,t])=>[e+" "+o,t])},
+      {id:"z-ad-y",title:"اكْتَشِفِ الزَّوْجَ",tpl:"memory",items:wwRand(ZD_ADHKAR).slice(0,5).map(([o,e,t])=>[e+" "+o,t])},
+      {id:"z-ad-o",title:"رَتِّبْ كَلِمَاتِ الذِّكْرِ",tpl:"order",items:ZD_ADHKAR.filter(x=>x[2].split(" ").length>1).map(x=>[x[2]])},
+      {id:"z-ad-w",title:"عَجَلَةُ الْأَذْكَارِ",tpl:"wheel",items:ZD_ADHKAR.map(([o,e,t])=>[e+" "+o,t])},
+      {id:"z-ad-c",title:"اسْمَعْ وَرَدِّدْ",tpl:"cards",items:ZD_ADHKAR.map(([o,e,t])=>[t])},
+      {id:"z-ad-b",title:"صَنَادِيقُ الْأَذْكَارِ",tpl:"box",items:ZD_ADHKAR.map(([o,e,t])=>[e+" "+o+": "+t])}]},
+  hadith:{e:"🌟",n:"ركن الأحاديث",d:"أحاديث قصيرة وأخلاق جميلة",bg:"linear-gradient(135deg,#fde68a,#d97706)",
+    learn:()=>ZD_HADITH.map(([h,e,m])=>({e,t:h,s:"قَالَ رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ: "+h,sub:m})),
+    acts:()=>[
+      {id:"z-hd-q",title:"أَكْمِلِ الْحَدِيثَ",tpl:"quiz",items:ZD_HADITH.filter(x=>x[0].split(" ").length>2).map(([h],i,A)=>{const w=h.split(" ");const last=w.pop();return [w.join(" ")+" …",last].concat(wwRand(A.flatMap(x=>x[0].split(" ").slice(-1)).filter(x=>x!==last)).slice(0,2))})},
+      {id:"z-hd-m",title:"طَابِقِ الْحَدِيثَ بِصُورَتِهِ",tpl:"match",items:wwRand(ZD_HADITH).slice(0,5).map(([h,e])=>[h,e])},
+      {id:"z-hd-s",title:"سَلَّةُ الْخَيْرِ: يُحِبُّهُ اللَّهُ أَمْ لَا؟",tpl:"sort",items:wwRand(ZD_HADITH.flatMap(x=>x[3])).slice(0,10).map(([t,g])=>[t,g?"💚 يُحِبُّهُ اللَّهُ":"🚫 لَا يُحِبُّهُ اللَّهُ"])},
+      {id:"z-hd-t",title:"صَحٌّ أَمْ خَطَأٌ",tpl:"tf",items:wwRand(ZD_HADITH.flatMap(x=>x[3])).slice(0,10).map(([t,g])=>[t,g?"صح":"خطأ"])},
+      {id:"z-hd-o",title:"رَتِّبْ كَلِمَاتِ الْحَدِيثِ",tpl:"order",items:ZD_HADITH.map(x=>[x[0]])},
+      {id:"z-hd-w",title:"عَجَلَةُ الْأَحَادِيثِ",tpl:"wheel",items:ZD_HADITH.map(([h,e])=>[e+" "+ar(ZD_HADITH.findIndex(x=>x[0]===h)+1),h])},
+      {id:"z-hd-y",title:"اكْتَشِفِ الزَّوْجَ",tpl:"memory",items:wwRand(ZD_HADITH).slice(0,5).map(([h,e])=>[e,h])},
+      {id:"z-hd-c",title:"اسْمَعْ وَرَدِّدْ",tpl:"cards",items:ZD_HADITH.map(x=>[x[0]])}]},
+  aqeeda:{e:"☝️",n:"ركن العقيدة",d:"أسئلة وأجوبة المسلم الصغير",bg:"linear-gradient(135deg,#bfdbfe,#2563eb)",
+    learn:()=>ZD_AQ.map(([q,a,e])=>({e,t:q,s:q+" "+a,sub:a})),
+    acts:()=>[
+      {id:"z-aq-q",title:"سُؤَالٌ وَجَوَابٌ",tpl:"quiz",items:ZD_AQ.map(([q,a],i)=>[q,a].concat(zdOther(ZD_AQ,i,2,x=>x[1])))},
+      {id:"z-aq-m",title:"صِلِ السُّؤَالَ بِجَوَابِهِ",tpl:"match",items:wwRand(ZD_AQ).slice(0,5).map(([q,a])=>[q,a])},
+      {id:"z-aq-b",title:"صَنَادِيقُ الْأَسْئِلَةِ",tpl:"box",items:ZD_AQ.map(([q,a])=>[q+"  ←  "+a])},
+      {id:"z-aq-w",title:"عَجَلَةُ الْأَسْئِلَةِ",tpl:"wheel",items:ZD_AQ.slice(0,10).map(([q,a,e])=>[e+" "+q,a])},
+      {id:"z-aq-wh",title:"اضْرِبْ مَا خَلَقَهُ اللَّهُ",tpl:"whack",items:ZD_CREATED.map(x=>[x,"صح"])},
+      {id:"z-aq-o",title:"رَتِّبِ الْجَوَابَ",tpl:"order",items:ZD_AQ.filter(x=>x[1].split(" ").length>1&&x[1].split(" ").length<7).map(x=>[x[1]])},
+      {id:"z-aq-c",title:"بِطَاقَاتُ الْأَسْئِلَةِ",tpl:"cards",items:ZD_AQ.map(x=>[x[0]])},
+      {id:"z-aq-y",title:"اكْتَشِفِ الزَّوْجَ",tpl:"memory",items:wwRand(ZD_AQ).slice(0,5).map(([q,a])=>[q,a])}]},
+  adab:{e:"🌷",n:"ركن الآداب",d:"آداب الطعام والبيت والكلام والتعامل",bg:"linear-gradient(135deg,#fbcfe8,#db2777)",
+    learn:()=>ZD_ADAB.filter(x=>x[2]).map(([t,e])=>({e,t,s:t})).concat(ZD_SAY.map(([o,s,e])=>({e,t:o,s:o+"، أَقُولُ: "+s,sub:s}))),
+    acts:()=>[
+      {id:"z-ab-t",title:"صَحٌّ أَمْ خَطَأٌ",tpl:"tf",items:wwRand(ZD_ADAB).slice(0,10).map(([t,e,g])=>[e+" "+t,g?"صح":"خطأ"])},
+      {id:"z-ab-s",title:"سَلَّةُ الْآدَابِ",tpl:"sort",items:wwRand(ZD_ADAB).slice(0,10).map(([t,e,g])=>[e+" "+t,g?"🌷 تَصَرُّفٌ جَمِيلٌ":"🚫 تَصَرُّفٌ خَاطِئٌ"])},
+      {id:"z-ab-wh",title:"اضْرِبِ التَّصَرُّفَ الْجَمِيلَ",tpl:"whack",items:ZD_ADAB.map(([t,e,g])=>[t,g?"صح":"خطأ"])},
+      {id:"z-ab-q",title:"مَاذَا أَقُولُ؟",tpl:"quiz",items:ZD_SAY.map(([o,s,e],i)=>[e+" "+o,s].concat(zdOther(ZD_SAY,i,2,x=>x[1])))},
+      {id:"z-ab-h",title:"الْيُمْنَى أَمِ الْيُسْرَى؟",tpl:"quiz",items:ZD_HAND.map(([o,s,e])=>[e+" "+o,s].concat(/الرِّجْلُ/.test(s)?[s.includes("الْيُمْنَى")?"الرِّجْلُ الْيُسْرَى":"الرِّجْلُ الْيُمْنَى"]:[s.includes("الْيُمْنَى")?"الْيُسْرَى":"الْيُمْنَى"]))},
+      {id:"z-ab-m",title:"صِلِ الْمَوْقِفَ بِالْكَلِمَةِ الطَّيِّبَةِ",tpl:"match",items:wwRand(ZD_SAY).slice(0,5).map(([o,s,e])=>[e+" "+o,s])},
+      {id:"z-ab-w",title:"عَجَلَةُ الْآدَابِ",tpl:"wheel",items:ZD_SAY.map(([o,s,e])=>[e+" "+o,s])},
+      {id:"z-ab-c",title:"بِطَاقَاتُ الْآدَابِ",tpl:"cards",items:ZD_ADAB.filter(x=>x[2]).map(([t,e])=>[e+" "+t])}]}};
+const ZDS={c:null,learn:false};
+function renderZadView(host){ZDS.host=host;setTimeout(gbSync,0);
+  if(ZDS.c){if(WW.act&&WW.ret)return wwPlay(host,WW.act);return zdCorner(host)}
+  host.innerHTML=`<section class="mt"><div class="mthead"><h2>🌙 أركان زاد الطفل المسلم</h2><p class="muted">لكل جزء من الكتاب ركنه: نتعلّم ونسمع بصوت حامد ثم نلعب.</p></div>
+    <div class="mtcats">${Object.entries(ZD).map(([k,C])=>`<button class="mtcat" data-zc="${k}" style="background:${C.bg}"><span class="big">${C.e}</span><b>${C.n}</b><i>${C.d}</i><span class="cnt">${ar(C.acts().length+(S.ww||[]).filter(a=>a.zad===k).length)} ألعاب</span></button>`).join("")}</div></section>`;
+  host.querySelectorAll("[data-zc]").forEach(b=>b.onclick=()=>{ZDS.c=b.dataset.zc;ZDS.learn=false;renderZadView(host)})}
+function zdCorner(host){const k=ZDS.c,C=ZD[k];if(!C.cache)C.cache=C.acts().map(a=>Object.assign({ready:1,zad:k},a));const R=C.cache,mine=(S.ww||[]).filter(a=>a.zad===k);
+  const card=(a,own)=>`<div class="wwmine"><button class="wwcard ${own?"own":""}" data-za="${esc(a.id)}"><span class="e">${own?"⭐":WW_T[a.tpl].e}</span><b>${esc(a.title)}</b><i>${WW_T[a.tpl].n}</i></button><div class="row">${own?`<button class="btn small ghost" data-ze="${esc(a.id)}">✏️</button><button class="btn small ghost" data-zd="${esc(a.id)}">🗑️</button>`:`<button class="btn small ghost" data-zcp="${esc(a.id)}">📋 نسخة للتعديل</button>`}</div></div>`;
+  const L=C.learn();
+  host.innerHTML=`<section class="mt ww"><div class="mthero" style="background:${C.bg}"><button class="btn ghost light" id="zBack">→ أركان زاد الطفل</button><span class="big">${C.e}</span><div><h2>${C.n}</h2><p>${C.d}</p></div></div>
+    <details class="wwgrp" ${ZDS.learn?"open":""} id="zLearn"><summary><span class="e">🎧</span><b>تعلّم واسمع</b><i>المس البطاقة فيقرؤها حامد</i><span class="n">${ar(L.length)}</span></summary>
+      <div class="zdlearn">${L.map((x,i)=>`<button class="zdl" data-zl="${i}"><span class="e">${x.e}</span><b>${esc(x.t)}</b>${x.sub?`<i>${esc(x.sub)}</i>`:""}</button>`).join("")}</div></details>
+    <h3 class="wwh">🎲 الألعاب</h3><div class="wwgrid">${mine.map(a=>card(a,1)).join("")}${R.map(a=>card(a,0)).join("")}</div>
+    <div class="row" style="margin-top:6px"><b>➕ لعبة جديدة بكلماتك:</b>${["quiz","match","memory","order","sort","tf","wheel","box","cards","whack"].map(t=>`<button class="btn small" data-zn="${t}">${WW_T[t].e} ${WW_T[t].n}</button>`).join("")}</div><div id="wwEd"></div></section>`;
+  const q=s=>host.querySelector(s),qa=s=>host.querySelectorAll(s);
+  WW.ret=()=>{WW.act=null;WW.tok=null;renderZadView(host)};WW.host=host;
+  q("#zBack").onclick=()=>{WW.ret=null;ZDS.c=null;renderZadView(host)};q("#zLearn").ontoggle=e=>{ZDS.learn=e.target.open};
+  qa("[data-zl]").forEach(b=>b.onclick=()=>{qa(".zdl").forEach(x=>x.classList.remove("on"));b.classList.add("on");try{stopSpeak()}catch(e){}speak(L[+b.dataset.zl].s)});
+  qa("[data-za]").forEach(b=>b.onclick=()=>{WW.act=mine.concat(R).find(a=>a.id===b.dataset.za);wwPlay(host,WW.act);gbSync()});
+  qa("[data-zn]").forEach(b=>b.onclick=()=>wwEdit(host,null,b.dataset.zn));
+  qa("[data-ze]").forEach(b=>b.onclick=()=>wwEdit(host,mine.find(a=>a.id===b.dataset.ze)));
+  qa("[data-zcp]").forEach(b=>b.onclick=()=>{const a=R.find(x=>x.id===b.dataset.zcp);wwEdit(host,{id:null,title:a.title+" (نسختي)",tpl:a.tpl,items:a.items.map(p=>p.slice())})});
+  qa("[data-zd]").forEach(b=>b.onclick=()=>{if(!confirm("حذف هذه اللعبة؟"))return;S.ww=(S.ww||[]).filter(a=>a.id!==b.dataset.zd);save();zdCorner(host)})}
+
+function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,math:renderMathView,zad:renderZadView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
 let libShelf="all",libQ="",libRen=null;
