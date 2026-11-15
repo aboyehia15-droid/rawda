@@ -22,9 +22,7 @@ if(window.RawdaAndroid){(function(){var A=window.RawdaAndroid,cbs={},n=0,V=[];
 <title>روضة الدروس</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Baloo+Bhaijaan+2:wght@500;700;800&family=Tajawal:wght@400;500;700&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Baloo+Bhaijaan+2:wght@500;700;800&family=Tajawal:wght@400;500;700&display=swap">
 <style>
 /* Layout: sticky header; a right-hand sidebar holds the book shelf and the chosen book's lessons; the main area opens with a row of big tool tiles (pages · explanation · 3D slides · games · tests · video) above the active tool. Crayon accents on a cool classroom-wall neutral. */
 :root{
@@ -1084,7 +1082,7 @@ function ttsText(t){const s=mathSpeech(tokName(String(t))).trim().replace(/ـ/g,
 /* the teacher's own recordings, kept on this device */
 const VDB={db:null,open(){return this.db||(this.db=new Promise((res,rej)=>{try{const r=indexedDB.open("rawda-voice",1);r.onupgradeneeded=()=>r.result.createObjectStore("v");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}))},
   async tx(mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("v",mode);const st=t.objectStore("v");const out=fn(st);t.oncomplete=()=>res(out&&out.result);t.onerror=()=>rej(t.error)})},
-  get(k){return this.tx("readonly",st=>st.get(k)).catch(()=>null)},set(k,b){return this.tx("readwrite",st=>st.put(b,k))},del(k){return this.tx("readwrite",st=>st.delete(k))},keys(){return this.tx("readonly",st=>st.getAllKeys()).catch(()=>[])}};
+  get(k){return this.tx("readonly",st=>st.get(k)).catch(()=>null)},setMany(E){return this.tx("readwrite",st=>{E.forEach(([k,b])=>st.put(b,k))})},set(k,b){return this.tx("readwrite",st=>st.put(b,k))},del(k){return this.tx("readwrite",st=>st.delete(k))},keys(){return this.tx("readonly",st=>st.getAllKeys()).catch(()=>[])}};
 const recKey=t=>String(t||"").trim().normalize("NFC");
 const PK="\u0001";let recKeys=new Set();VDB.keys().then(k=>{recKeys=new Set((k||[]).filter(x=>!String(x).includes(PK)))}).catch(()=>{});
 let packSets={};const packHas=(id,k)=>{const P=(S.voicePacks||{})[id];if(!P)return false;if(!packSets[id])packSets[id]=new Set(P.keys||[]);return packSets[id].has(k)};
@@ -1207,7 +1205,7 @@ async function loadFiles0(files,opts){
   if(merge)pdfs.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
   for(const f of pdfs){
     try{
-      if(!window.pdfjsLib)throw new Error("pdf");
+      if(!window.pdfjsLib)await pdfLoad();if(!window.pdfjsLib)throw new Error("pdf");
       try{pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}catch(e){}
       const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
       const bk=merge?(mbk||(mbk=bookFor(opts.name))):bookFor(f.name.replace(/\.[^.]+$/,""));const meta=S.books[bk.id].meta;const off=merge?bk.pages.length:0;
@@ -1497,10 +1495,17 @@ function nrTips(root){root.querySelectorAll(".stagebar .sbtn").forEach(b=>{const
   document.addEventListener("pointerdown",e=>{const el=e.target.closest&&e.target.closest("[data-tip]");hide();if(el&&e.pointerType!=="mouse")lt=setTimeout(()=>show(el),450)},true);
   document.addEventListener("pointerup",e=>{if(e.pointerType!=="mouse"){clearTimeout(lt);setTimeout(hide,1600)}},true);addEventListener("scroll",hide,{passive:true})})();
 function nrBtn(b){const k=+b.dataset.nr;const on=nrCur===k&&nrAudio&&!nrAudio.paused;b.classList.toggle("on",on);b.dataset.ic=on?"⏸":"🔊";b.dataset.tip=`${on?"⏸":"🔊"} الدرس ${NR_ORD[k]} — ${on?"إيقاف مؤقت لصوت الشيخ":"تشغيل الدرس كاملًا بصوت الشيخ مع المؤشر"}`;b.removeAttribute("title");b.innerHTML=`${on?"⏸":"🔊"} الدرس ${NR_ORD[k]}${b.dataset.long?": "+NR[k][0]:""}`}
+const NRU={};const NRC="rawda-noorania-v1";
+function nrUrl(k){return NR_SRCS[nrSrcI]+"n"+(k+1)+".mp3"}
+async function nrWarm(k){if(NRU[k]||!window.caches)return;try{const c=await caches.open(NRC);const key="https://rawda.local/n"+(k+1)+".mp3";let r=await c.match(key);
+    if(!r){let ok=null;for(let i=0;i<NR_SRCS.length&&!ok;i++){try{const x=await fetch(NR_SRCS[(nrSrcI+i)%NR_SRCS.length]+"n"+(k+1)+".mp3");if(x.ok)ok=x}catch(e){}}if(!ok)return;const b=await ok.blob();if(b.size<10000)return;await c.put(key,new Response(b,{headers:{"Content-Type":"audio/mpeg"}}));r=await c.match(key)}
+    if(r){const b=await r.blob();NRU[k]=URL.createObjectURL(b)}}catch(e){}}
+async function nrWarmAll(){if(!window.caches)return;try{const c=await caches.open(NRC);for(const q of await c.keys()){const m=q.url.match(/n(\d+)\.mp3$/);if(m)await nrWarm(+m[1]-1)}}catch(e){}}
+setTimeout(nrWarmAll,2500);
 function nrPlay(k){nrSrcStop();if(nrGapT&&nrCur===k){clearTimeout(nrGapT);nrGapT=0;document.querySelectorAll("[data-nr]").forEach(nrBtn);return}if(nrCur===k&&nrAudio&&!nrAudio.paused){nrAudio.pause();document.querySelectorAll("[data-nr]").forEach(nrBtn);return}
   stopSpeak();if(!nrAudio){nrAudio=new Audio();nrAudio.preload="auto";const up=()=>document.querySelectorAll("[data-nr]").forEach(nrBtn);nrAudio.onplay=()=>{up();nrFollow()};nrAudio.onpause=up;nrAudio.onended=()=>{nrCur=-1;nrLastU=-1;up();const el=$("#nrPtr");if(el)el.hidden=true;praise()};
     nrAudio.onerror=()=>{if(nrCur>=0&&nrSrcI<NR_SRCS.length-1){nrSrcI++;nrOff=0;const t=nrAudio.currentTime||0;nrAudio.src=NR_SRCS[nrSrcI]+"n"+(nrCur+1)+".mp3";nrAudio.play().catch(()=>{});return}if(nrCur>=0)flash("تعذّر تشغيل صوت الدرس. تأكد من اتصال الشاشة بالإنترنت.","err");nrCur=-1;up()}}
-  if(nrCur!==k){nrAudio.src=NR_SRCS[nrSrcI]+"n"+(k+1)+".mp3";nrCur=k;nrOff=0;nrLastU=-1;nrLoadMap(true)}nrAudio.play().catch(e=>{if(e&&e.name==="NotAllowedError")flash("اضغط زر الدرس لتشغيل الصوت","ok")})}
+  if(nrCur!==k){nrAudio.src=NRU[k]||nrUrl(k);if(!NRU[k])setTimeout(()=>nrWarm(k),1500);nrCur=k;nrOff=0;nrLastU=-1;nrLoadMap(true)}nrAudio.play().catch(e=>{if(e&&e.name==="NotAllowedError")flash("اضغط زر الدرس لتشغيل الصوت","ok")})}
 /* the sheikh's recordings say 32 kb/s but are slightly smaller, so a browser that jumps inside them lands later than it reports
    (about 1.4 s late at minute five of lesson 2). The real length of each recording corrects every jump. */
 const NR_DUR=[81.319,376.32,160.862,265.874,291.971,367.83,108.539,782.524,975.334,380.5,1061.355,239.229,571.69,218.253,281.522,318.093,718.576];let nrOff=0;
@@ -1509,7 +1514,7 @@ function nrNow(){return nrAudio?nrAudio.currentTime+nrOff:0}
 function nrSeek(k,t,stopAt,keepLoop){if(!keepLoop)nrLoop=stopAt!=null&&(S.nrRep||1)>1?{k,t,stop:stopAt,left:(S.nrRep||1)-1}:null;const go=()=>{nrGapAt="";try{const T=Math.max(0,t-.05),K=nrK();nrAudio.currentTime=T/K;nrOff=nrAudio.currentTime*(K-1);if(!nrAudio.__sk){nrAudio.__sk=1;nrAudio.addEventListener("seeked",()=>{nrOff=nrAudio.currentTime*(nrK()-1)})}}catch(e){}nrStopAt=stopAt;nrLastU=-1;nrAudio.play().catch(()=>{})};
   if(nrCur!==k||!nrAudio){nrPlay(k);const a=nrAudio;const once=()=>{a.removeEventListener("loadedmetadata",once);go()};if(a.readyState>=1)go();else a.addEventListener("loadedmetadata",once)}else go()}
 const nrBufs={};let nrAC=null,nrSrc=null;
-async function nrBuf(k){if(nrBufs[k])return nrBufs[k];const url=NR_SRCS[nrSrcI]+"n"+(k+1)+".mp3";
+async function nrBuf(k){if(nrBufs[k])return nrBufs[k];const url=NRU[k]||nrUrl(k);
   nrBufs[k]=(async()=>{const r=await fetch(url);if(!r.ok)throw 0;const ab=await r.arrayBuffer();nrAC=nrAC||new (window.AudioContext||window.webkitAudioContext)();return await nrAC.decodeAudioData(ab)})();
   try{return await nrBufs[k]}catch(e){delete nrBufs[k];throw e}}
 function nrSrcStop(){if(nrSrc){try{nrSrc.onended=null;nrSrc.stop()}catch(e){}nrSrc=null;const el=$("#nrPtr");if(el&&(!nrAudio||nrAudio.paused))el.hidden=true}}
@@ -1577,7 +1582,7 @@ function renderEbook(body){
   const letterOwner=owners.find(l=>LET[l.letter])||(r&&LET[normLetter(r.letter)]?{letter:normLetter(r.letter)}:null);
   const LL=letterOwner&&LET[letterOwner.letter];const FF=LL&&forms(LL.c);
   const ebFree=boardSection("ebfree|"+id,"📝 لوح الكتابة الحرة",{bg:"lines",bgSel:true,h:280});
-  const nrFocus=isNoorania(B)&&selHere.length>0;{const w=$("#work");if(w)w.classList.toggle("nrfocus",nrFocus)}
+  const nrFocus=isNoorania(B)&&selHere.length>0;if(nrFocus)try{(nrSelKs()||[]).forEach(k=>nrWarm(k))}catch(e){}{const w=$("#work");if(w)w.classList.toggle("nrfocus",nrFocus)}
   body.innerHTML=`<div class="ebook ${nrFocus?"nrfocus":""} ${nrMore?"more":""}">
     ${selHere.length?`<div class="lessbar"><b>${selHere.map(l=>esc(l.emoji+" "+l.title)).join(" · ")}</b><span class="small muted">${lockL?`صفحة ${ar(pos+1)} من ${ar(nav.length)} في الدرس`:"تعرض الكتاب كاملًا"}</span><button class="btn green small" id="eReadL">🔊 قراءة الدرس كاملًا</button><button class="btn ghost small" id="eReadStop" ${lessonReading?"":"hidden"}>إيقاف القراءة</button><label class="check small"><input type="checkbox" id="eLock" ${lockL?"checked":""}> صفحات الدرس فقط</label></div>`:""}
     <div class="ebar"><button class="btn" id="ePrev" aria-label="الصفحة السابقة">→</button><select id="eSel" aria-label="رقم الصفحة">${nav.map(k=>`<option value="${k}" ${k===n?"selected":""}>صفحة ${ar(k)} من ${ar(N)}</option>`).join("")}</select><button class="btn" id="eNext" aria-label="الصفحة التالية">←</button>
@@ -3144,12 +3149,14 @@ const ghUpload=`https://github.com/${GH.owner}/${GH.repo}/upload/main/${GH.dir}`
 let syncing=null,syncMsg="";
 async function ghList(path){try{const r0=await fetch(path+"/index.json?v="+Date.now(),{cache:"no-store"});if(r0.ok){const L=await r0.json();if(Array.isArray(L))return L.map(x=>Object.assign({type:"file"},x,{download_url:new URL(x.path,location.href).href}))}}catch(e){}return ghApi(path)}
 async function ghApi(path){const r=await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,"/")}?ref=main`,{cache:"no-store"});if(!r.ok)throw new Error("gh "+r.status);return r.json()}
+let pdfP=null;function pdfLoad(){if(window.pdfjsLib)return Promise.resolve();return pdfP||(pdfP=new Promise(res=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";sc.onload=()=>res();sc.onerror=()=>{pdfP=null;res()};document.head.appendChild(sc)}))}
 const isBookFile=n=>/\.(pdf|png|jpe?g|webp|gif)$/i.test(n);
 async function syncVoices(){
   try{S.sharedVoices=S.sharedVoices||{};const vs=(await ghList("voices")).filter(x=>x.type==="file"&&/\.json$/i.test(x.name));
       {const live=new Set(vs.map(x=>x.path));for(const [pid,P] of Object.entries(S.voicePacks||{})){if(P.path&&!live.has(P.path)){for(const k of (P.keys||[]))await VDB.del(pid+PK+k).catch(()=>{});delete S.voicePacks[pid];delete S.sharedVoices[P.path];if(S.voiceMode===pid)S.voiceMode="auto";packSets={}}}}
       for(const v of vs){if(!/edge-hamed/.test(v.path)){const pid=v.name.replace(/\.json$/i,"");if(S.voicePacks&&S.voicePacks[pid]){for(const k of (S.voicePacks[pid].keys||[]))await VDB.del(pid+PK+k).catch(()=>{});delete S.voicePacks[pid];packSets={};packStrip={}}continue}if(S.sharedVoices[v.path]===v.sha)continue;syncMsg=`تجهيز الحزمة الصوتية «${v.name}»…`;if(mode==="library")renderMain();
-        const d=await (await fetch(v.download_url,{cache:"no-store"})).json();if(d&&d.format==="rawda-voice-pack"){const pid=String(d.id||("p"+hashStr(v.path)));S.voicePacks=S.voicePacks||{};const keys=[];for(const [k,it] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(it.b64),c=>c.charCodeAt(0));await VDB.set(pid+PK+k,new Blob([bin],{type:it.type})).catch(()=>{});keys.push(k)}
+        const d=await (await fetch(v.download_url,{cache:"no-store"})).json();if(d&&d.format==="rawda-voice-pack"){const pid=String(d.id||("p"+hashStr(v.path)));S.voicePacks=S.voicePacks||{};const keys=[];const ents=Object.entries(d.items||{});for(let i0=0;i0<ents.length;i0+=200){const batch=[];for(const [k,it] of ents.slice(i0,i0+200)){const bs=atob(it.b64),bin=new Uint8Array(bs.length);for(let j=0;j<bs.length;j++)bin[j]=bs.charCodeAt(j);batch.push([pid+PK+k,new Blob([bin],{type:it.type})]);keys.push(k)}
+          await VDB.setMany(batch).catch(()=>{});await new Promise(r=>setTimeout(r,0))}
           S.voicePacks[pid]={name:d.voice||v.name.replace(/\.json$/i,""),label:d.label||"",keys,path:v.path,n:keys.length};packSets={};packStrip={};
           if((S.sharedVoiceKeys||[]).length){for(const k of S.sharedVoiceKeys){await VDB.del(k).catch(()=>{});recKeys.delete(k)}S.sharedVoiceKeys=[]}
           S.sharedVoices[v.path]=v.sha;flash(`🔊 جُهّز صوت «${S.voicePacks[pid].name}»`,"ok")}}}catch(e){}}
