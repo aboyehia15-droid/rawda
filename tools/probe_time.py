@@ -8,10 +8,10 @@ JS = """async ([rate, from]) => {
  await new Promise(r => a.addEventListener('loadedmetadata', r, {once:true}));
  const ac = new AudioContext(); const src = ac.createMediaElementSource(a); const an = ac.createAnalyser(); an.fftSize = 512; src.connect(an); an.connect(ac.destination);
  const buf = new Float32Array(512); const on = []; let loud = false, qt = 0;
- a.currentTime = from; a.playbackRate = rate; await a.play();
+ const K=376.32/a.duration; const off=from-from/K; a.currentTime = from/K; a.playbackRate = rate; await a.play();
  return await new Promise(res => {
    const iv = setInterval(() => { an.getFloatTimeDomainData(buf); let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v));
-     const db = 20*Math.log10(m+1e-9); if (db > -30) { if (!loud) on.push(+a.currentTime.toFixed(2)); loud = true; qt = 0 } else if (++qt > 3) loud = false;
+     const db = 20*Math.log10(m+1e-9); if (db > -30) { if (!loud) on.push(+(a.currentTime+off).toFixed(2)); loud = true; qt = 0 } else if (++qt > 3) loud = false;
      if (a.ended || a.currentTime > from + 60*rate) { clearInterval(iv); res({dur: a.duration, end: a.currentTime, on}) } }, 5);
  });
 }"""
@@ -20,7 +20,7 @@ async def main():
         b = await p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
         pg = await b.new_page(); await pg.goto("http://127.0.0.1:8899/p.html")
         out = {}
-        for rate, frm in [(1, 0), (1, 300), (4, 0)]:
+        for rate, frm in [(1, 300), (1, 150)]:
             out[f"{rate}@{frm}"] = await pg.evaluate(JS, [rate, frm])
             print(rate, frm, json.dumps(out[f"{rate}@{frm}"])[:2500], flush=True)
         await b.close()
