@@ -3462,14 +3462,14 @@ function zdCorner(host){const k=ZDS.c,C=ZD[k];if(!C.cache)C.cache=C.acts().map(a
   qa("[data-zcp]").forEach(b=>b.onclick=()=>{const a=R.find(x=>x.id===b.dataset.zcp);wwEdit(host,{id:null,title:a.title+" (نسختي)",tpl:a.tpl,items:a.items.map(p=>p.slice())})});
   qa("[data-zd]").forEach(b=>b.onclick=()=>{if(!confirm("حذف هذه اللعبة؟"))return;S.ww=(S.ww||[]).filter(a=>a.id!==b.dataset.zd);save();zdCorner(host)})}
 
-/* بستان الروضة: the «بستان الصغار» games site, opened inside the program (it runs from its own site, so it needs internet) */
-const GARDEN_URL="https://afaqhub.github.io/Bustan./";
-function renderGardenView(host){const on=navigator.onLine!==false;
-  host.innerHTML=`<section class="garden"><div class="gdbar"><b>🌳 بستان الروضة</b><span class="small muted">ألعاب «بستان الصغار» التعليمية بالعربية الفصحى — تعمل من موقعها وتحتاج إلى الإنترنت</span><span style="flex:1"></span>
+/* بستان الروضة: «بستان الصغار» (a gift to the program from its author), kept inside the program */
+const GARDEN_URL="bustan/index.html";
+function renderGardenView(host){const on=true;
+  host.innerHTML=`<section class="garden"><div class="gdbar"><b>🌳 بستان الروضة</b><span class="small muted">ألعاب «بستان الصغار» التعليمية بالعربية الفصحى</span><span style="flex:1"></span>
     <button class="btn small ghost" id="gdHome" title="الصفحة الأولى للبستان">🏠 البداية</button><button class="btn small ghost" id="gdFull" title="ملء الشاشة">⛶</button><a class="btn small ghost" href="${GARDEN_URL}" target="_blank" rel="noopener" title="فتح في نافذة مستقلة">↗</a></div>
     ${on?"":`<p class="gdoff">📡 الشاشة غير متصلة بالإنترنت الآن، فلن تظهر ألعاب البستان حتى يعود الاتصال.</p>`}
     <div class="gdwrap" id="gdW"><iframe id="gdF" src="${GARDEN_URL}" title="بستان الروضة" allow="autoplay; fullscreen; microphone" allowfullscreen loading="eager"></iframe><button class="gdx fsback" id="gdX">↩ رجوع</button><div class="gdload" id="gdL"><span class="spin"></span> جارٍ فتح البستان…</div></div></section>`;
-  const F=host.querySelector("#gdF"),W=host.querySelector("#gdW");F.onload=()=>{const l=host.querySelector("#gdL");if(l)l.remove()};setTimeout(()=>{const l=host.querySelector("#gdL");if(l)l.innerHTML='إذا لم يظهر البستان فتأكد من الإنترنت، أو <a href="'+GARDEN_URL+'" target="_blank" rel="noopener">افتحه في نافذة مستقلة</a>.'},12000);
+  const F=host.querySelector("#gdF"),W=host.querySelector("#gdW");F.onload=()=>{const l=host.querySelector("#gdL");if(l)l.remove()};
   host.querySelector("#gdHome").onclick=()=>{F.src=GARDEN_URL};host.querySelector("#gdX").onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();W.classList.remove("pseudo")};
   host.querySelector("#gdFull").onclick=()=>{const rq=W.requestFullscreen||W.webkitRequestFullscreen;if(rq)Promise.resolve(rq.call(W)).catch(()=>W.classList.toggle("pseudo"));else W.classList.toggle("pseudo")};
   W.scrollIntoView({block:"start"})}
