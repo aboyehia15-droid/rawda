@@ -945,6 +945,14 @@ body:has(.wwstage) header.top{position:relative;top:auto}.wwwheel svg{width:100%
 .wwline .ws.ok{border-style:solid;border-color:#3bb36b}.wwopt.w{font-size:clamp(1.2rem,3vw,1.8rem)}
 .wwextra{font-size:.75em;color:#1f7a45;margin-top:6px;line-height:1.7}
 .wwopts .wwopt{max-width:min(100%,640px);line-height:1.7}
+.garden{display:grid;gap:8px}.gdbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.gdbar b{font-size:1.2rem}
+.gdwrap{position:relative;height:calc(100svh - 24px);min-height:420px;border-radius:20px;overflow:hidden;border:2px solid #e3ebe7;background:#fff}
+.gdwrap iframe{width:100%;height:100%;border:0;display:block}.gdwrap:fullscreen{border-radius:0;border:0}
+.gdwrap.pseudo{position:fixed;inset:0;z-index:99990;border-radius:0;height:auto}
+.gdload{position:absolute;inset:0;display:grid;place-items:center;background:#fff;font-weight:700;color:#1f7a45}
+.gdx{display:none!important;position:absolute;top:12px;right:12px;z-index:5}.gdwrap.pseudo .gdx,.gdwrap:fullscreen .gdx{display:block!important}
+body:has(.garden) header.top{position:relative;top:auto}
+.gdoff{background:#fff4d6;border-radius:12px;padding:10px;margin:0}
 </style>
 
 <header class="top"><div class="wrap">
@@ -2751,7 +2759,7 @@ function renderVoicesView(host){const vs=arVoices();const items=packItems();cons
   $("#vcImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{const d=JSON.parse(await f.text());if(d.format!=="rawda-voice-pack")throw 0;let n=0;for(const [k,v] of Object.entries(d.items||{})){const bin=Uint8Array.from(atob(v.b64),c=>c.charCodeAt(0));await VDB.set(k,new Blob([bin],{type:v.type}));recKeys.add(k);n++}flash(`استُورد ${ar(n)} مقطعًا صوتيًا`,"ok");re()}catch(err){flash("هذا الملف ليس حزمة صوتية من روضة الدروس","err")}}}
 /* ================= top navigation ================= */
 let mode="library";
-const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["wall","🧱","جدار الكلمات"],["math","🔢","ركن الأرقام والحساب"],["zad","🌙","أركان زاد الطفل"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
+const MODES=[["library","🗂️","المكتبة"],["lesson","📚","الدروس"],["read","🔤","رحلة القراءة"],["play","🎲","ألعاب الحروف"],["wall","🧱","جدار الكلمات"],["math","🔢","ركن الأرقام والحساب"],["zad","🌙","أركان زاد الطفل"],["garden","🌳","بستان الروضة"],["board","🖍️","السبورة"],["quran","📖","المصحف"],["courses","🎓","الدورات"],["videos","🎬","الفيديوهات"],["web","🌐","الويب"],["settings","⚙️","الإعدادات"]];
 const isPhone=()=>matchMedia("(max-width:760px)").matches;
 function mobJump(sel){if(!isPhone()&&!(!sel&&isNoorania(S.books[S.cur])))return;const go=()=>{const m=(sel&&document.querySelector(sel))||document.querySelector("#bookStage")||document.querySelector(".wrap.app main");if(m)window.scrollTo({top:m.getBoundingClientRect().top+scrollY-4,behavior:"smooth"})};setTimeout(go,350);setTimeout(()=>{if(sel||document.querySelector("#bookStage"))go()},1100)}
 function mobListBtn(){let f=document.getElementById("mobList");if(!f){f=document.createElement("button");f.id="mobList";f.className="btn primary";f.innerHTML="📚 الدروس";f.onclick=()=>{const sd=document.getElementById("side");if(sd)window.scrollTo({top:sd.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})};document.body.appendChild(f)}
@@ -3454,7 +3462,18 @@ function zdCorner(host){const k=ZDS.c,C=ZD[k];if(!C.cache)C.cache=C.acts().map(a
   qa("[data-zcp]").forEach(b=>b.onclick=()=>{const a=R.find(x=>x.id===b.dataset.zcp);wwEdit(host,{id:null,title:a.title+" (نسختي)",tpl:a.tpl,items:a.items.map(p=>p.slice())})});
   qa("[data-zd]").forEach(b=>b.onclick=()=>{if(!confirm("حذف هذه اللعبة؟"))return;S.ww=(S.ww||[]).filter(a=>a.id!==b.dataset.zd);save();zdCorner(host)})}
 
-function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,math:renderMathView,zad:renderZadView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+/* بستان الروضة: the «بستان الصغار» games site, opened inside the program (it runs from its own site, so it needs internet) */
+const GARDEN_URL="https://afaqhub.github.io/Bustan./";
+function renderGardenView(host){const on=navigator.onLine!==false;
+  host.innerHTML=`<section class="garden"><div class="gdbar"><b>🌳 بستان الروضة</b><span class="small muted">ألعاب «بستان الصغار» التعليمية بالعربية الفصحى — تعمل من موقعها وتحتاج إلى الإنترنت</span><span style="flex:1"></span>
+    <button class="btn small ghost" id="gdHome" title="الصفحة الأولى للبستان">🏠 البداية</button><button class="btn small ghost" id="gdFull" title="ملء الشاشة">⛶</button><a class="btn small ghost" href="${GARDEN_URL}" target="_blank" rel="noopener" title="فتح في نافذة مستقلة">↗</a></div>
+    ${on?"":`<p class="gdoff">📡 الشاشة غير متصلة بالإنترنت الآن، فلن تظهر ألعاب البستان حتى يعود الاتصال.</p>`}
+    <div class="gdwrap" id="gdW"><iframe id="gdF" src="${GARDEN_URL}" title="بستان الروضة" allow="autoplay; fullscreen; microphone" allowfullscreen loading="eager"></iframe><button class="gdx fsback" id="gdX">↩ رجوع</button><div class="gdload" id="gdL"><span class="spin"></span> جارٍ فتح البستان…</div></div></section>`;
+  const F=host.querySelector("#gdF"),W=host.querySelector("#gdW");F.onload=()=>{const l=host.querySelector("#gdL");if(l)l.remove()};setTimeout(()=>{const l=host.querySelector("#gdL");if(l)l.innerHTML='إذا لم يظهر البستان فتأكد من الإنترنت، أو <a href="'+GARDEN_URL+'" target="_blank" rel="noopener">افتحه في نافذة مستقلة</a>.'},12000);
+  host.querySelector("#gdHome").onclick=()=>{F.src=GARDEN_URL};host.querySelector("#gdX").onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();W.classList.remove("pseudo")};
+  host.querySelector("#gdFull").onclick=()=>{const rq=W.requestFullscreen||W.webkitRequestFullscreen;if(rq)Promise.resolve(rq.call(W)).catch(()=>W.classList.toggle("pseudo"));else W.classList.toggle("pseudo")};
+  W.scrollIntoView({block:"start"})}
+function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,math:renderMathView,zad:renderZadView,garden:renderGardenView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
 let libShelf="all",libQ="",libRen=null;
