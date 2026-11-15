@@ -1,0 +1,16 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+      - run: |
+          curl -sL --retry 3 -o n2.mp3 https://ia801909.us.archive.org/16/items/alnawrania1-17/n2.mp3
+          ls -l n2.mp3
+          ffprobe -hide_banner n2.mp3 2>&1 | tail -5
+          head -c 4096 n2.mp3 | grep -a -c -E "Xing|Info|VBRI" || true
+          head -c 200 n2.mp3 | xxd | head -8
+          ffprobe -v error -select_streams a -show_entries packet=pts_time,size -of csv=p=0 n2.mp3 | awk -F, '{print $2}' | sort | uniq -c | sort -rn | head
+          ffprobe -v error -show_entries stream=duration,bit_rate,sample_rate -of default=nw=1 n2.mp3
+          ffmpeg -v error -i n2.mp3 -f null - -stats 2>&1 | tail -2
