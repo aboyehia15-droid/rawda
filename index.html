@@ -864,6 +864,12 @@ body:has(#work.nrfocus) header.top{position:relative;top:auto}
 @keyframes wwpop{from{transform:translateY(60px)}}
 .wwframe{width:100%;height:70vh;border:0;border-radius:16px;background:#fff}
 @media (max-width:760px){.wwmatch{gap:8px}.wwtile{padding:9px;min-height:46px}.wwstage{padding:10px;border-radius:16px}}
+.fsback{background:#f0a500!important;color:#1d2b36!important;font-size:1.25rem!important;padding:12px 22px!important;border:3px solid #fff!important}
+.ebfs.pseudo{position:fixed!important;inset:0;z-index:99990;background:#26323b;overflow:auto;display:grid;align-content:center;padding:0;margin:0;border-radius:0}
+.ebfs.pseudo .ebook>*:not(#bookStage){display:none!important}.ebfs.pseudo .book3d{background:#26323b;border-radius:0}
+.ebfs.pseudo .book3d .leaf img{max-height:calc(86vh * var(--z,1))!important}
+.gameback{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:9000;padding:11px 18px;border:3px solid #fff;border-radius:999px;background:#f0a500;color:#1d2b36;font:inherit;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer}
+.gameback[hidden]{display:none}.gameback:hover{background:#ffbf2e}
 </style>
 
 <header class="top"><div class="wrap">
@@ -1614,7 +1620,7 @@ function renderEbook(body){
   $("#eSpots").onchange=e=>{showSpots=e.target.checked;$("#leaf").classList.toggle("hidespots",!showSpots)};
   $$(".ebook [data-say]").forEach(b=>b.onclick=async()=>{b.classList.add("on");await speak(b.dataset.say,.72);b.classList.remove("on")});
   $("#eZoom").onclick=()=>openViewer(n);
-  const fs=()=>{const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe===body){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}body.classList.add("ebfs");const rq=body.requestFullscreen||body.webkitRequestFullscreen;(rq?Promise.resolve(rq.call(body)):Promise.reject()).catch(()=>{body.classList.remove("ebfs");flash("ملء الشاشة غير متاح هنا")})};$("#eFull").onclick=fs;$("#eFull2").onclick=fs;
+  const fs=()=>{const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe===body){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}body.classList.add("ebfs");const rq=body.requestFullscreen||body.webkitRequestFullscreen;(rq?Promise.resolve(rq.call(body)):Promise.reject()).catch(()=>{body.classList.add("pseudo");body.appendChild(fsBack);window.__fsAt=Date.now()})};$("#eFull").onclick=fs;$("#eFull2").onclick=fs;
   $("#sPrevP").onclick=()=>go(-1);$("#sNextP").onclick=()=>go(1);
   $("#ePoint").onclick=()=>{ePoint=!ePoint;if(ePoint)eInk=false;renderEbook(body);if(ePoint)flash("المس أي كلمة فتُقرأ مباشرة","ok")};
   if(ePoint)wirePointRead($("#ptLayer"),p,n);
@@ -2910,7 +2916,7 @@ function pgTrain(host,A,w,next){const Q=PG.q;const gs=graphemes(w.w);const hole=
   A.querySelector("#trE").onclick=()=>speak(w.w);speak(w.w);
   A.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const o=opts[+b.dataset.k];if(o===right){b.classList.add("ok");const h=A.querySelector(".wag.hole");h.textContent=right;h.classList.remove("hole");h.classList.add("fill");if(!Q.miss)Q.ok++;speak(w.w);setTimeout(()=>A.querySelector("#trT").classList.add("go"),500);next()}
     else{Q.miss=true;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),500);speak("حَاوِلْ مَرَّةً أُخْرَى")}})}
-function renderPlayView(host){
+function renderPlayView(host){setTimeout(gbSync,0);
   if(!PG.g){const St=pgStars();
     host.innerHTML=`<section class="rpv"><div class="rphead"><div><h2>🎲 ألعاب الحروف والكلمات</h2><p class="muted small">ألعاب قصيرة متدرّجة: مجموعات الحروف أولًا، ثم كلمات مصوّرة. كل لعبة ٦ أسئلة، واجمع ثلاث نجوم في كل مجموعة.</p></div></div>
       <h3 class="pgh">🔤 مجموعات الحروف</h3><div class="pghub">${PG_GROUPS.filter(g=>g.kind==="let").map(pgCard).join("")}</div>
@@ -2923,7 +2929,7 @@ function renderPlayView(host){
     host.querySelector("#pgBack").onclick=()=>{PG.g=null;renderPlayView(host)};
     host.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
     host.querySelectorAll("[data-gm]").forEach(b=>b.onclick=()=>{PG.game=b.dataset.gm;PG.q={R:pgRounds(G,PG.game),i:0,ok:0,miss:false};renderPlayView(host)});return}
-  pgPlay(host)}
+  pgPlay(host);gbSync()}
 function pgCard(g){const St=pgStars();const n=PG_GAMES[g.kind].length;const got=PG_GAMES[g.kind].reduce((a,[k])=>a+(St[g.id+"|"+k]||0),0);
   return `<button class="pgcard ${g.kind}" data-pg="${g.id}"><span class="e">${g.e}</span><b>${esc(g.t)}</b><small>${"⭐".repeat(Math.round(got/n))}${"☆".repeat(3-Math.round(got/n))}</small></button>`}
 function pgDone(host){const Q=PG.q,G=PG.g;const tot=Q.R.length;const st=Q.ok>=tot?3:Q.ok>=Math.ceil(tot*.66)?2:Q.ok>0?1:0;const key=G.id+"|"+PG.game;const St=pgStars();if(st>(St[key]||0)){St[key]=st;save()}
@@ -3002,7 +3008,7 @@ function wwReady(){const out=[];const L=wwLetters();
   const g2=PG_VOC.slice(0,3);out.push({id:"r-s0",ready:1,title:"صنّف: "+g2.map(g=>g[0]).join(" / "),tpl:"sort",items:g2.flatMap(([t,e,W])=>W.slice(0,4).map(([w])=>[w,e+" "+t]))});
   if(!WW.rc)WW.rc={};return out.map(a=>WW.rc[a.id]&&!a.names?WW.rc[a.id]:(WW.rc[a.id]=a))}
 function wwAll(){return (S.ww||[]).concat(wwReady())}
-function renderWordWallView(host){WW.host=host;WW.tok=null;
+function renderWordWallView(host){WW.host=host;WW.tok=null;setTimeout(gbSync,0);
   if(WW.act){return wwPlay(host,WW.act)}
   const mine=S.ww||[],R=wwReady(),E=S.wwEmbeds||[];WW.open=WW.open||{};
   const card=(a,own)=>`<div class="wwmine"><button class="wwcard ${own?"own":""}" data-ww="${esc(a.id)}"><span class="e">${own?"⭐":WW_T[a.tpl].e}</span><b>${esc(a.title)}</b><i>${ar(a.items.length)} ${a.tpl==="wheel"?"خانة":"عنصر"}</i></button><div class="row">${own?`<button class="btn small ghost" data-wwe="${esc(a.id)}" title="تعديل">✏️</button><button class="btn small ghost" data-wwd="${esc(a.id)}" title="حذف">🗑️</button>`:`<button class="btn small ghost" data-wwc="${esc(a.id)}" title="نسخة لك تضيف إليها كلماتك أو أسماء طلابك">📋 نسخة للتعديل</button>`}</div></div>`;
@@ -3104,7 +3110,11 @@ function wwPlay(host,a){const T=WW_T[a.tpl]||{e:"🌐",n:"Wordwall"};
     const tick=()=>{if(!live())return;time--;A.querySelector("#tm").textContent=ar(time);if(time<=0){end();return}setTimeout(tick,1000)};up();setTimeout(tick,1000);return}
 }
 
-function renderMode(){const h=$("#modeView");if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
+function gbSync(){let b=document.getElementById("gameBack");const on=(mode==="play"&&PG.g)||(mode==="wall"&&WW.act);
+  if(!on){if(b)b.hidden=true;return}if(!b){b=document.createElement("button");b.id="gameBack";b.className="gameback";b.type="button";document.body.appendChild(b);
+    b.onclick=()=>{try{stopSpeak()}catch(e){}const h=$("#modeView");if(mode==="play"){PG.tok=null;if(PG.game){PG.game=null;PG.q=null}else PG.g=null;renderPlayView(h)}else if(mode==="wall"){WW.tok=null;WW.act=null;renderWordWallView(h)}window.scrollTo({top:0,behavior:"smooth"})}}
+  b.hidden=false;b.innerHTML=mode==="play"?(PG.game?"↩ رجوع إلى الألعاب":"↩ رجوع إلى المجموعات"):"↩ رجوع إلى جدار الكلمات"}
+function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
 let libShelf="all",libQ="",libRen=null;
@@ -3890,8 +3900,8 @@ setInterval(()=>{let on=false;try{on=!!nrSrc||(nrAudio&&!nrAudio.paused)||(windo
   if(stopBtn.hidden===!!on)stopBtn.hidden=!on;const fe=document.fullscreenElement||document.webkitFullscreenElement;const host=fe&&!/^(VIDEO|CANVAS|IMG|IFRAME)$/.test(fe.tagName)?fe:document.body;if(stopBtn.parentNode!==host)host.appendChild(stopBtn)},350);
 
 /* ================= full screen: always a visible way back ================= */
-const fsBack=document.createElement("button");fsBack.className="fsback";fsBack.type="button";fsBack.innerHTML="→ رجوع";fsBack.setAttribute("aria-label","الخروج من ملء الشاشة");
-fsBack.onclick=e=>{e.stopPropagation();const x=document.exitFullscreen||document.webkitExitFullscreen;if(x)x.call(document)};
+const fsBack=document.createElement("button");fsBack.className="fsback";fsBack.type="button";fsBack.innerHTML="↩ رجوع";fsBack.setAttribute("aria-label","الخروج من ملء الشاشة");
+fsBack.onclick=e=>{e.stopPropagation();const ps=document.querySelector(".ebfs.pseudo");if(ps){ps.classList.remove("ebfs","pseudo");fsBack.remove();window.__fsAt=Date.now();return}const x=document.exitFullscreen||document.webkitExitFullscreen;if(x)x.call(document)};
 let fsObs=null;function fsChanged(){window.__fsAt=Date.now();const el=document.fullscreenElement||document.webkitFullscreenElement;if(fsObs){fsObs.disconnect();fsObs=null}
   if(el&&!/^(VIDEO|CANVAS|IMG|IFRAME)$/.test(el.tagName)){el.appendChild(fsBack);fsObs=new MutationObserver(()=>{if(fsBack.parentNode!==el)el.appendChild(fsBack)});fsObs.observe(el,{childList:true})}
   else{fsBack.remove();$$(".ebfs").forEach(x=>x.classList.remove("ebfs"))}}
