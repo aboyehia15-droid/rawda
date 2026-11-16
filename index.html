@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f7a45"><title>روضة الدروس</title><link rel="manifest" href="manifest.webmanifest"><link rel="preconnect" href="https://archive.org" crossorigin><link rel="preconnect" href="https://ia801909.us.archive.org" crossorigin><link rel="icon" href="icon-v5-192.png" type="image/png"><link rel="apple-touch-icon" href="icon-v5-512.png"><style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0}
 /* سرعة الاستجابة: لا تأخير للّمس ولا تكبير مزدوج، وتفاعل فوري عند الضغط */
 html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-button,a,[role=button],[data-mode],summary,label,select,.wwcard,.nrbox{touch-action:manipulation}
-button:active,[role=button]:active,[data-mode]:active,.wwcard:active{transform:scale(.96);filter:brightness(.95);transition:transform 40ms,filter 40ms}
+button,a,[role=button],summary,label,select,.wwcard{touch-action:manipulation}
+button:active,.wwcard:active{opacity:.82}
 
 .fath{display:flex;flex-direction:column;gap:12px}
 .fthead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.fthead h2{font-size:1.5rem;margin:0}
@@ -2828,7 +2828,7 @@ function mobListBtn(){let f=document.getElementById("mobList");if(!f){f=document
   const sd=document.getElementById("side");const m=document.querySelector(".wrap.app main");const show=isPhone()&&mode==="lesson"&&sd&&m&&sd.offsetParent&&scrollY+innerHeight*.3>m.getBoundingClientRect().top+scrollY;f.hidden=!show}
 addEventListener("scroll",()=>{try{mobListBtn()}catch(e){}},{passive:true});
 function navGo(){}
-function renderNav(){if(mode!=="garden")window.__pm=mode;if(mode!=="lesson")document.body.classList.remove("nrfocus");document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}const nm=b.dataset.mode;n.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-current",String(x===b)));if(navGo.t)cancelAnimationFrame(navGo.t);navGo.t=requestAnimationFrame(()=>{navGo.t=0;mode=nm;try{nrStop();stopSpeak();stopVideo();stopChant();stopFath()}catch(e){}renderNav();renderMain();if(scrollY>0)window.scrollTo({top:0})})});
+function renderNav(){if(mode!=="garden"){window.__pm=mode;const g=document.getElementById("gardenBox");if(g){try{g.querySelector("iframe").src="about:blank"}catch(e){}g.remove()}}if(mode!=="lesson")document.body.classList.remove("nrfocus");document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}const nm=b.dataset.mode;n.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-current",String(x===b)));if(navGo.t)cancelAnimationFrame(navGo.t);navGo.t=requestAnimationFrame(()=>{navGo.t=0;mode=nm;try{nrStop();stopSpeak();stopVideo();stopChant();stopFath()}catch(e){}renderNav();renderMain();if(scrollY>0)window.scrollTo({top:0})})});
   if(n.scrollWidth>n.clientWidth+4){const c=n.querySelector("[aria-current=true]");if(c){const r=c.getBoundingClientRect(),q=n.getBoundingClientRect();if(r.left<q.left||r.right>q.right)n.scrollLeft+=(r.left+r.width/2)-(q.left+q.width/2)}}}
 
 /* ================= رحلة القراءة: ألعاب الحروف + القراءة المتدرجة ================= */
