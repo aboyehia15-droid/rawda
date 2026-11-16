@@ -946,7 +946,16 @@ body:has(.wwstage) header.top{position:relative;top:auto}.wwwheel svg{width:100%
 .wwline .ws.ok{border-style:solid;border-color:#3bb36b}.wwopt.w{font-size:clamp(1.2rem,3vw,1.8rem)}
 .wwextra{font-size:.75em;color:#1f7a45;margin-top:6px;line-height:1.7}
 .wwopts .wwopt{max-width:min(100%,640px);line-height:1.7}
-.garden{display:grid;gap:8px}.gdbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.gdbar b{font-size:1.2rem}
+.garden{display:grid;gap:8px}
+body[data-mode="garden"]{overflow:hidden}
+body[data-mode="garden"] .garden{position:fixed;inset:0;z-index:9500;background:#CFEBFF;display:block}
+body[data-mode="garden"] .gdbar,body[data-mode="garden"] .gdx{display:none!important}
+body[data-mode="garden"] .gdwrap{position:absolute;inset:0;height:auto;min-height:0;border:0;border-radius:0}
+.gdtop{display:none}body[data-mode="garden"] .gdtop{display:flex;gap:6px;position:absolute;z-index:3;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%)}
+.gdb{font:inherit;font-weight:800;font-size:1rem;padding:8px 16px;border-radius:999px;border:3px solid #fff;background:#f0a500;color:#1d2b36;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
+.gdb.sm{background:#fff;padding:8px 12px}
+@media (max-width:760px){body[data-mode="garden"] .gdtop{top:50%;left:6px;transform:translateY(-50%);flex-direction:column}.gdb{font-size:0;width:46px;height:46px;padding:0;display:grid;place-items:center;opacity:.92}.gdb::before{content:"↩";font-size:1.4rem}.gdb.sm{display:none}}
+body[data-mode="garden"] #gameBack,body[data-mode="garden"] .stoptalk{display:none!important}.gdbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.gdbar b{font-size:1.2rem}
 .gdwrap{position:relative;height:calc(100svh - 24px);min-height:420px;border-radius:20px;overflow:hidden;border:2px solid #e3ebe7;background:#fff}
 .gdwrap iframe{width:100%;height:100%;border:0;display:block}.gdwrap:fullscreen{border-radius:0;border:0}
 .gdwrap.pseudo{position:fixed;inset:0;z-index:99990;border-radius:0;height:auto}
@@ -2796,7 +2805,7 @@ function mobJump(sel){if(!isPhone()&&!(!sel&&isNoorania(S.books[S.cur])))return;
 function mobListBtn(){let f=document.getElementById("mobList");if(!f){f=document.createElement("button");f.id="mobList";f.className="btn primary";f.innerHTML="📚 الدروس";f.onclick=()=>{const sd=document.getElementById("side");if(sd)window.scrollTo({top:sd.getBoundingClientRect().top+scrollY-6,behavior:"smooth"})};document.body.appendChild(f)}
   const sd=document.getElementById("side");const m=document.querySelector(".wrap.app main");const show=isPhone()&&mode==="lesson"&&sd&&m&&sd.offsetParent&&scrollY+innerHeight*.3>m.getBoundingClientRect().top+scrollY;f.hidden=!show}
 addEventListener("scroll",()=>{try{mobListBtn()}catch(e){}},{passive:true});
-function renderNav(){document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;nrStop();stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})});
+function renderNav(){if(mode!=="garden")window.__pm=mode;document.body.dataset.mode=mode;if(S.mode!==mode){S.mode=mode;save()}const n=$("#modeNav");if(!n)return;n.innerHTML=MODES.map(m=>`<button data-mode="${m[0]}" aria-current="${mode===m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join("");n.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{if(QR.playing||QR.timing){QR.timing=false;stopQ()}mode=b.dataset.mode;nrStop();stopSpeak();stopVideo();stopChant();renderNav();renderMain();window.scrollTo({top:0})});
   if(n.scrollWidth>n.clientWidth+4){const c=n.querySelector("[aria-current=true]");if(c){const r=c.getBoundingClientRect(),q=n.getBoundingClientRect();if(r.left<q.left||r.right>q.right)n.scrollLeft+=(r.left+r.width/2)-(q.left+q.width/2)}}}
 
 /* ================= رحلة القراءة: ألعاب الحروف + القراءة المتدرجة ================= */
@@ -3499,11 +3508,13 @@ function renderGardenView(host){const on=true;
   host.innerHTML=`<section class="garden"><div class="gdbar"><b>🌳 بستان الروضة</b><span class="small muted">ألعاب «بستان الصغار» التعليمية بالعربية الفصحى</span><span style="flex:1"></span>
     <button class="btn small ghost" id="gdHome" title="الصفحة الأولى للبستان">🏠 البداية</button><button class="btn small ghost" id="gdFull" title="ملء الشاشة">⛶</button><a class="btn small ghost" href="${GARDEN_URL}" target="_blank" rel="noopener" title="فتح في نافذة مستقلة">↗</a></div>
     ${on?"":`<p class="gdoff">📡 الشاشة غير متصلة بالإنترنت الآن، فلن تظهر ألعاب البستان حتى يعود الاتصال.</p>`}
-    <div class="gdwrap" id="gdW"><iframe id="gdF" src="${GARDEN_URL}" title="بستان الروضة" allow="autoplay; fullscreen; microphone" allowfullscreen loading="eager"></iframe><button class="gdx fsback" id="gdX">↩ رجوع</button><div class="gdload" id="gdL"><span class="spin"></span> جارٍ فتح البستان…</div></div></section>`;
+    <div class="gdtop"><button class="gdb" id="gdBack" title="الرجوع إلى البرنامج">↩ رجوع</button><button class="gdb sm" id="gdFull2" title="ملء الشاشة">⛶</button></div><div class="gdwrap" id="gdW"><iframe id="gdF" src="${GARDEN_URL}" title="بستان الروضة" allow="autoplay; fullscreen; microphone" allowfullscreen loading="eager"></iframe><button class="gdx fsback" id="gdX">↩ رجوع</button><div class="gdload" id="gdL"><span class="spin"></span> جارٍ فتح البستان…</div></div></section>`;
   const F=host.querySelector("#gdF"),W=host.querySelector("#gdW");F.onload=()=>{const l=host.querySelector("#gdL");if(l)l.remove()};
   host.querySelector("#gdHome").onclick=()=>{F.src=GARDEN_URL};host.querySelector("#gdX").onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();W.classList.remove("pseudo")};
   host.querySelector("#gdFull").onclick=()=>{const rq=W.requestFullscreen||W.webkitRequestFullscreen;if(rq)Promise.resolve(rq.call(W)).catch(()=>W.classList.toggle("pseudo"));else W.classList.toggle("pseudo")};
-  W.scrollIntoView({block:"start"})}
+  host.querySelector("#gdBack").onclick=()=>{try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}mode=window.__pm&&window.__pm!=="garden"?window.__pm:"library";renderNav();renderMain();window.scrollTo({top:0})};
+  host.querySelector("#gdFull2").onclick=()=>{const el=document.documentElement;try{document.fullscreenElement?document.exitFullscreen():(el.requestFullscreen||el.webkitRequestFullscreen).call(el)}catch(e){}};
+  window.scrollTo({top:0})}
 function renderMode(){const h=$("#modeView");setTimeout(gbSync,0);if(mode==="voices"){mode="settings";renderNav()}({settings:renderSettingsView,play:renderPlayView,wall:renderWordWallView,math:renderMathView,zad:renderZadView,garden:renderGardenView,read:renderReadView,library:renderLibraryView,board:renderBoardView,quran:renderQuranView,courses:renderCoursesView,videos:renderVideosView,voices:renderVoicesView,web:renderWebView})[mode](h)}
 /* ================= المكتبة: all books on shelves, easy upload, open directly ================= */
 const SHELVES=[["all","📚","الكل"],["ar","🔤","لغتي"],["math","🔢","رياضيات"],["sci","🔬","علوم"],["islam","🕌","قرآن وتربية إسلامية"],["en","🔠","English"],["story","📖","قصص"],["other","🗂️","أخرى"]];
