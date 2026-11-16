@@ -8,8 +8,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: pip install -q yt-dlp
       - run: |
+          mkdir -p fath
           for t in videos shorts streams playlists; do
-            yt-dlp --flat-playlist -J "https://www.youtube.com/@alnooraniah8116/$t" > fath/raw_$t.json || echo "{}" > fath/raw_$t.json
+            yt-dlp --flat-playlist -J "https://www.youtube.com/@alnooraniah8116/$t" 2> fath/err_$t.txt > fath/raw_$t.json || echo "{}" > fath/raw_$t.json
           done
           python3 - <<'P'
           import json
@@ -31,4 +32,4 @@ jobs:
           rm -f fath/raw_*.json
       - run: |
           git config user.name bot; git config user.email bot@x
-          git add fath/list.json; git commit -m "fath list"; git push
+          git add fath/list.json fath/err_*.txt; git commit -m "fath list"; git push
