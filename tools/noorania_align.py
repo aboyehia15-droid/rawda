@@ -342,6 +342,15 @@ if len(L2) == 126 and len(short) == 2:
             b[0], b[1] = round(rest[q][0], 2), round(rest[-1][1], 2)
     M["2"] = L2
     print("lesson 2: boxes ح and يجب added on page 9, boxes 55..", len(L2) - 1, "re-timed from", len(rest), "utterances")
+# every utterance of the sheikh (pauses of the -30 dB track): the program pauses after each one in «قراءة معلم»
+M["_u"] = {}
+for k in range(1, 18):
+    sg = [x for x in sync[str(k)]["alts"] if x["db"] == -30][0]["segs"]
+    uu = []
+    for a, b in sg:
+        if uu and a - uu[-1][1] < .25: uu[-1][1] = round(b, 2)
+        else: uu.append([round(a, 2), round(b, 2)])
+    M["_u"][str(k)] = uu
 import time
 M["_v"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
 json.dump(M, open(out, "w"), separators=(",", ":"))
