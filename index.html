@@ -20,6 +20,10 @@ button:active,.wwcard:active{opacity:.82}
 .ftlist .tx{flex:1;display:flex;flex-direction:column;min-width:0}.ftlist .tx i{font-style:normal;font-size:.82rem;color:var(--muted)}
 .ftlist .ok{visibility:hidden;color:#2E9E5B;font-weight:700}.ftlist button.seen .ok{visibility:visible}
 @media (max-width:820px){.ftmain{grid-template-columns:1fr}.ftlist{max-height:none}.fthead h2{font-size:1.15rem}.ftw{border-radius:8px}.ftctl .btn{padding:6px 10px}}
+
+.byehow{font-size:1.15rem;line-height:1.9;margin:6px 0 14px}.byex{display:inline-grid;place-items:center;width:34px;height:30px;border-radius:6px;background:#C42B1C;color:#fff;font-weight:700}
+.byearrow{position:fixed;top:6px;left:58px;font-size:64px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6);animation:byeA 1s ease-in-out infinite;z-index:2;pointer-events:none}
+@keyframes byeA{0%,100%{transform:translate(0,0)}50%{transform:translate(-10px,-8px)}}
 </style></head><body>
 <script>
 /* inside the Android app: speak Arabic with the device's own voice, since the app window has no browser voice */
@@ -1251,7 +1255,7 @@ let exitArm=0;$("#exitBtn").onclick=()=>{const b=$("#exitBtn");
   try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
   if(window.RawdaAndroid){if(RawdaAndroid.exitApp){try{RawdaAndroid.exitApp();return}catch(e){}}flash("اضغط «🔄 تحديث البرنامج» مرة واحدة ليتحدّث التطبيق، ثم يعمل زر الخروج","err");b.classList.remove("arm");b.innerHTML='🚪 <span class="bl">خروج</span>';return}
   try{window.close()}catch(e){}
-  setTimeout(()=>{if(document.getElementById("byeScr"))return;const d=document.createElement("div");d.id="byeScr";d.innerHTML='<div class="byebox"><div style="font-size:64px">👋</div><h2>في أمان الله يا معلم</h2><p>حُفظ عملك كله. يمكنك الآن إغلاق هذه النافذة.</p><button class="btn green" id="byeBack">↩ العودة إلى البرنامج</button></div>';document.body.appendChild(d);d.querySelector("#byeBack").onclick=()=>{d.remove();b.classList.remove("arm");b.innerHTML='🚪 <span class="bl">خروج</span>'}},400)};
+  setTimeout(()=>{if(document.getElementById("byeScr"))return;const d=document.createElement("div");d.id="byeScr";d.innerHTML=`<div class="byebox"><div style="font-size:64px">👋</div><h2>في أمان الله يا معلم</h2><p>حُفظ عملك كله ✓</p><p class="byehow">لإغلاق البرنامج اضغط زر <b class="byex">✕</b> في ${(navigator.userAgent.includes("Windows")||matchMedia("(display-mode: standalone)").matches)?"أعلى النافذة من جهة اليسار":"أعلى النافذة"}<br><span class="small muted">أو اضغط على لوحة المفاتيح Alt + F4</span></p><button class="btn green" id="byeBack">↩ العودة إلى البرنامج</button></div>${matchMedia("(display-mode: standalone)").matches?'<div class="byearrow" aria-hidden="true">↖</div>':""}`;document.body.appendChild(d);d.querySelector("#byeBack").onclick=()=>{d.remove();b.classList.remove("arm");b.innerHTML='🚪 <span class="bl">خروج</span>'}},400)};
 $("#updBtn").onclick=async()=>{const b=$("#updBtn");b.disabled=true;b.textContent="⏳ جارٍ التحديث…";
   try{saveNow()}catch(e){}
   if(window.RawdaAndroid&&RawdaAndroid.updateNow){try{RawdaAndroid.updateNow();return}catch(e){}}
